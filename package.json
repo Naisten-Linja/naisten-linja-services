@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "backend-build": "npm run lint-node && rm -rf build && tsc --project tsconfig-backend.json",
-    "dev-backend": "nodemon --watch './src/backend/**/*.ts' --exec 'ts-node' src/backend/index-backend.ts",
+    "dev-backend": "nodemon --watch './src/backend/**/*.ts' --exec 'ts-node' src/backend/index.ts",
     "db-migrate": "db-migrate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
