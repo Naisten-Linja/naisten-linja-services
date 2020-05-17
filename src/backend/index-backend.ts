@@ -1,11 +1,21 @@
 import crypto, { HexBase64Latin1Encoding } from 'crypto';
+import jwt from 'jsonwebtoken';
 import express, { Request } from 'express';
 import session from 'express-session';
 import url from 'url';
 
 function checkVariables() {
-  ['DISCOURSE_URL', 'BACKEND_URL', 'DISCOURSE_SSO_SECRET', 'COOKIE_SECRET', 'ENVIRONMENT'].forEach((key) => {
-    if (process.env[key] === '' || !process.env[key]) {
+  [
+    'ENVIRONMENT',
+    'DISCOURSE_URL',
+    'BACKEND_URL',
+    'FRONTEND_URL',
+    'DISCOURSE_SSO_SECRET',
+    'COOKIE_SECRET',
+    'JWT_PUBLIC_KEY',
+    'JWT_PRIVATE_KEY',
+  ].forEach((key) => {
+    if (!(key in process.env)) {
       throw `Missing variable ${key} from your environment`;
     }
   });
@@ -27,6 +37,8 @@ function getConfig() {
     cookieSecret: process.env.COOKIE_SECRET!,
     environment: process.env.ENVIRONMENT!,
     hostName: hostname,
+    jwtPublicKey: process.env.JWT_PUBLIC_KEY!,
+    jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
   };
 }
 
@@ -67,6 +79,7 @@ function createSso(req: Request) {
   const payload = encodeString(query, 'utf8', 'base64');
   const sig = hmacSha256(payload, 'hex');
 
+  // keep 'nonce' value in cookie to compare with the return request from discourse in 'validateSsoRequest'
   req.session.nonce = nonce;
 
   return `${discourseUrl}/session/sso_provider?sso=${encodeURIComponent(payload)}&sig=${sig}`;
@@ -92,7 +105,7 @@ function getQueryData(queryString: string) {
 // Criterias:
 // - 'sig' and 'sso' exist as get parameters, and are strings
 // - HMAC SHA-256 hash from 'sso' in bytes === 'sig' in byfes
-// - 'nonce' value in the decoded sso query equals 'session.nonce'
+// - 'nonce' value in the decoded 'sso' equals 'session.nonce'
 //   ('session.nonce' was set before redirecting user to discourse in '/auth/sso')
 function validateSsoRequest(req: Request) {
   const { sig, sso } = req.query;
@@ -108,7 +121,7 @@ function validateSsoRequest(req: Request) {
   }
 
   const ssoHmac = hmacSha256(sso) as Buffer;
-  const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0;
+  const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0; // 0 means no difference
   const ssoStr = encodeString(sso, 'base64', 'utf8');
   const ssoData = getQueryData(ssoStr);
   const isValidNonce = req.session.nonce === ssoData.nonce;
@@ -116,10 +129,24 @@ function validateSsoRequest(req: Request) {
   return isValidSignature && isValidNonce;
 }
 
+// Create a JWT token
+async function createToken(data: Record<string, string>) {
+  try {
+    const { jwtPrivateKey } = getConfig();
+    const token = await jwt.sign(data, jwtPrivateKey, { expiresIn: '7d' }); // token will expire in 7 days
+    return token;
+  } catch (err) {
+    console.error('Failed to create token');
+    console.error(err);
+  }
+}
+
 function createApp(port: number) {
   const { cookieSecret, hostName, environment } = getConfig();
 
   const app = express();
+
+  // TODO: add rateLimitter middleware
 
   // Required for session cookie to work behind a proxy
   app.set('trust proxy', 1);
@@ -131,13 +158,11 @@ function createApp(port: number) {
         secure: environment === 'production',
         httpOnly: true,
         domain: hostName,
-        path: '/auth/sso',
+        path: '/auth',
         expires: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes
       },
     }),
   );
-
-  app.get('/', (req, res) => res.send('hello world'));
 
   app.get('/auth/sso', (req, res) => {
     if (!req.session) {
@@ -149,7 +174,7 @@ function createApp(port: number) {
     res.redirect(redirectUrl);
   });
 
-  app.get('/auth/sso/verify', (req, res) => {
+  app.get('/auth/sso/verify', async (req, res) => {
     if (!validateSsoRequest(req)) {
       console.log('Invalid sso return request');
       res.status(403).json({ error: 'unauthorized' });
@@ -161,8 +186,26 @@ function createApp(port: number) {
     }
     const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
     const ssoData = getQueryData(ssoStr);
+    const { external_id, email, name, username } = ssoData;
+
+    if (!external_id || !email || !name || !username) {
+      res.status(400).json({ error: 'missing user data from sso return request' });
+      return;
+    }
+
+    const token = await createToken({
+      userName: username,
+      userId: external_id,
+      userEmail: email,
+      userFullName: name,
+    });
+
+    console.log('TOKEN', token);
+
     res.json(ssoData);
   });
+
+  app.get('/auth/token', (req, res) => {});
 
   return app;
 }
