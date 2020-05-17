@@ -147,6 +147,7 @@ function createApp(port: number) {
   const app = express();
 
   // TODO: add rateLimitter middleware
+  // https://github.com/animir/node-rate-limiter-flexible/wiki/Express-Middleware
 
   // Required for session cookie to work behind a proxy
   app.set('trust proxy', 1);
