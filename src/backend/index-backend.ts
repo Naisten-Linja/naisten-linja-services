@@ -180,10 +180,12 @@ function createApp(port: number) {
       res.status(403).json({ error: 'unauthorized' });
       return;
     }
+
     if (req.session) {
       // clear nonce value now that it is not needed anymore
       delete req.session.nonce;
     }
+
     const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
     const ssoData = getQueryData(ssoStr);
     const { external_id, email, name, username } = ssoData;
@@ -200,12 +202,32 @@ function createApp(port: number) {
       userFullName: name,
     });
 
-    console.log('TOKEN', token);
+    if (req.session) {
+      req.session.token = token;
+    }
+
+    // TODO: create or update existing user information
+    // TODO: redirect to frontend with a get parameter to request for the token
 
     res.json(ssoData);
   });
 
-  app.get('/auth/token', (req, res) => {});
+  app.get('/auth/token', (req, res) => {
+    if (!req.session || !req.session.token) {
+      res.status(403).json({ error: 'unauthorized' });
+      return;
+    }
+    const token = req.session.token;
+
+    // Now the Single Sign On process from Discourse is done, delete the session token
+    delete req.session.token;
+
+    res.json({
+      data: {
+        token,
+      },
+    });
+  });
 
   return app;
 }
