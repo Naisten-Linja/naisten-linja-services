@@ -141,8 +141,8 @@ function createApp(port: number) {
 
   app.get('/auth/sso', (req, res) => {
     if (!req.session) {
-      console.error('Missing Session in request');
-      res.redirect('/');
+      console.log('Missing Session in request');
+      res.status(400).json({ error: 'session is not supported' });
       return;
     }
     const redirectUrl = createSso(req);
@@ -152,10 +152,13 @@ function createApp(port: number) {
   app.get('/auth/sso/verify', (req, res) => {
     if (!validateSsoRequest(req)) {
       console.log('Invalid sso return request');
-      res.redirect('/');
+      res.status(403).json({ error: 'unauthorized' });
       return;
     }
-    delete req.session.nonce;
+    if (req.session) {
+      // clear nonce value now that it is not needed anymore
+      delete req.session.nonce;
+    }
     const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
     res.send(ssoStr);
   });
