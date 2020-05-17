@@ -1,5 +1,6 @@
 'use strict';
 const async = require('async');
+const queries = require('../queries');
 
 var dbm;
 var type;
@@ -21,20 +22,22 @@ exports.up = function (db, callback) {
       db.createTable.bind(db, 'users', {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
+        created: { type: 'date', notNull: true },
+
         userName: { type: 'string', notNull: true },
         fullName: { type: 'string', notNull: true },
         email: { type: 'string', notNull: true },
         discourseUserId: { type: 'int', notNull: true, unique: true },
       }),
+      queries.autoGenerateCreated(db, 'users'), // Generate uuid on create
+      queries.autoGenerateUuid(db, 'users'), // Generate created on create
     ],
     callback,
   );
 };
 
 exports.down = function (db, callback) {
-  async.series([
-    db.dropTable.bind(db, 'users'),
-  ], callback)
+  async.series([db.dropTable.bind(db, 'users')], callback);
 };
 
 exports._meta = {

@@ -1,5 +1,6 @@
 'use strict';
 const async = require('async');
+const queries = require('../queries');
 
 var dbm;
 var type;
@@ -18,29 +19,12 @@ exports.setup = function (options, seedLink) {
 exports.up = function (db, callback) {
   async.series(
     [
-      db.createTable.bind(db, 'letters', {
-        id: { type: 'int', primaryKey: true, autoIncrement: true },
-        uuid: { type: 'string', notNull: true, unique: true },
-        accessKey: { type: 'string', notNull: true, unique: true },
-        accessPassword: { type: 'string', notNull: true },
-        title: { type: 'string', notNull: true },
-        assignedResponderId: {
-          type: 'int',
-          unsigned: true,
-          foreignKey: {
-            name: 'letters_users_id_fk',
-            table: 'users',
-            mapping: 'id',
-            rules: {
-              onDelete: 'SET NULL',
-            },
-          },
-        },
-      }),
-
       db.createTable.bind(db, 'replies', {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
+        created: { type: 'date', notNull: true },
+        updated: { type: 'date', notNull: true },
+
         isPublished: { type: 'boolean', notNull: true, defaultValue: false },
         content: { type: 'string', notNull: true },
 
@@ -60,13 +44,12 @@ exports.up = function (db, callback) {
         // this will automatially be set to null.
         // In case the reply was created by the person who sent the letter,
         // this should be set to NULL
-        internalAuthorId: {
-          type: 'int',
-          unsigned: true,
+        internalAuthorUuid: {
+          type: 'string',
           foreignKey: {
-            name: 'replies_users_id_fk',
+            name: 'replies_users_uuid_fk',
             table: 'users',
-            mapping: 'id',
+            mapping: 'uuid',
             rules: {
               onDelete: 'SET NULL',
             },
@@ -74,27 +57,28 @@ exports.up = function (db, callback) {
         },
 
         letterId: {
-          type: 'int',
-          unsigned: true,
+          type: 'string',
           notNull: true,
           foreignKey: {
-            type: 'int',
-            name: 'replies_letters_id_fk',
+            name: 'replies_letters_uuid_fk',
             table: 'letters',
-            mapping: 'id',
+            mapping: 'uuid',
             rules: {
               onDelete: 'CASCADE',
             },
           },
         },
       }),
+      queries.autoGenerateUuid(db, 'replies'), // Generate uuid on create
+      queries.autoGenerateCreated(db, 'replies'), // Generate created on create
+      queries.autoGenerateUpdated(db, 'replies'), // Generate updated on update
     ],
     callback,
   );
 };
 
 exports.down = function (db, callback) {
-  async.series([db.dropTable.bind(db, 'letter_content'), db.dropTable.bind(db, 'letters')], callback);
+  async.series([db.dropTable.bind(db, 'replies')], callback);
 };
 
 exports._meta = {
