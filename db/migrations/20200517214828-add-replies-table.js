@@ -26,7 +26,7 @@ exports.up = function (db, callback) {
         updated: { type: 'date', notNull: true },
 
         isPublished: { type: 'boolean', notNull: true, defaultValue: false },
-        content: { type: 'string', notNull: true },
+        content: { type: 'text', notNull: true },
 
         // If the content was created by a Naisten Linja staff, this should be set to 'staff'
         // If created by the person who sent the letter, set to 'sender'
