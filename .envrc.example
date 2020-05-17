@@ -1,4 +1,5 @@
 export ENVIRONMENT=development
+export PORT=3000
 
 export DISCOURSE_URL=# ask around the team for this value
 export DISCOURSE_SSO_SECRET=# ask around the team for this value

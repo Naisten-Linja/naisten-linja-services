@@ -3,6 +3,7 @@ import url from 'url';
 export function checkVariables() {
   [
     'ENVIRONMENT',
+    'PORT',
     'DISCOURSE_URL',
     'BACKEND_URL',
     'FRONTEND_URL',
@@ -29,6 +30,7 @@ export function getConfig() {
   return {
     discourseUrl: process.env.DISCOURSE_URL!,
     discourseSsoSecret: process.env.DISCOURSE_SSO_SECRET!,
+    port: parseInt(process.env.PORT!, 10),
     backendUrl: process.env.BACKEND_URL!,
     cookieSecret: process.env.COOKIE_SECRET!,
     environment: process.env.ENVIRONMENT!,
