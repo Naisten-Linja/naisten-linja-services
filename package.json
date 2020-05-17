@@ -6,12 +6,15 @@
   "scripts": {
     "backend-build": "npm run lint-node && rm -rf build && tsc --project tsconfig-backend.json",
     "dev-backend": "nodemon --watch './src/backend/**/*.ts' --exec 'ts-node' src/backend/index-backend.ts",
+    "db-migrate": "db-migrate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Futurice Oy",
   "license": "ISC",
   "dependencies": {
+    "async": "^3.2.0",
     "db-migrate": "^0.11.11",
+    "db-migrate-pg": "^1.2.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "jsonwebtoken": "^8.5.1"
