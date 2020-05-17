@@ -160,7 +160,8 @@ function createApp(port: number) {
       delete req.session.nonce;
     }
     const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
-    res.send(ssoStr);
+    const ssoData = getQueryData(ssoStr);
+    res.json(ssoData);
   });
 
   return app;
