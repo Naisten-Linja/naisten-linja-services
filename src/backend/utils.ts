@@ -2,11 +2,14 @@ import crypto, { HexBase64Latin1Encoding } from 'crypto';
 import { getConfig } from './config';
 
 // Encode string from a defined encoding to a different form
-export const encodeString = (s: string, encodingFrom: BufferEncoding, encodingTo: BufferEncoding) =>
-  Buffer.from(s, encodingFrom).toString(encodingTo);
+export function encodeString(s: string, encodingFrom: BufferEncoding, encodingTo: BufferEncoding) {
+  return Buffer.from(s, encodingFrom).toString(encodingTo);
+}
 
 // Generate a random 16 bytes string and return its base64 encoded value
-export const generateNonce = () => crypto.randomBytes(16).toString('base64');
+export function generateNonce() {
+  return crypto.randomBytes(16).toString('base64');
+}
 
 // Generate a HMAC SHA-256 hash using the provided Discourse SSO key
 export function hmacSha256(payload: string, encoding?: HexBase64Latin1Encoding) {
