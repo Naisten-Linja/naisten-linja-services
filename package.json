@@ -1,16 +1,16 @@
 {
-  "name": "naisten-linja-backend",
-  "version": "1.0.0",
-  "description": "Naisten Linja backend",
-  "main": "index.js",
+  "name": "naisten-linja-services",
+  "engines": {
+    "npm": ">=6 <7",
+    "node": ">=12 <13"
+  },
   "scripts": {
-    "backend-build": "npm run lint-node && rm -rf build && tsc --project tsconfig-backend.json",
-    "dev-backend": "nodemon --watch './src/backend/**/*.ts' --exec 'ts-node' src/backend/index.ts",
+    "build-backend": "npm run lint-node && rm -rf build-backend && tsc --project tsconfig-backend.json",
+    "dev-backend": "nodemon --watch './src/backend/**/*.ts' --exec 'ts-node' --project tsconfig-backend.json src/backend/index.ts",
     "db-migrate": "db-migrate",
+    "lint-node": "check-node-version --package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Futurice Oy",
-  "license": "ISC",
   "dependencies": {
     "async": "^3.2.0",
     "db-migrate": "^0.11.11",
@@ -24,8 +24,24 @@
     "@types/express-session": "^1.17.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.1",
+    "check-node-version": "^4.0.3",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.1",
     "typescript": "^3.9.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }

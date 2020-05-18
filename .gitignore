@@ -1,6 +1,6 @@
 node_modules
 
-build
+build-backend
 .envrc
 
 # system-specific files
