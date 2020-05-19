@@ -24,10 +24,11 @@ exports.up = function (db, callback) {
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
 
-        userName: { type: 'string', notNull: true },
-        fullName: { type: 'string', notNull: true },
+        username: { type: 'string', notNull: true },
+        full_name: { type: 'string' },
         email: { type: 'string', notNull: true },
-        discourseUserId: { type: 'int', notNull: true, unique: true },
+        discourse_user_id: { type: 'int', notNull: true, unique: true },
+        role: { type: 'string', notNull: true }, // admin or volunteer
       }),
       queries.autoGenerateCreated(db, 'users'), // Generate uuid on create
       queries.autoGenerateUuid(db, 'users'), // Generate created on create

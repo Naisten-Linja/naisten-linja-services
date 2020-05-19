@@ -4,6 +4,18 @@ import jwt from 'jsonwebtoken';
 import { getConfig } from './config';
 import { generateNonce, hmacSha256, encodeString, getQueryData } from './utils';
 
+export interface DiscourseUserInfo extends Record<string, any> {
+  nonce?: string;
+  admin?: boolean;
+  moderator?: boolean;
+  email?: string;
+  external_id?: string;
+  groups?: string;
+  name?: string;
+  return_sso_url?: string;
+  username?: string;
+}
+
 // Generate login redirect link and 'nonce' value using steps defined at
 // https://meta.discourse.org/t/using-discourse-as-a-sso-provider/32974
 //
@@ -31,7 +43,8 @@ export function createSso(req: Request) {
   const payload = encodeString(query, 'utf8', 'base64');
   const sig = hmacSha256(payload, 'hex');
 
-  // keep 'nonce' value in cookie to compare with the return request from discourse in 'validateSsoRequest'
+  // keep 'nonce' value in cookie to compare with the return request
+  // from discourse in 'validateSsoRequest'
   req.session.nonce = nonce;
 
   return `${discourseUrl}/session/sso_provider?sso=${encodeURIComponent(payload)}&sig=${sig}`;
@@ -59,9 +72,19 @@ export function validateSsoRequest(req: Request) {
 
   const ssoHmac = hmacSha256(sso) as Buffer;
   const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0; // 0 means no difference
+  if (!isValidSignature) {
+    console.log('Invalid signature for', sso);
+    return false;
+  }
   const ssoStr = encodeString(sso, 'base64', 'utf8');
-  const ssoData = getQueryData(ssoStr);
+  const ssoData = getQueryData(ssoStr) as DiscourseUserInfo;
   const isValidNonce = req.session.nonce === ssoData.nonce;
+  console.log('SSO DATA', ssoData);
+
+  if (!isValidNonce) {
+    console.log('Nonce value does not match with one in session', ssoData.nonce);
+    return false;
+  }
 
   return isValidSignature && isValidNonce;
 }

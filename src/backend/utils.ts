@@ -23,16 +23,13 @@ export function hmacSha256(payload: string, encoding?: HexBase64Latin1Encoding) 
 // Return an objects with values mapping from a get query string
 // param1=first&param2=second -> { param1: first, param2: second }
 export function getQueryData(queryString: string) {
-  const queryData = queryString.split('&').reduce<Record<string, string>>(
-    (result, currentVal) => {
-      const [key, val] = currentVal.split('=');
-      return {
-        ...result,
-        [key]: decodeURIComponent(val),
-      };
-    },
-    { nonce: '' },
-  );
+  const queryData = queryString.split('&').reduce((result, currentVal) => {
+    const vals = currentVal.split('=');
+    return {
+      ...result,
+      [vals[0]]: decodeURIComponent(vals[1]),
+    };
+  }, {});
 
   return queryData;
 }

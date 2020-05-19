@@ -3,7 +3,8 @@ import session from 'express-session';
 
 import { getConfig } from './config';
 import { getQueryData, encodeString } from './utils';
-import { createSso, validateSsoRequest, createToken } from './auth';
+import { createSso, validateSsoRequest, createToken, DiscourseUserInfo } from './auth';
+import { upsertUser, UpsertUserParams } from './models/user';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment } = getConfig();
@@ -52,19 +53,33 @@ export function createApp(port: number) {
     }
 
     const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
-    const ssoData = getQueryData(ssoStr);
-    const { external_id, email, name, username } = ssoData;
 
-    if (!external_id || !email || !name || !username) {
+    const ssoData = getQueryData(ssoStr) as DiscourseUserInfo;
+    const { external_id, email, name, username, admin, groups } = ssoData;
+
+    if (!external_id || !email || !username || !groups || admin === undefined) {
       res.status(400).json({ error: 'missing user data from sso return request' });
       return;
     }
+
+    const role = admin ? 'staff' : groups.split(',').indexOf('Volunteers') > -1 ? 'volunteer' : null;
+    if (!role) {
+      res.status(403).json({ error: 'unauthorized' });
+      return;
+    }
+
+    await upsertUser({
+      discourseUserId: parseInt(external_id, 10),
+      email: email,
+      fullName: name,
+      userName: username,
+      role,
+    });
 
     const token = await createToken({
       userName: username,
       userId: external_id,
       userEmail: email,
-      userFullName: name,
     });
 
     if (req.session) {
@@ -96,3 +111,7 @@ export function createApp(port: number) {
 
   return app;
 }
+
+const { port } = getConfig();
+const app = createApp(port);
+app.listen(port, () => console.log(`app listening at http://localhost:${port}`));

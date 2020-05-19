@@ -25,12 +25,12 @@ exports.up = function (db, callback) {
         created: { type: 'date', notNull: true },
         updated: { type: 'date', notNull: true },
 
-        isPublished: { type: 'boolean', notNull: true, defaultValue: false },
+        is_published: { type: 'boolean', notNull: true, defaultValue: false },
         content: { type: 'text', notNull: true },
 
         // If the content was created by a Naisten Linja staff, this should be set to 'staff'
         // If created by the person who sent the letter, set to 'sender'
-        authorType: { type: 'string', notNull: true }, // options: 'internal', 'sender'
+        author_type: { type: 'string', notNull: true }, // options: 'internal', 'sender'
 
         // TODO: clarify if this field is needed.
         // If the content is a reply by a Naisten Linja's staff or volunteer,
@@ -44,7 +44,7 @@ exports.up = function (db, callback) {
         // this will automatially be set to null.
         // In case the reply was created by the person who sent the letter,
         // this should be set to NULL
-        internalAuthorUuid: {
+        internal_authorUuid: {
           type: 'string',
           foreignKey: {
             name: 'replies_users_uuid_fk',
@@ -56,7 +56,7 @@ exports.up = function (db, callback) {
           },
         },
 
-        letterId: {
+        letter_id: {
           type: 'string',
           notNull: true,
           foreignKey: {

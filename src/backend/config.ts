@@ -11,6 +11,11 @@ export function checkVariables() {
     'COOKIE_SECRET',
     'JWT_PUBLIC_KEY',
     'JWT_PRIVATE_KEY',
+    'DB_NAME',
+    'DB_USERNAME',
+    'DB_PASSWORD',
+    'DB_HOST',
+    'DB_PORT',
   ].forEach((key) => {
     if (!(key in process.env)) {
       throw `Missing variable ${key} from your environment`;
@@ -37,5 +42,10 @@ export function getConfig() {
     hostName: hostname,
     jwtPublicKey: process.env.JWT_PUBLIC_KEY!,
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
+    dbName: process.env.DB_NAME!,
+    dbUser: process.env.DB_USERNAME!,
+    dbPassword: process.env.DB_PASSWORD!,
+    dbHost: process.env.DB_HOST!,
+    dbPort: parseInt(process.env.DB_PORT!, 10),
   };
 }

@@ -8,12 +8,12 @@ export BACKEND_URL=http://localhost:3000
 export FRONTEND_URL=http://localhost:8000
 
 # Docker command to quickly launch a new postgres database:
-# docker run --name naistenlinja_pg_dev -e POSTGRES_PASSWORD=naistenlinja_dev -e POSTGRES_USER=naistenlinja_dev -e POSTGRES_DB=naistenlinja_dev -p 5432:5432 -d postgres
+# docker run --name naistenlinja_pg_dev -e POSTGRES_PASSWORD=naistenlinja_dev -e POSTGRES_USER=naistenlinja_dev -e POSTGRES_DB=naistenlinja_dev -p 5433:5432 -d postgres
 
 export DB_USERNAME=naistenlinja_dev
 export DB_PASSWORD=naistenlinja_dev
 export DB_NAME=naistenlinja_dev
-export DB_PORT=5432
+export DB_PORT=5433
 export DB_HOST=localhost
 
 # Cookie secret in dev environment

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types"],
+    "types": ["node"],
+    "lib": ["es2017"],
+    "outDir": "build-backend"
+  },
+  "include": ["src/*.d.ts", "src/backend/app.ts"]
+}

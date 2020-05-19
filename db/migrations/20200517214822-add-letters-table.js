@@ -24,10 +24,10 @@ exports.up = function (db, callback) {
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
 
-        accessKey: { type: 'string', notNull: true, unique: true },
-        accessPassword: { type: 'string', notNull: true },
+        access_key: { type: 'string', notNull: true, unique: true },
+        access_password: { type: 'string', notNull: true },
         title: { type: 'string', notNull: true },
-        assignedResponderUuid: {
+        assigned_responderUuid: {
           type: 'string',
           foreignKey: {
             name: 'letters_users_uuid_fk',
