@@ -3,7 +3,7 @@ import session from 'express-session';
 
 import { getConfig } from './config';
 import { getQueryData, encodeString } from './utils';
-import { createSso, validateSsoRequest, createToken, DiscourseUserInfo } from './auth';
+import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 
 export function createApp(port: number) {
@@ -41,55 +41,37 @@ export function createApp(port: number) {
   });
 
   app.get('/auth/sso/verify', async (req, res) => {
+    if (!req.session) {
+      res.status(403).json({ error: 'unauthorized' });
+    }
     if (!validateSsoRequest(req)) {
       console.log('Invalid sso return request');
       res.status(403).json({ error: 'unauthorized' });
       return;
     }
+    // Clear nonce value now that it is not needed anymore
+    delete req.session!.nonce;
+    const userData = generateUserDataFromSsoRequest(req);
 
-    if (req.session) {
-      // clear nonce value now that it is not needed anymore
-      delete req.session.nonce;
-    }
-
-    const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
-
-    const ssoData = getQueryData(ssoStr) as DiscourseUserInfo;
-    const { external_id, email, name, username, admin, groups } = ssoData;
-
-    if (!external_id || !email || !username || !groups || admin === undefined) {
-      res.status(400).json({ error: 'missing user data from sso return request' });
-      return;
-    }
-
-    const role = admin ? 'staff' : groups.split(',').indexOf('Volunteers') > -1 ? 'volunteer' : null;
-    if (!role) {
+    // Create/Update user information in the database
+    const user = await upsertUser(userData);
+    if (!user) {
       res.status(403).json({ error: 'unauthorized' });
       return;
     }
 
-    await upsertUser({
-      discourseUserId: parseInt(external_id, 10),
-      email: email,
-      fullName: name,
-      userName: username,
-      role,
-    });
-
     const token = await createToken({
-      userName: username,
-      userId: external_id,
-      userEmail: email,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+      uuid: user.uuid,
     });
-
-    if (req.session) {
-      req.session.token = token;
-    }
+    req.session!.token = token;
 
     // TODO: create or update existing user information
     // TODO: redirect to frontend with a get parameter to request for the token
 
-    res.json(ssoData);
+    res.json(user);
   });
 
   app.get('/auth/token', (req, res) => {

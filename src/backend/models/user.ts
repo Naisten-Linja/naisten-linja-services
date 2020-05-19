@@ -1,39 +1,42 @@
 import db from '../db';
+import { UserRole } from '../../common/constants-common';
 
-interface User {
+export interface User {
   id: number;
   uuid: string;
   created: number;
   role: 'staff' | 'volunteer';
 
-  userName: string;
-  fullName?: string;
+  fullName: string | undefined;
   email: string;
   discourseUserId: number;
 }
 
-type ApiUser = Pick<User, 'uuid' | 'created' | 'userName' | 'fullName' | 'email' | 'role'>;
+export type UpsertUserParams = {
+  discourseUserId?: number;
+  fullName?: string;
+  email?: string;
+  role?: UserRole;
+};
 
-export type UpsertUserParams = Pick<User, 'discourseUserId' | 'userName' | 'fullName' | 'email' | 'role'>;
-export async function upsertUser(userParams: UpsertUserParams) {
+export async function upsertUser(userParams: UpsertUserParams): Promise<User | null> {
   const client = await db.getClient();
-  const { discourseUserId, userName, email, fullName, role } = userParams;
+  const { discourseUserId, email, fullName, role } = userParams;
   const queryText = `
-    INSERT INTO users (discourse_user_id, username, email, full_name, role)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO users (discourse_user_id, email, full_name, role)
+    VALUES ($1::int, $2::text, $3::text, $4::text)
     ON CONFLICT ON CONSTRAINT users_discourse_user_id_key
     DO UPDATE SET
-      username = EXCLUDED.username,
       email = EXCLUDED.email,
       full_name = EXCLUDED.full_name,
       role = EXCLUDED.role
     RETURNING
-      id, uuid, created, role, username, full_name, email, discourse_user_id;
+      id, uuid, created, role, full_name, email, discourse_user_id, is_active;
   `;
-  const queryValues = [discourseUserId, userName, email, fullName, role];
+  const queryValues = [discourseUserId, email, fullName, role];
   try {
     const req = await db.query<User>(queryText, queryValues);
-    console.log(req.rows[0]);
+    return req.rows[0];
   } catch (err) {
     console.error('Failed to create or update user');
     console.error(err);

@@ -23,12 +23,13 @@ exports.up = function (db, callback) {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
+        role: { type: 'string', notNull: true },
+        is_active: { type: 'boolean', notNull: true, defaultValue: false },
 
-        username: { type: 'string', notNull: true },
+        // Information coming from Discourse
+        discourse_user_id: { type: 'int', notNull: true, unique: true },
         full_name: { type: 'string' },
         email: { type: 'string', notNull: true },
-        discourse_user_id: { type: 'int', notNull: true, unique: true },
-        role: { type: 'string', notNull: true }, // admin or volunteer
       }),
       queries.autoGenerateCreated(db, 'users'), // Generate uuid on create
       queries.autoGenerateUuid(db, 'users'), // Generate created on create

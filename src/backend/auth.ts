@@ -3,15 +3,17 @@ import jwt from 'jsonwebtoken';
 
 import { getConfig } from './config';
 import { generateNonce, hmacSha256, encodeString, getQueryData } from './utils';
+import { UpsertUserParams, User } from './models/user';
+import { UserRole } from '../common/constants-common';
 
-export interface DiscourseUserInfo extends Record<string, any> {
-  nonce?: string;
-  admin?: boolean;
-  moderator?: boolean;
+export interface DiscourseSsoData {
+  admin?: string;
   email?: string;
   external_id?: string;
   groups?: string;
+  moderator?: string;
   name?: string;
+  nonce?: string;
   return_sso_url?: string;
   username?: string;
 }
@@ -54,7 +56,7 @@ export function createSso(req: Request) {
 //
 // Criterias:
 // - 'sig' and 'sso' exist as get parameters, and are strings
-// - HMAC SHA-256 hash from 'sso' in bytes === 'sig' in byfes
+// - HMAC SHA-256 hash from 'sso' in bytes should equals 'sig' in byfes
 // - 'nonce' value in the decoded 'sso' equals 'session.nonce'
 //   ('session.nonce' was set before redirecting user to discourse in '/auth/sso')
 export function validateSsoRequest(req: Request) {
@@ -70,16 +72,19 @@ export function validateSsoRequest(req: Request) {
     return false;
   }
 
+  // THIS STEP IS VERY IMPORTANT
+  // Make sure the sso string is authenticity by comparing its decoded
+  // bytes (using the private key) to the signature bytes
   const ssoHmac = hmacSha256(sso) as Buffer;
   const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0; // 0 means no difference
   if (!isValidSignature) {
     console.log('Invalid signature for', sso);
     return false;
   }
+
   const ssoStr = encodeString(sso, 'base64', 'utf8');
-  const ssoData = getQueryData(ssoStr) as DiscourseUserInfo;
+  const ssoData = getQueryData(ssoStr) as DiscourseSsoData;
   const isValidNonce = req.session.nonce === ssoData.nonce;
-  console.log('SSO DATA', ssoData);
 
   if (!isValidNonce) {
     console.log('Nonce value does not match with one in session', ssoData.nonce);
@@ -89,8 +94,14 @@ export function validateSsoRequest(req: Request) {
   return isValidSignature && isValidNonce;
 }
 
+type TokenData = {
+  uuid: string;
+  email: string;
+  fullName?: string;
+  role: string;
+};
 // Create a JWT token
-export async function createToken(data: Record<string, string>) {
+export async function createToken(data: TokenData) {
   try {
     const { jwtPrivateKey } = getConfig();
     const token = await jwt.sign(data, jwtPrivateKey, { expiresIn: '7d' }); // token will expire in 7 days
@@ -99,4 +110,22 @@ export async function createToken(data: Record<string, string>) {
     console.error('Failed to create token');
     console.error(err);
   }
+}
+
+// Construct user data from the decoded return sso
+// This will be used to create / update user information in the database
+export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams {
+  const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
+  const ssoData = getQueryData(ssoStr) as DiscourseSsoData;
+  const { external_id, email, name, admin, groups } = ssoData;
+  const isAdmin = admin === 'true';
+  const isVolunteer = groups && groups.split(',').indexOf('Volunteers') > -1;
+  return {
+    email,
+    discourseUserId: external_id ? parseInt(external_id, 10) : undefined,
+    fullName: name ? name.replace('+', ' ') : undefined,
+    // Always default to volunteer role.
+    // We want to avoid automatically set admin role, even when Discourse tells us it's ok :)
+    role: isAdmin || isVolunteer ? UserRole.volunteer : undefined,
+  };
 }
