@@ -1,5 +1,7 @@
 import express, { Request } from 'express';
 import session from 'express-session';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 import { getConfig } from './config';
 import { getQueryData, encodeString, generateNonce } from './utils';
@@ -7,7 +9,7 @@ import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequ
 import { upsertUser, UpsertUserParams } from './models/user';
 
 export function createApp(port: number) {
-  const { cookieSecret, hostName, environment } = getConfig();
+  const { cookieSecret, hostName, environment, frontendUrl } = getConfig();
 
   const app = express();
 
@@ -16,6 +18,21 @@ export function createApp(port: number) {
 
   // Required for session cookie to work behind a proxy
   app.set('trust proxy', 1);
+
+  app.use(
+    bodyParser({
+      type: 'application/json',
+    }),
+  );
+  // Add CORS headers
+  app.use(
+    cors({
+      credentials: true,
+      origin: frontendUrl,
+      optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    }),
+  );
+  // Add session support - this is needed for SSO
   app.use(
     session({
       secret: cookieSecret,
@@ -60,7 +77,6 @@ export function createApp(port: number) {
       res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
       return;
     }
-    console.log(user);
 
     const token = await createToken({
       email: user.email,
@@ -68,22 +84,30 @@ export function createApp(port: number) {
       fullName: user.fullName,
       uuid: user.uuid,
     });
-    req.session!.token = token;
-
     const tokenNonce = generateNonce();
-    req.session!.tokenNonce = tokenNonce;
-    res.redirect(`${frontendUrl}/login?nonce=${encodeURIComponent(tokenNonce)}`);
+    req.session!.tokenData = {
+      token,
+      nonce: tokenNonce,
+    };
+    res.redirect(`${frontendUrl}/login/${encodeURIComponent(tokenNonce)}`);
   });
 
-  app.get('/auth/token', (req, res) => {
-    if (!req.session || !req.session.token) {
+  app.get('/auth/token/:nonce', (req, res) => {
+    const nonce = req.param('nonce');
+    if (!req.session || !req.session.tokenData || !nonce) {
       res.status(403).json({ error: 'unauthorized' });
       return;
     }
-    const token = req.session.token;
 
+    if (nonce !== req.session.tokenData.nonce) {
+      res.status(403).json({ error: 'unauthorized' });
+      console.log('Nonce value for token request does not match');
+      return;
+    }
+
+    const token = req.session.tokenData.token;
     // Now the Single Sign On process from Discourse is done, delete the session token
-    delete req.session.token;
+    delete req.session.tokenData;
 
     res.json({
       data: {

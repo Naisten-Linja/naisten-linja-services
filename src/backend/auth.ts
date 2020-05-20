@@ -100,7 +100,7 @@ export function validateSsoRequest(req: Request) {
 type TokenData = {
   uuid: string;
   email: string;
-  fullName?: string;
+  fullName: string | null;
   role: string;
 };
 // Create a JWT token

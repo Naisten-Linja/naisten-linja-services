@@ -7,7 +7,7 @@ export interface User {
   created: number;
   role: 'staff' | 'volunteer';
 
-  fullName: string | undefined;
+  fullName: string | null;
   email: string;
   discourseUserId: number;
 }
@@ -35,8 +35,11 @@ export async function upsertUser(userParams: UpsertUserParams): Promise<User | n
         id, uuid, created, role, full_name, email, discourse_user_id, is_active;
     `;
     const queryValues = [discourseUserId, email, fullName, role];
-    const req = await db.query<User>(queryText, queryValues);
-    return req.rows[0];
+    const result = await db.query<User>(queryText, queryValues);
+    if (!result.rows[0].fullName) {
+      result.rows[0].fullName = null;
+    }
+    return result.rows[0];
   } catch (err) {
     console.error('Failed to create or update user');
     console.error(err);
