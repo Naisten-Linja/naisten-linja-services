@@ -86,6 +86,9 @@ export function validateSsoRequest(req: Request) {
   const ssoData = getQueryData(ssoStr) as DiscourseSsoData;
   const isValidNonce = req.session.nonce === ssoData.nonce;
 
+  // Clear nonce value now that it is not needed anymore
+  delete req.session!.nonce;
+
   if (!isValidNonce) {
     console.log('Nonce value does not match with one in session', ssoData.nonce);
     return false;

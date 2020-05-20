@@ -20,21 +20,21 @@ export type UpsertUserParams = {
 };
 
 export async function upsertUser(userParams: UpsertUserParams): Promise<User | null> {
-  const client = await db.getClient();
-  const { discourseUserId, email, fullName, role } = userParams;
-  const queryText = `
-    INSERT INTO users (discourse_user_id, email, full_name, role)
-    VALUES ($1::int, $2::text, $3::text, $4::text)
-    ON CONFLICT ON CONSTRAINT users_discourse_user_id_key
-    DO UPDATE SET
-      email = EXCLUDED.email,
-      full_name = EXCLUDED.full_name,
-      role = EXCLUDED.role
-    RETURNING
-      id, uuid, created, role, full_name, email, discourse_user_id, is_active;
-  `;
-  const queryValues = [discourseUserId, email, fullName, role];
   try {
+    const client = await db.getClient();
+    const { discourseUserId, email, fullName, role } = userParams;
+    const queryText = `
+      INSERT INTO users (discourse_user_id, email, full_name, role)
+      VALUES ($1::int, $2::text, $3::text, $4::text)
+      ON CONFLICT ON CONSTRAINT users_discourse_user_id_key
+      DO UPDATE SET
+        email = EXCLUDED.email,
+        full_name = EXCLUDED.full_name,
+        role = EXCLUDED.role
+      RETURNING
+        id, uuid, created, role, full_name, email, discourse_user_id, is_active;
+    `;
+    const queryValues = [discourseUserId, email, fullName, role];
     const req = await db.query<User>(queryText, queryValues);
     return req.rows[0];
   } catch (err) {

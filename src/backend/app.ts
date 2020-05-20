@@ -2,7 +2,7 @@ import express, { Request } from 'express';
 import session from 'express-session';
 
 import { getConfig } from './config';
-import { getQueryData, encodeString } from './utils';
+import { getQueryData, encodeString, generateNonce } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 
@@ -31,9 +31,10 @@ export function createApp(port: number) {
   );
 
   app.get('/auth/sso', (req, res) => {
+    const { frontendUrl } = getConfig();
     if (!req.session) {
       console.log('Missing Session in request');
-      res.status(400).json({ error: 'session is not supported' });
+      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
       return;
     }
     const redirectUrl = createSso(req);
@@ -41,24 +42,25 @@ export function createApp(port: number) {
   });
 
   app.get('/auth/sso/verify', async (req, res) => {
+    const { frontendUrl } = getConfig();
     if (!req.session) {
-      res.status(403).json({ error: 'unauthorized' });
+      console.log('Missing Session in request');
+      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
     }
     if (!validateSsoRequest(req)) {
-      console.log('Invalid sso return request');
-      res.status(403).json({ error: 'unauthorized' });
+      console.log('Invalid sso return request', req.query);
+      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
       return;
     }
-    // Clear nonce value now that it is not needed anymore
-    delete req.session!.nonce;
-    const userData = generateUserDataFromSsoRequest(req);
 
+    const userData = generateUserDataFromSsoRequest(req);
     // Create/Update user information in the database
     const user = await upsertUser(userData);
     if (!user) {
-      res.status(403).json({ error: 'unauthorized' });
+      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
       return;
     }
+    console.log(user);
 
     const token = await createToken({
       email: user.email,
@@ -68,10 +70,9 @@ export function createApp(port: number) {
     });
     req.session!.token = token;
 
-    // TODO: create or update existing user information
-    // TODO: redirect to frontend with a get parameter to request for the token
-
-    res.json(user);
+    const tokenNonce = generateNonce();
+    req.session!.tokenNonce = tokenNonce;
+    res.redirect(`${frontendUrl}/login?nonce=${encodeURIComponent(tokenNonce)}`);
   });
 
   app.get('/auth/token', (req, res) => {
