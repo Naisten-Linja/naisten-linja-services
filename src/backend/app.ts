@@ -59,7 +59,7 @@ export function createApp(port: number) {
   );
   app.use(
     jwt({ secret: jwtPrivateKey }).unless({
-      path: ['/auth/sso', '/auth/sso/verify', '/auth/token', '/auth/token/:nonce'],
+      path: ['/auth', '/auth/sso', '/auth/sso/verify', /^\/auth\/token\/.*/],
     }),
   );
 
