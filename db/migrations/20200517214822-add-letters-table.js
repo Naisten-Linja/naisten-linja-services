@@ -26,7 +26,8 @@ exports.up = function (db, callback) {
 
         access_key: { type: 'string', notNull: true, unique: true },
         access_password: { type: 'string', notNull: true },
-        title: { type: 'string', notNull: true },
+        title: { type: 'string', notNull: true, defaultValue: '' },
+        content: { type: 'text', notNull: true, defaultValue: '' },
         assigned_responderUuid: {
           type: 'string',
           foreignKey: {
