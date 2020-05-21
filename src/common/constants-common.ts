@@ -4,8 +4,10 @@ export enum UserRole {
 }
 
 export interface TokenUserData {
+  uuid: string;
   email: string;
   role: UserRole;
   fullName?: string;
-  uuid: string;
+  iat: number;
+  exp: number;
 }

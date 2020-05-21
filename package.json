@@ -7,7 +7,7 @@
   "scripts": {
     "build-backend": "npm run lint-node && rm -rf build-backend && tsc --project tsconfig-backend.json",
     "dev-backend": "nodemon --watch 'src/backend/**/*.ts' --exec TS_NODE_PROJECT=tsconfig-backend.json 'ts-node' src/backend/app.ts",
-    "dev-frontend": "REACT_APP_BACKEND_URL=http://localhost:3000 PORT=8000 BROWSER=none react-scripts start",
+    "dev-frontend": "REACT_APP_BACKEND_URL=${BACKEND_URL} PORT=8000 BROWSER=none react-scripts start",
     "db-migrate": "db-migrate",
     "lint-node": "check-node-version --package",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,7 +25,9 @@
     "normalize.css": "^8.0.1",
     "pg": "^8.2.1",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "styled-components": "^5.1.0",
+    "turretcss": "^5.2.1"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
@@ -38,6 +40,7 @@
     "@types/reach__router": "^1.3.5",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
+    "@types/styled-components": "^5.1.0",
     "check-node-version": "^4.0.3",
     "cors": "^2.8.5",
     "nodemon": "^2.0.4",

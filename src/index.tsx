@@ -1,6 +1,7 @@
 import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import { App } from './frontend/App';
 
 console.log(`Frontend ${process.env.REACT_APP_APP_VERSION} started`);
