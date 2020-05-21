@@ -11,6 +11,8 @@ export function checkVariables() {
     'COOKIE_SECRET',
     'JWT_PUBLIC_KEY',
     'JWT_PRIVATE_KEY',
+    'LETTER_PUBLIC_KEY',
+    'LETTER_PRIVATE_KEY',
     'DB_NAME',
     'DB_USERNAME',
     'DB_PASSWORD',
@@ -45,6 +47,9 @@ export function getConfig() {
 
     jwtPublicKey: process.env.JWT_PUBLIC_KEY!,
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
+
+    letterPublicKey: process.env.LETTER_PUBLIC_KEY!,
+    letterPrivateKey: process.env.LETTER_PRIVATE_KEY!,
 
     dbName: process.env.DB_NAME!,
     dbUser: process.env.DB_USERNAME!,

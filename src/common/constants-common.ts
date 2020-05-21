@@ -20,3 +20,13 @@ export interface ApiUserData {
   fullName: string | null;
   created: string;
 }
+
+export enum LetterStatus {
+  pending = 'pending',
+  sent = 'sent',
+}
+
+export interface LetterAccessInfo {
+  accessKey: string;
+  accessPassword: string;
+}

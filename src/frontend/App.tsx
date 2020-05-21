@@ -11,6 +11,7 @@ import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
 import { Users } from './Users';
+import { SendLetter } from './SendLetter';
 import { NotFound } from './NotFound';
 
 import 'turretcss/turret/_color.css';
@@ -36,6 +37,7 @@ export const App = () => {
               <Router>
                 <NotFound default />
                 <Home path="/" />
+                <SendLetter path="/send" />
                 <Login path="login" />
                 <Users path="users" />
                 <FetchToken path="login/:nonce" />

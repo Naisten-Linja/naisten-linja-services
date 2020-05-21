@@ -6,10 +6,11 @@ import jwt from 'express-jwt';
 
 import { UserRole } from '../common/constants-common';
 import { getConfig } from './config';
-import { getQueryData, encodeString, generateNonce } from './utils';
+import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 import { getApiUsers, updateApiUserRole } from './controllers/user';
+import { createLetterController } from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -59,7 +60,7 @@ export function createApp(port: number) {
   );
   app.use(
     jwt({ secret: jwtPrivateKey }).unless({
-      path: ['/auth', '/auth/sso', '/auth/sso/verify', /^\/auth\/token\/.*/],
+      path: ['/auth', '/auth/sso', '/auth/sso/verify', /^\/auth\/token\/.*/, '/online-letter/start'],
     }),
   );
 
@@ -76,6 +77,8 @@ export function createApp(port: number) {
   });
 
   app.get('/auth/sso/verify', async (req, res) => {
+    console.log('string    ', generateRandomString(5, 'base64'));
+    console.log('string    ', generateRandomString(8, 'hex'));
     const { frontendUrl } = getConfig();
     if (!req.session) {
       console.log('Missing Session in request');
@@ -101,7 +104,7 @@ export function createApp(port: number) {
       fullName: user.fullName,
       uuid: user.uuid,
     });
-    const tokenNonce = generateNonce();
+    const tokenNonce = generateRandomString(16, 'base64');
     req.session!.tokenData = {
       token,
       nonce: tokenNonce,
@@ -165,6 +168,15 @@ export function createApp(port: number) {
       return;
     }
     res.status(201).json({ data: updatedUser });
+  });
+
+  app.post('/online-letter/start', async (req, res) => {
+    const letter = await createLetterController();
+    if (!letter) {
+      res.status(400).json({ error: 'unable to start a letter' });
+      return;
+    }
+    res.status(201).json({ data: letter });
   });
 
   return app;

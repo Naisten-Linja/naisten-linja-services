@@ -2,7 +2,7 @@ import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
 import { getConfig } from './config';
-import { generateNonce, hmacSha256, encodeString, getQueryData } from './utils';
+import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
 import { UpsertUserParams, User } from './models/user';
 import { UserRole } from '../common/constants-common';
 
@@ -40,7 +40,7 @@ export function createSso(req: Request) {
 
   const { backendUrl, discourseUrl } = getConfig();
   const ssoReturnUrl = `${backendUrl}/auth/sso/verify`;
-  const nonce = generateNonce();
+  const nonce = generateRandomString(16, 'base64');
   const query = `nonce=${nonce}&return_sso_url=${ssoReturnUrl}`;
   const payload = encodeString(query, 'utf8', 'base64');
   const sig = hmacSha256(payload, 'hex');

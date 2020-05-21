@@ -20,15 +20,19 @@ exports.up = function (db, callback) {
   async.series(
     [
       db.createTable.bind(db, 'letters', {
-        id: { type: 'int', primaryKey: true, autoIncrement: true },
+        id: { type: 'int', autoIncrement: true, unique: true },
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
+        status: { type: 'string', notNull: true, defaultValue: 'pending' },
 
-        access_key: { type: 'string', notNull: true, unique: true },
-        access_password: { type: 'string', notNull: true },
-        title: { type: 'string', notNull: true, defaultValue: '' },
-        content: { type: 'text', notNull: true, defaultValue: '' },
-        assigned_responderUuid: {
+        // Set the uniqueness as a combination of both keys
+        access_key: { type: 'string', primary: true, notNull: true },
+        access_password: { type: 'string', primary: true, notNull: true },
+        salt: { type: 'string', notNull: true },
+
+        title: { type: 'string' },
+        content: { type: 'text' },
+        assigned_responder_uuid: {
           type: 'string',
           foreignKey: {
             name: 'letters_users_uuid_fk',

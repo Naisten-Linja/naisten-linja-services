@@ -6,9 +6,9 @@ export function encodeString(s: string, encodingFrom: BufferEncoding, encodingTo
   return Buffer.from(s, encodingFrom).toString(encodingTo);
 }
 
-// Generate a random 16 bytes string and return its base64 encoded value
-export function generateNonce() {
-  return crypto.randomBytes(16).toString('base64');
+// Generate a random bytes string and return its specified encoded value
+export function generateRandomString(length: number = 10, encoding: BufferEncoding = 'utf8') {
+  return crypto.randomBytes(length).toString(encoding);
 }
 
 // Generate a HMAC SHA-256 hash using the provided Discourse SSO key
@@ -32,4 +32,17 @@ export function getQueryData(queryString: string) {
   }, {});
 
   return queryData;
+}
+
+// Salt hash a string
+export function saltHash({ salt, password }: { salt?: string; password: string }) {
+  if (!salt) {
+    const randStr = generateRandomString(32, 'hex');
+    salt = randStr.slice(0, 64);
+  }
+  const hash = crypto.createHmac('sha512', salt).update(password).digest('hex');
+  return {
+    salt,
+    hash,
+  };
 }
