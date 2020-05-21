@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from '@reach/router';
 
+import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
 import { Container } from './ui-components/layout';
@@ -12,7 +14,9 @@ export const Navigation = () => {
       <Container>
         <div className="group group-m group-space-between">
           <ul>
-            <li>Naisten Linja Volunteers</li>
+            <li>
+              <MainMenu />
+            </li>
             {!user && (
               <li>
                 <ButtonSmall type="secondary" onClick={login}>
@@ -35,13 +39,31 @@ export const Navigation = () => {
   );
 };
 
+const MainMenu = () => {
+  const { user } = useAuth();
+  return (
+    <nav className="nav-inline">
+      <ul>
+        <li>
+          <Link to="/">Naisten Linja</Link>
+        </li>
+        {user && user.role === UserRole.staff && (
+          <li>
+            <Link to="users">Users</Link>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
 const NavigationWrapper = styled.div`
   width: 100%;
-  position: fixed;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
   padding: 0.5rem 0;
   z-index: 10;
   top: 0;
-  left: 0;
   background: var(--info);
   color: var(--white);
 `;

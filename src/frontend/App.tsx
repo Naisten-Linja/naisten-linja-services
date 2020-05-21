@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Router } from '@reach/router';
 import { ThemeProvider } from 'styled-components';
 
@@ -9,6 +10,8 @@ import { FetchToken } from './FetchToken';
 import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
+import { Users } from './Users';
+import { NotFound } from './NotFound';
 
 import 'turretcss/turret/_color.css';
 import './assets/turret.css';
@@ -18,23 +21,29 @@ import './assets/turret.css';
 // we can make use of css variables instead
 const theme = {};
 
+const AppContainer = styled(Container)`
+  padding-top: 2rem;
+`;
+
 export const App = () => {
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <NotificationsContextWrapper>
-          <AuthContextWrapper>
-            <Container>
-              <Navigation />
+      <AuthContextWrapper>
+        <ThemeProvider theme={theme}>
+          <NotificationsContextWrapper>
+            <Navigation />
+            <AppContainer>
               <Router>
+                <NotFound default />
                 <Home path="/" />
                 <Login path="login" />
+                <Users path="users" />
                 <FetchToken path="login/:nonce" />
               </Router>
-            </Container>
-          </AuthContextWrapper>
-        </NotificationsContextWrapper>
-      </ThemeProvider>
+            </AppContainer>
+          </NotificationsContextWrapper>
+        </ThemeProvider>
+      </AuthContextWrapper>
     </>
   );
 };

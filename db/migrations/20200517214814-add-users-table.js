@@ -23,7 +23,8 @@ exports.up = function (db, callback) {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
-        role: { type: 'string', notNull: true },
+        // All roles: unassigned, staff, volunteer
+        role: { type: 'string', notNull: true, defaultValue: 'unassigned' },
         is_active: { type: 'boolean', notNull: true, defaultValue: false },
 
         // Information coming from Discourse

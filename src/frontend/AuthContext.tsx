@@ -2,9 +2,10 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
-import { BACKEND_URL } from './constants-frontend';
+import { BACKEND_URL, DISCOURSE_URL } from './constants-frontend';
 
 interface IAuthContext {
+  token: string | null;
   user: TokenUserData | null;
   logout: () => void;
   login: () => void;
@@ -12,6 +13,7 @@ interface IAuthContext {
 }
 
 export const AuthContext = React.createContext<IAuthContext>({
+  token: null,
   user: null,
   logout: () => {},
   login: () => {},
@@ -61,13 +63,15 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   function login() {
     setToken(null);
     setUser(null);
-    window.location.href = `${BACKEND_URL}/auth/sso`;
+    window.location.replace(`${BACKEND_URL}/auth/sso`);
   }
 
   function logout() {
     setToken(null);
     setUser(null);
     addNotification({ type: 'success', message: 'Logged out', timestamp: Date.now() });
+    // @ts-ignore
+    window.location.replace(`${DISCOURSE_URL}`);
   }
 
   useEffect(() => {
@@ -86,7 +90,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     }
   }, [token, setToken]);
 
-  return <AuthContext.Provider value={{ user, logout, login, setToken }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ token, user, logout, login, setToken }}>{children}</AuthContext.Provider>;
 };
 
 export function useAuth() {

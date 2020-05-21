@@ -2,14 +2,17 @@ import express, { Request } from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import jwt from 'express-jwt';
 
+import { UserRole } from '../common/constants-common';
 import { getConfig } from './config';
 import { getQueryData, encodeString, generateNonce } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
+import { getApiUsers, updateApiUserRole } from './controllers/user';
 
 export function createApp(port: number) {
-  const { cookieSecret, hostName, environment, frontendUrl } = getConfig();
+  const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
 
   const app = express();
 
@@ -52,6 +55,11 @@ export function createApp(port: number) {
         // to complete the login process in Discourse
         maxAge: 600000,
       },
+    }),
+  );
+  app.use(
+    jwt({ secret: jwtPrivateKey }).unless({
+      path: ['/auth/sso', '/auth/sso/verify', '/auth/token', '/auth/token/:nonce'],
     }),
   );
 
@@ -123,6 +131,40 @@ export function createApp(port: number) {
         token,
       },
     });
+  });
+
+  app.get('/users', async (req, res) => {
+    // Only allow admin to see users list
+    // @ts-ignore
+    if (req.user.role !== UserRole.staff) {
+      res.status(403).json({ error: 'unauthorized' });
+      return;
+    }
+    const users = await getApiUsers();
+    res.status(200).json({ data: users });
+  });
+
+  app.put('/users/:uuid/role', async (req, res) => {
+    // Only allow staff to edit user's role
+    // @ts-ignore
+    if (req.user.role !== UserRole.staff) {
+      res.status(403).json({ error: 'unauthorized' });
+      return;
+    }
+
+    // Verify if role in request body is valid
+    if (!req.body.role || Object.values(UserRole).indexOf(req.body.role) < 0) {
+      res.status(400).json({ error: `invalid role. allowed roles are ${Object.values(UserRole).join(', ')}` });
+      return;
+    }
+
+    // Update the user's role with uuid specifed in route
+    const updatedUser = await updateApiUserRole({ uuid: req.params.uuid, role: req.body.role });
+    if (!updatedUser) {
+      res.status(400).json({ error: `unable to update user` });
+      return;
+    }
+    res.status(201).json({ data: updatedUser });
   });
 
   return app;

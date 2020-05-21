@@ -127,8 +127,5 @@ export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams {
     email,
     discourseUserId: external_id ? parseInt(external_id, 10) : undefined,
     fullName: name ? name.replace('+', ' ') : undefined,
-    // Always default to volunteer role.
-    // We want to avoid automatically set admin role, even when Discourse tells us it's ok :)
-    role: isAdmin || isVolunteer ? UserRole.volunteer : undefined,
   };
 }

@@ -85,7 +85,7 @@ export function useNotifications() {
 
 const NotificationContainer = styled.div`
   position: fixed;
-  width: 17rem;
+  width: 15rem;
   bottom: 2rem;
   right: 2rem;
   background: 'red';
@@ -93,9 +93,10 @@ const NotificationContainer = styled.div`
 `;
 
 const NotificationItem = styled.div<{ type: Notification['type'] }>`
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   border: 1px solid ${({ type }) => `var(--${type})`};
   border-radius: 0.1rem;
   margin: 0.2rem 0;
   width: 100%;
+  font-size: 0.7rem;
 `;
