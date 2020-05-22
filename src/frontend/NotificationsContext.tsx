@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
 interface Notification {
@@ -27,9 +27,21 @@ const NotificationsContext = React.createContext<INotificationContext>({
 export const NotificationsContextWrapper: React.FunctionComponent = ({ children }) => {
   const [notifications, setNotifications] = useState<Array<Notification>>([]);
 
-  const addNotification = (message: Notification) => {
-    setNotifications([...notifications, message]);
-  };
+  useEffect(() => {
+    const eventHandler = (e: CustomEvent<{ message: Notification }>) => {
+      setNotifications([...notifications, e.detail.message]);
+    };
+    // @ts-ignore
+    window.addEventListener('AddNotification', eventHandler);
+    // @ts-ignore
+    return () => window.removeEventListener('AddNotification', eventHandler);
+  }, [notifications]);
+
+  const addNotification = useCallback((message: Notification) => {
+    const event = new CustomEvent<{ message: Notification }>('addNotification');
+    event.initCustomEvent('AddNotification', false, false, { message });
+    window.dispatchEvent(event);
+  }, []);
 
   const deleteNotification = (timestamp: number) => {
     if (notifications.find((n) => n.timestamp === timestamp)) {
@@ -42,7 +54,7 @@ export const NotificationsContextWrapper: React.FunctionComponent = ({ children 
   };
 
   useEffect(() => {
-    const cleanupNotifications = setInterval(() => {
+    const expireNotifications = setInterval(() => {
       const lifeTime = 8000;
       notifications.forEach((n) => {
         if (n.timestamp + lifeTime < Date.now()) {
@@ -50,7 +62,7 @@ export const NotificationsContextWrapper: React.FunctionComponent = ({ children 
         }
       });
     }, 500);
-    return () => clearInterval(cleanupNotifications);
+    return () => clearInterval(expireNotifications);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deleteNotification]);
 

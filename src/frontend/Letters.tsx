@@ -30,7 +30,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setLetters([]);
       addNotification({ type: 'error', message: 'Unable to get letters', timestamp: Date.now() });
     }
-  }, [setLetters]);
+  }, [setLetters, addNotification, token]);
 
   const assignLetter = async ({
     letterUuid,
@@ -87,7 +87,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     };
     fetchUsers();
     fetchLetters();
-  }, [fetchLetters]);
+  }, [fetchLetters, addNotification, token]);
 
   return (
     <>

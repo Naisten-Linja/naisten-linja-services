@@ -84,7 +84,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
         timestamp: Date.now(),
       });
     }
-  }, [user]);
+  }, [user, addNotification]);
 
   useEffect(() => {
     const userData = getUserDataFromToken(token);
