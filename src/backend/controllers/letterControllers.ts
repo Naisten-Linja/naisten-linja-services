@@ -13,15 +13,17 @@ import { getConfig } from '../config';
 
 export async function initiateLetter(): Promise<ApiLetterAccessInfo | null> {
   const letter = await createLetterCredentials();
-  return letter;
+  if (!letter) {
+    return null;
+  }
+  return {
+    accessKey: letter.accessKey,
+    accessPassword: letter.accessPassword,
+  };
 }
 
-export async function validateLetterCredentials({
-  uuid,
-  accessKey,
-  accessPassword,
-}: ApiLetterAccessInfo): Promise<boolean> {
-  const letter = await getLetterByUuid(uuid);
+export async function validateLetterCredentials({ accessKey, accessPassword }: ApiLetterAccessInfo): Promise<boolean> {
+  const letter = await getLetterByCredentials({ accessKey, accessPassword });
   if (!letter) {
     return false;
   }
@@ -44,7 +46,7 @@ export async function sendLetter({
   accessPassword,
   uuid,
 }: ApiSendLetterParams): Promise<Letter | null> {
-  const isValid = await validateLetterCredentials({ uuid, accessKey, accessPassword });
+  const isValid = await validateLetterCredentials({ accessKey, accessPassword });
   if (!isValid) {
     return null;
   }

@@ -8,7 +8,7 @@ export interface TokenUserData {
   uuid: string;
   email: string;
   role: UserRole;
-  fullName?: string;
+  fullName: string | null;
   iat: number;
   exp: number;
 }
@@ -27,7 +27,6 @@ export enum LetterStatus {
 }
 
 export interface ApiLetterAccessInfo {
-  uuid: string;
   accessKey: string;
   accessPassword: string;
 }

@@ -20,6 +20,9 @@
     "jsx": "react"
   },
   "include": [
-    "src"
+    "src/*.d.ts",
+    "src/index.tsx",
+    "src/common",
+    "src/frontend"
   ]
 }

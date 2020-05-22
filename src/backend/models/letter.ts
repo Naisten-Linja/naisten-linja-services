@@ -3,7 +3,7 @@ import { generate as generatePass } from 'generate-password';
 import shortid from 'shortid';
 
 import { saltHash, generateRandomString } from '../utils';
-import { ApiLetterAccessInfo, LetterStatus } from '../../common/constants-common';
+import { LetterStatus } from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -19,6 +19,7 @@ export interface Letter {
 }
 
 export interface LetterQueryResult {
+  id: number;
   uuid: string;
   status: LetterStatus;
   created: string;
@@ -48,7 +49,7 @@ export async function getLetters(): Promise<Array<Letter> | null> {
   try {
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
-       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
+       SELECT *
        FROM letters
        ORDER BY id DESC;
     `;
@@ -66,7 +67,7 @@ export async function getLetters(): Promise<Array<Letter> | null> {
 
 // Initiate a new letter with just the accessKey, accessPass, and a random salt value used
 // to hash both of the access credentials.
-export async function createLetterCredentials(): Promise<ApiLetterAccessInfo | null> {
+export async function createLetterCredentials(): Promise<Letter | null> {
   const { letterAccessKeySalt } = getConfig();
   // Generate a random 8 character long accessKey
   const accessKey = generateRandomString(4, 'hex').slice(0, 8).toUpperCase();
@@ -83,18 +84,14 @@ export async function createLetterCredentials(): Promise<ApiLetterAccessInfo | n
     const queryText = `
        INSERT INTO letters (access_key, access_password, access_password_salt)
        VALUES ($1::text, $2::text, $3::text)
-       RETURNING uuid;
+       RETURNING *
     `;
     const queryValues = [accessKeyHash, accessPasswordHash, accessPasswordSalt];
-    const result = await db.query<{ uuid: string }>(queryText, queryValues);
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
-    return {
-      accessKey,
-      accessPassword,
-      uuid: result.rows[0].uuid,
-    };
+    return queryResultToLetter(result.rows[0]);
   } catch (err) {
     console.error('Failed to generate a new letter');
     console.error(err);
@@ -118,7 +115,7 @@ export async function getLetterByCredentials({
 
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
-       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
+       SELECT *
        FROM letters
        WHERE access_key=$1::text;
     `;

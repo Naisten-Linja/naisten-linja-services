@@ -17,7 +17,6 @@ export const SendLetter = (props: RouteComponentProps) => {
     try {
       const result = await axios.post(`${BACKEND_URL}/online-letter/start`);
       const credentials = {
-        uuid: result.data.data.uuid,
         accessKey: result.data.data.accessKey,
         accessPassword: result.data.data.accessPassword,
       };
@@ -32,10 +31,9 @@ export const SendLetter = (props: RouteComponentProps) => {
     if (formRef && letterCredentials) {
       // @ts-ignore
       const { title, content } = formRef.current;
-      const { accessKey, accessPassword, uuid } = letterCredentials;
+      const { accessKey, accessPassword } = letterCredentials;
       try {
         const result = await axios.post(`${BACKEND_URL}/online-letter/send`, {
-          uuid,
           accessKey,
           accessPassword,
           title: title.value,

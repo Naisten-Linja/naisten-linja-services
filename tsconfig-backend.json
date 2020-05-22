@@ -10,5 +10,9 @@
     "lib": ["es2017"],
     "outDir": "build-backend"
   },
-  "include": ["src/*.d.ts", "src/backend/app.ts"]
+  "include": [
+    "src/*.d.ts",
+    "src/backend",
+    "src/common"
+  ]
 }
