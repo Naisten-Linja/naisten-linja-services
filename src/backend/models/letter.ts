@@ -11,11 +11,37 @@ export interface Letter {
   accessKey: string;
   accessPassword: string;
   accessPasswordSalt: string;
-  content: string;
-  title: string;
-  assignedResponderUuid: string;
+  content: string | null;
+  title: string | null;
+  assignedResponderUuid: string | null;
   created: string;
   status: LetterStatus;
+}
+
+export interface LetterQueryResult {
+  uuid: string;
+  status: LetterStatus;
+  created: string;
+  access_key: string;
+  access_password: string;
+  access_password_salt: string;
+  title?: string;
+  content?: string;
+  assigned_responder_uuid?: string;
+}
+
+function queryResultToLetter(row: LetterQueryResult): Letter {
+  return {
+    uuid: row.uuid,
+    status: row.status,
+    created: row.created,
+    accessKey: row.access_key,
+    accessPassword: row.access_password,
+    accessPasswordSalt: row.access_password_salt,
+    title: row.title || null,
+    content: row.content || null,
+    assignedResponderUuid: row.assigned_responder_uuid || null,
+  };
 }
 
 // Initiate a new letter with just the accessKey, accessPass, and a random salt value used
@@ -56,30 +82,61 @@ export async function generateLetterPlaceHolder(): Promise<LetterAccessInfo | nu
   }
 }
 
+export async function getLetterByCredentials({
+  accessKey,
+  accessPassword,
+}: {
+  accessKey: string;
+  accessPassword: string;
+}): Promise<Letter | null> {
+  try {
+    if (!accessKey || !accessPassword) {
+      return null;
+    }
+    const { letterAccessKeySalt } = getConfig();
+    const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
+
+    // Fetch the letter using the unique accessKeyHash
+    const queryText = `
+       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
+       FROM letters
+       WHERE access_key=$1::text;
+    `;
+    const queryValues = [accessKeyHash];
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    const letter = queryResultToLetter(result.rows[0]);
+
+    // Make sure the accessPassword is valid
+    const { hash: accessPasswordHash } = saltHash({ password: accessPassword, salt: letter.accessPasswordSalt });
+    if (accessPasswordHash !== letter.accessPassword) {
+      return null;
+    }
+
+    return letter;
+  } catch (err) {
+    console.error('Failed to fetch letter by accessKey');
+    console.error(err);
+    return null;
+  }
+}
+
 export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   try {
     const client = await db.getClient();
     const queryText = `
        SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
        FROM letters
-       WHERE uuid = $1::text;
+       WHERE uuid=$1::text;
     `;
     const queryValues = [uuid];
-    const result = await db.query(queryText, queryValues);
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
-    return {
-      uuid: result.rows[0].uuid,
-      status: result.rows[0].status,
-      created: result.rows[0].created,
-      accessKey: result.rows[0].access_key,
-      accessPassword: result.rows[0].access_password,
-      accessPasswordSalt: result.rows[0].access_password_salt,
-      title: result.rows[0].title,
-      content: result.rows[0].content,
-      assignedResponderUuid: result.rows[0].assigned_responder_uuid,
-    };
+    return queryResultToLetter(result.rows[0]);
   } catch (err) {
     console.error(`Failed to get letter. uuid: ${uuid}`);
     console.error(err);
@@ -108,21 +165,11 @@ export async function updateLetterContent({
          uuid, title, content, created, assigned_responder_uuid, access_key, access_password, access_password_salt;
     `;
     const queryValues = [title.trim(), content.trim(), uuid];
-    const result = await db.query(queryText, queryValues);
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
-    return {
-      uuid: result.rows[0].uuid,
-      status: result.rows[0].status,
-      created: result.rows[0].created,
-      accessKey: result.rows[0].access_key,
-      accessPassword: result.rows[0].access_password,
-      accessPasswordSalt: result.rows[0].access_password_salt,
-      title: result.rows[0].title,
-      content: result.rows[0].content,
-      assignedResponderUuid: result.rows[0].assigned_responder_uuid,
-    };
+    return queryResultToLetter(result.rows[0]);
   } catch (err) {
     console.error(`Failed update letter content. uuid: ${uuid}`);
     console.error(err);

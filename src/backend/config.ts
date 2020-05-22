@@ -9,10 +9,9 @@ export function checkVariables() {
     'FRONTEND_URL',
     'DISCOURSE_SSO_SECRET',
     'COOKIE_SECRET',
-    'JWT_PUBLIC_KEY',
     'JWT_PRIVATE_KEY',
-    'LETTER_PUBLIC_KEY',
     'LETTER_PRIVATE_KEY',
+    'LETTER_ACCESS_KEY_SALT',
     'DB_NAME',
     'DB_USERNAME',
     'DB_PASSWORD',
@@ -45,11 +44,9 @@ export function getConfig() {
     cookieSecret: process.env.COOKIE_SECRET!,
     environment: process.env.ENVIRONMENT!,
 
-    jwtPublicKey: process.env.JWT_PUBLIC_KEY!,
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
-
-    letterPublicKey: process.env.LETTER_PUBLIC_KEY!,
     letterPrivateKey: process.env.LETTER_PRIVATE_KEY!,
+    letterAccessKeySalt: process.env.LETTER_ACCESS_KEY_SALT!,
 
     dbName: process.env.DB_NAME!,
     dbUser: process.env.DB_USERNAME!,

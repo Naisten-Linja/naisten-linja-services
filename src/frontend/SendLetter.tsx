@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, Link } from '@reach/router';
 import axios from 'axios';
 
 import { BACKEND_URL } from './constants-frontend';
@@ -11,7 +11,7 @@ export const SendLetter = (props: RouteComponentProps) => {
   const [letterCredentials, setLetterCredentials] = useState<LetterAccessInfo | null>(null);
   const [isLetterSent, setIsLetterSent] = useState<boolean>(false);
   const { addNotification } = useNotifications();
-  const formRef = useRef(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const createLetter = async () => {
     try {
@@ -55,32 +55,40 @@ export const SendLetter = (props: RouteComponentProps) => {
   return (
     <>
       <h1>Online letter</h1>
-      {isLetterSent ? (
-        <div>Your letter has been sent!</div>
-      ) : (
+      {isLetterSent && <div>Your letter has been sent!</div>}
+      {(!letterCredentials || isLetterSent) && (
         <>
-          {!letterCredentials && <Button onClick={createLetter}>Write us a letter</Button>}
-          {letterCredentials && (
-            <>
-              <div>Access key: {letterCredentials.accessKey}</div>
-              <div>Access password: {letterCredentials.accessPassword}</div>
-              <form onSubmit={sendLetter} ref={formRef}>
-                <p className="field">
-                  <label htmlFor="title">Title</label>
-                  <input required type="text" id="title" placeholder="Your letter's title" />
-                </p>
-                <p className="field">
-                  <label htmlFor="content">Message</label>
-                  <textarea required id="content" placeholder="Your message" />
-                </p>
-                <p className="field">
-                  <button type="submit" className="button">
-                    Send letter
-                  </button>
-                </p>
-              </form>
-            </>
-          )}
+          <p>
+            <Button onClick={createLetter}>Write us a letter</Button>
+          </p>
+          <p>or</p>
+          <p>
+            <Link to="/read">Read a letter that you sent to us</Link>
+          </p>
+        </>
+      )}
+      {letterCredentials && (
+        <>
+          <p>
+            Access key: {letterCredentials.accessKey}
+            <br />
+            Access password: {letterCredentials.accessPassword}
+          </p>
+          <form onSubmit={sendLetter} ref={formRef}>
+            <p className="field">
+              <label htmlFor="title">Title</label>
+              <input required type="text" id="title" placeholder="Your letter's title" />
+            </p>
+            <p className="field">
+              <label htmlFor="content">Message</label>
+              <textarea required id="content" placeholder="Your message" rows={10} />
+            </p>
+            <p className="field">
+              <button type="submit" className="button">
+                Send letter
+              </button>
+            </p>
+          </form>
         </>
       )}
     </>

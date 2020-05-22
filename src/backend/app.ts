@@ -10,7 +10,7 @@ import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 import { getApiUsers, updateApiUserRole } from './controllers/user';
-import { createLetterController, sendLetter } from './controllers/letterControllers';
+import { createLetterController, sendLetter, readLetter } from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -67,6 +67,7 @@ export function createApp(port: number) {
         /^\/auth\/token\/.*/,
         '/online-letter/start',
         '/online-letter/send',
+        '/online-letter/read',
       ],
     }),
   );
@@ -202,6 +203,25 @@ export function createApp(port: number) {
       return;
     }
     res.status(201).json({ data: { success: true } });
+  });
+
+  app.post('/online-letter/read', async (req, res) => {
+    const { accessKey, accessPassword } = req.body;
+    if (!accessKey || !accessPassword) {
+      res.status(400).json({ error: 'missing title, content, accessKey or accessPassword' });
+      return;
+    }
+    const letter = await readLetter({ accessKey, accessPassword });
+    if (!letter) {
+      res.status(403).json({ error: 'Wrong letter access credentials' });
+      return;
+    }
+    const letterContent = {
+      title: letter.title,
+      content: letter.content,
+      created: letter.created,
+    };
+    res.status(200).json({ data: letterContent });
   });
 
   return app;

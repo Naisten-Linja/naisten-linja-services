@@ -1,6 +1,6 @@
 import type { LetterAccessInfo, SendLetterParams } from '../../common/constants-common';
 import { generateLetterPlaceHolder } from '../models/letter';
-import { Letter, updateLetterContent, getLetterByUuid } from '../models/letter';
+import { Letter, updateLetterContent, getLetterByUuid, getLetterByCredentials } from '../models/letter';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
 
@@ -45,4 +45,16 @@ export async function sendLetter({
   return letter;
 }
 
-// export async function readLetter({ accessKey: string, accessPassword: string });
+export async function readLetter({
+  accessKey,
+  accessPassword,
+}: {
+  accessKey: string;
+  accessPassword: string;
+}): Promise<Letter | null> {
+  if (!accessKey || !accessPassword) {
+    return null;
+  }
+  const letter = await getLetterByCredentials({ accessKey, accessPassword });
+  return letter;
+}
