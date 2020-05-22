@@ -2,14 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 
 import type { ApiLetterAdmin, ApiUserData } from '../common/constants-common';
-import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
-  const { token } = useAuth();
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
 
@@ -27,7 +25,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setLetters([]);
       addNotification({ type: 'error', message: 'Unable to get letters', timestamp: Date.now() });
     }
-  }, [setLetters, addNotification, token]);
+  }, [setLetters, addNotification, getRequest]);
 
   const assignLetter = async ({
     letterUuid,
@@ -77,7 +75,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     };
     fetchUsers();
     fetchLetters();
-  }, [fetchLetters, addNotification, token]);
+  }, [fetchLetters, addNotification, getRequest]);
 
   return (
     <>

@@ -32,7 +32,7 @@ export const FetchToken = (props: RouteComponentProps<{ nonce?: string }>) => {
       getToken(nonce);
     }
     return () => source.cancel();
-  }, [nonce, setToken]);
+  }, [nonce, setToken, getRequest]);
 
   return done ? <Redirect noThrow to="/" /> : <div>Fetching token ....</div>;
 };

@@ -8,7 +8,7 @@ import { useRequest } from './http';
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
-  const { token, user: loggedInUser } = useAuth();
+  const { user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();
   const { getRequest, putRequest } = useRequest();
 
@@ -51,7 +51,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       console.log(err);
       setUsers([]);
     }
-  }, [token]);
+  }, [getRequest]);
 
   return (
     <>
