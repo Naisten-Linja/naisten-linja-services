@@ -102,6 +102,7 @@ type TokenData = {
   fullName: string | null;
   role: string;
 };
+
 // Create a JWT token
 export async function createToken(data: TokenData): Promise<string | null> {
   try {
