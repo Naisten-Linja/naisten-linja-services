@@ -19,11 +19,9 @@ export const FetchToken = (props: RouteComponentProps<{ nonce?: string }>) => {
           withCredentials: true,
           cancelToken: source.token,
         });
-        const token = result.data.data.token as string;
-        setToken(token);
+        setToken(result.data.data.token);
         setDone(true);
       } catch (err) {
-        setToken(null);
         setDone(true);
       }
     };
@@ -34,5 +32,5 @@ export const FetchToken = (props: RouteComponentProps<{ nonce?: string }>) => {
     return () => source.cancel();
   }, [nonce, setToken, getRequest]);
 
-  return done ? <Redirect noThrow to="/" /> : <div>Fetching token ....</div>;
+  return done ? <Redirect noThrow to="/" /> : <div>Loggin in....</div>;
 };

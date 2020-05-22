@@ -4,15 +4,13 @@ import { Router } from '@reach/router';
 import { ThemeProvider } from 'styled-components';
 
 import { NotFound } from './NotFound';
-import { Login } from './Login';
 import { FetchToken } from './FetchToken';
 import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
-import { Users } from './Users';
 import { SendLetter } from './SendLetter';
 import { ReadLetter } from './ReadLetter';
-import { Letters } from './Letters';
+import { Admin } from './Admin';
 
 import 'turretcss/turret/_color.css';
 import './assets/turret.css';
@@ -36,11 +34,9 @@ export const App = () => {
             <AppContainer className="container">
               <Router>
                 <NotFound default />
+                <Admin path="admin/*" />
                 <SendLetter path="/" />
-                <ReadLetter path="/read" />
-                <Login path="login" />
-                <Users path="admin/users" />
-                <Letters path="admin/letters" />
+                <ReadLetter path="read" />
                 <FetchToken path="login/:nonce" />
               </Router>
             </AppContainer>
