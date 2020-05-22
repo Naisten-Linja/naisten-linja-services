@@ -89,7 +89,6 @@ const NotificationContainer = styled.div`
   bottom: 2rem;
   right: 2rem;
   background: 'red';
-  min-height: 5rem;
 `;
 
 const NotificationItem = styled.div<{ type: Notification['type'] }>`
@@ -99,4 +98,5 @@ const NotificationItem = styled.div<{ type: Notification['type'] }>`
   margin: 0.2rem 0;
   width: 100%;
   font-size: 0.7rem;
+  background: var(--white);
 `;

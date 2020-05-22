@@ -1,6 +1,13 @@
-import type { LetterAccessInfo, SendLetterParams } from '../../common/constants-common';
+import type { LetterAccessInfo, SendLetterParams, LetterAdmin } from '../../common/constants-common';
 import { generateLetterPlaceHolder } from '../models/letter';
-import { Letter, updateLetterContent, getLetterByUuid, getLetterByCredentials, getLetters } from '../models/letter';
+import {
+  Letter,
+  updateLetterContent,
+  getLetterByUuid,
+  getLetterByCredentials,
+  getLetters,
+  updateLetterAssignee,
+} from '../models/letter';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
 
@@ -61,4 +68,19 @@ export async function readLetter({
 
 export async function getAllLetters(): Promise<Array<Letter> | null> {
   return await getLetters();
+}
+
+export async function assignLetter({
+  letterUuid,
+  assigneeUuid,
+}: {
+  letterUuid: string;
+  assigneeUuid: string;
+}): Promise<LetterAdmin | null> {
+  const letter = await updateLetterAssignee({ letterUuid, assigneeUuid });
+  if (!letter) {
+    return null;
+  }
+  const { uuid, created, title, content, assignedResponderUuid, status } = letter;
+  return { uuid, created, title, content, assignedResponderUuid, status };
 }

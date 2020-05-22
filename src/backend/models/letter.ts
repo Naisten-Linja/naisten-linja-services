@@ -49,7 +49,8 @@ export async function getLetters(): Promise<Array<Letter> | null> {
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
        SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
-       FROM letters;
+       FROM letters
+       ORDER BY id DESC;
     `;
     const result = await db.query<LetterQueryResult>(queryText, []);
     if (result.rows.length < 1) {
@@ -192,6 +193,35 @@ export async function updateLetterContent({
     return queryResultToLetter(result.rows[0]);
   } catch (err) {
     console.error(`Failed update letter content. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateLetterAssignee({
+  letterUuid,
+  assigneeUuid,
+}: {
+  letterUuid: string;
+  assigneeUuid: string;
+}): Promise<Letter | null> {
+  try {
+    const client = await db.getClient();
+    const queryText = `
+       UPDATE letters
+       SET assigned_responder_uuid = $2::text
+       WHERE uuid = $1::text
+       RETURNING
+         uuid, title, content, created, assigned_responder_uuid, access_key, access_password, access_password_salt;
+    `;
+    const queryValues = [letterUuid, assigneeUuid];
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToLetter(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed assign letter ${letterUuid} to user ${assigneeUuid}`);
     console.error(err);
     return null;
   }

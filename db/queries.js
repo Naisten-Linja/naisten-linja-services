@@ -40,7 +40,7 @@ module.exports = {
       db,
       `
       ALTER TABLE ONLY ${table}
-        ALTER COLUMN created SET DEFAULT CURRENT_TIMESTAMP;
+        ALTER COLUMN created SET DEFAULT NOW();
       `,
     );
   },

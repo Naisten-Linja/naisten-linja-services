@@ -11,7 +11,7 @@ interface UsersProps extends RouteComponentProps {}
 
 export const Users = (props: UsersProps) => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
-  const { token } = useAuth();
+  const { token, user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();
 
   const updateUserRole = async ({ email, uuid, role }: { email: string; uuid: string; role: UserRole }) => {
@@ -32,6 +32,8 @@ export const Users = (props: UsersProps) => {
       addNotification({ type: 'error', message: `Failed to update ${email} role to ${role}`, timestamp: Date.now() });
     }
   };
+
+  const assignLetter = async (letterUuid: string, userUuid: string) => {};
 
   useEffect(() => {
     try {
@@ -73,6 +75,7 @@ export const Users = (props: UsersProps) => {
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                       updateUserRole({ uuid: u.uuid, email: u.email, role: e.target.value as UserRole });
                     }}
+                    disabled={loggedInUser !== null && u.uuid === loggedInUser.uuid}
                   >
                     {Object.values(UserRole).map((role) => {
                       return (

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Router } from '@reach/router';
 import { ThemeProvider } from 'styled-components';
 
-import { Container } from './ui-components/layout';
 import { NotFound } from './NotFound';
 import { Login } from './Login';
 import { FetchToken } from './FetchToken';
@@ -23,7 +22,7 @@ import './assets/turret.css';
 // we can make use of css variables instead
 const theme = {};
 
-const AppContainer = styled(Container)`
+const AppContainer = styled.div`
   padding-top: 2rem;
 `;
 
@@ -34,7 +33,7 @@ export const App = () => {
         <ThemeProvider theme={theme}>
           <NotificationsContextWrapper>
             <Navigation />
-            <AppContainer>
+            <AppContainer className="container">
               <Router>
                 <NotFound default />
                 <SendLetter path="/" />
