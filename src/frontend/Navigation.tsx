@@ -64,6 +64,6 @@ const NavigationWrapper = styled.div`
   padding: 0.5rem 0;
   z-index: 10;
   top: 0;
-  background: var(--info);
+  background: #2e0556;
   color: var(--white);
 `;

@@ -27,6 +27,15 @@ export enum LetterStatus {
 }
 
 export interface LetterAccessInfo {
+  uuid: string;
   accessKey: string;
   accessPassword: string;
+}
+
+export interface SendLetterParams {
+  uuid: string;
+  accessKey: string;
+  accessPassword: string;
+  title: string;
+  content: string;
 }

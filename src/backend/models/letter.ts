@@ -17,7 +17,10 @@ export interface Letter {
   status: LetterStatus;
 }
 
+// Initiate a new letter with just the accessKey, accessPass, and a random salt value used
+// to hash both of the access credentials.
 export async function generateLetterPlaceHolder(): Promise<LetterAccessInfo | null> {
+  // Generate a random 8 character long accessKey
   const accessKey = generateRandomString(4, 'hex').slice(0, 8).toUpperCase();
   const accessPassword = generatePass({
     length: 12,
@@ -42,9 +45,74 @@ export async function generateLetterPlaceHolder(): Promise<LetterAccessInfo | nu
     return {
       accessKey,
       accessPassword,
+      uuid: result.rows[0].uuid,
     };
   } catch (err) {
-    console.error('Faild to generate a new letter');
+    console.error('Failed to generate a new letter');
+    console.error(err);
+    return null;
+  }
+}
+
+export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
+  try {
+    const client = await db.getClient();
+    const queryText = `
+       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, salt
+       FROM letters
+       WHERE uuid = $1::text;
+    `;
+    const queryValues = [uuid];
+    const result = await db.query(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return {
+      uuid: result.rows[0].uuid,
+      status: result.rows[0].status,
+      created: result.rows[0].created,
+      accessKey: result.rows[0].access_key,
+      accessPassword: result.rows[0].access_password,
+      salt: result.rows[0].salt,
+      title: result.rows[0].title,
+      content: result.rows[0].content,
+      assignedResponderUuid: result.rows[0].assigned_responder_uuid,
+    };
+  } catch (err) {
+    console.error(`Failed to get letter. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateLetterContent({
+  uuid,
+  title,
+  content,
+}: {
+  uuid: string;
+  title: string;
+  content: string;
+}): Promise<Letter | null> {
+  try {
+    const client = await db.getClient();
+    const queryText = `
+       UPDATE letters
+       SET
+         title = $1::text,
+         content = $2::text
+       WHERE uuid = $3::text
+       RETURNING
+         uuid, title, content, created, assigned_responder_uuid, access_key, access_password, salt;
+    `;
+    const queryValues = [title.trim(), content.trim(), uuid];
+    const result = await db.query<Letter>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return result.rows[0];
+  } catch (err) {
+    console.error(`Failed update letter content. uuid: ${uuid}`);
     console.error(err);
     return null;
   }

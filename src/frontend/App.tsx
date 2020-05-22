@@ -36,8 +36,7 @@ export const App = () => {
             <AppContainer>
               <Router>
                 <NotFound default />
-                <Home path="/" />
-                <SendLetter path="/send" />
+                <SendLetter path="/" />
                 <Login path="login" />
                 <Users path="users" />
                 <FetchToken path="login/:nonce" />

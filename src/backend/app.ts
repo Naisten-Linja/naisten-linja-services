@@ -10,7 +10,7 @@ import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 import { getApiUsers, updateApiUserRole } from './controllers/user';
-import { createLetterController } from './controllers/letterControllers';
+import { createLetterController, sendLetter } from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -60,7 +60,14 @@ export function createApp(port: number) {
   );
   app.use(
     jwt({ secret: jwtPrivateKey }).unless({
-      path: ['/auth', '/auth/sso', '/auth/sso/verify', /^\/auth\/token\/.*/, '/online-letter/start'],
+      path: [
+        '/auth',
+        '/auth/sso',
+        '/auth/sso/verify',
+        /^\/auth\/token\/.*/,
+        '/online-letter/start',
+        '/online-letter/send',
+      ],
     }),
   );
 
@@ -177,6 +184,24 @@ export function createApp(port: number) {
       return;
     }
     res.status(201).json({ data: letter });
+  });
+
+  app.post('/online-letter/send', async (req, res) => {
+    const { uuid, title, content, accessKey, accessPassword } = req.body;
+    const trimmedTitle = title ? title.trim() : '';
+    const trimmedContent = content ? content.trim() : '';
+
+    if (!uuid || !trimmedTitle || !trimmedContent || !accessKey || !accessPassword) {
+      res.status(400).json({ error: 'missing title, content, accessKey or accessPassword' });
+      return;
+    }
+
+    const letter = await sendLetter({ uuid, accessKey, accessPassword, title: trimmedTitle, content: trimmedContent });
+    if (!letter) {
+      res.status(400).json({ error: 'failed to send letter' });
+      return;
+    }
+    res.status(201).json({ data: { success: true } });
   });
 
   return app;
