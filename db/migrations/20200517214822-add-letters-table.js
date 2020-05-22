@@ -22,7 +22,7 @@ exports.up = function (db, callback) {
       db.createTable.bind(db, 'letters', {
         id: { type: 'int', autoIncrement: true, primary: true },
         uuid: { type: 'string', notNull: true, unique: true },
-        created: { type: 'date', notNull: true },
+        created: { type: 'timestamp', notNull: true },
         status: { type: 'string', notNull: true, defaultValue: 'pending' },
 
         // Set the uniqueness as a combination of both keys

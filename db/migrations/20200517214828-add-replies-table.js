@@ -22,8 +22,8 @@ exports.up = function (db, callback) {
       db.createTable.bind(db, 'replies', {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
-        created: { type: 'date', notNull: true },
-        updated: { type: 'date', notNull: true },
+        created: { type: 'timestamp', notNull: true },
+        updated: { type: 'timestamp', notNull: true },
 
         is_published: { type: 'boolean', notNull: true, defaultValue: false },
         content: { type: 'text', notNull: true },

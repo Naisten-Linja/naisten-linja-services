@@ -22,7 +22,7 @@ exports.up = function (db, callback) {
       db.createTable.bind(db, 'users', {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
-        created: { type: 'date', notNull: true },
+        created: { type: 'timestamp', notNull: true },
         // All roles: unassigned, staff, volunteer
         role: { type: 'string', notNull: true, defaultValue: 'unassigned' },
         is_active: { type: 'boolean', notNull: true, defaultValue: false },
