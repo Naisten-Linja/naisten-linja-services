@@ -13,6 +13,7 @@ import { Navigation } from './Navigation';
 import { Users } from './Users';
 import { SendLetter } from './SendLetter';
 import { ReadLetter } from './ReadLetter';
+import { Letters } from './Letters';
 
 import 'turretcss/turret/_color.css';
 import './assets/turret.css';
@@ -39,7 +40,8 @@ export const App = () => {
                 <SendLetter path="/" />
                 <ReadLetter path="/read" />
                 <Login path="login" />
-                <Users path="users" />
+                <Users path="admin/users" />
+                <Letters path="admin/letters" />
                 <FetchToken path="login/:nonce" />
               </Router>
             </AppContainer>

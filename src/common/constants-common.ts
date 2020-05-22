@@ -32,6 +32,15 @@ export interface LetterAccessInfo {
   accessPassword: string;
 }
 
+export interface LetterAdmin {
+  uuid: string;
+  title: string | null;
+  content: string | null;
+  status: LetterStatus;
+  created: string;
+  assignedResponderUuid: string | null;
+}
+
 export interface ApiLetterContent {
   title: string;
   content: string;

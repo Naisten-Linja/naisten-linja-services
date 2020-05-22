@@ -44,6 +44,25 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
   };
 }
 
+export async function getLetters(): Promise<Array<Letter> | null> {
+  try {
+    // Fetch the letter using the unique accessKeyHash
+    const queryText = `
+       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
+       FROM letters;
+    `;
+    const result = await db.query<LetterQueryResult>(queryText, []);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return result.rows.map((r) => queryResultToLetter(r));
+  } catch (err) {
+    console.error('Failed to fetch letter by accessKey');
+    console.error(err);
+    return null;
+  }
+}
+
 // Initiate a new letter with just the accessKey, accessPass, and a random salt value used
 // to hash both of the access credentials.
 export async function generateLetterPlaceHolder(): Promise<LetterAccessInfo | null> {
@@ -159,12 +178,13 @@ export async function updateLetterContent({
        UPDATE letters
        SET
          title = $1::text,
-         content = $2::text
-       WHERE uuid = $3::text
+         content = $2::text,
+         status = $3::text
+       WHERE uuid = $4::text
        RETURNING
          uuid, title, content, created, assigned_responder_uuid, access_key, access_password, access_password_salt;
     `;
-    const queryValues = [title.trim(), content.trim(), uuid];
+    const queryValues = [title.trim(), content.trim(), LetterStatus.sent, uuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

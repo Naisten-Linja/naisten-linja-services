@@ -48,9 +48,14 @@ const MainMenu = () => {
           <Link to="/">Naisten Linja</Link>
         </li>
         {user && user.role === UserRole.staff && (
-          <li>
-            <Link to="users">Users</Link>
-          </li>
+          <>
+            <li>
+              <Link to="admin/letters">Letters</Link>
+            </li>
+            <li>
+              <Link to="admin/users">Users</Link>
+            </li>
+          </>
         )}
       </ul>
     </nav>

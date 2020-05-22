@@ -4,13 +4,13 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 
-import { UserRole } from '../common/constants-common';
+import { UserRole, LetterAdmin } from '../common/constants-common';
 import { getConfig } from './config';
 import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
 import { getApiUsers, updateApiUserRole } from './controllers/user';
-import { createLetterController, sendLetter, readLetter } from './controllers/letterControllers';
+import { createLetterController, sendLetter, readLetter, getAllLetters } from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -222,6 +222,27 @@ export function createApp(port: number) {
       created: letter.created,
     };
     res.status(200).json({ data: letterContent });
+  });
+
+  app.get('/letters', async (req, res) => {
+    // Only allow staff to edit user's role
+    // @ts-ignore
+    if (req.user.role !== UserRole.staff) {
+      res.status(403).json({ error: 'unauthorized' });
+      return;
+    }
+    const letters = await getAllLetters();
+    if (!letters) {
+      res.status(404).json({ error: 'no letter found' });
+      return;
+    }
+    const result = letters.map(
+      (letter): LetterAdmin => {
+        const { created, uuid, title, content, assignedResponderUuid, status } = letter;
+        return { uuid, created, title, content, assignedResponderUuid, status };
+      },
+    );
+    res.status(200).json({ data: result });
   });
 
   return app;
