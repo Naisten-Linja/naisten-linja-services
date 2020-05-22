@@ -149,7 +149,7 @@ export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   try {
     const client = await db.getClient();
     const queryText = `
-       SELECT uuid, title, content, status, created, assigned_responder_uuid, access_key, access_password, access_password_salt
+       SELECT *
        FROM letters
        WHERE uuid=$1::text;
     `;
@@ -184,8 +184,7 @@ export async function updateLetterContent({
          content = $2::text,
          status = $3::text
        WHERE uuid = $4::text
-       RETURNING
-         uuid, title, content, created, assigned_responder_uuid, access_key, access_password, access_password_salt;
+       RETURNING *;
     `;
     const queryValues = [title.trim(), content.trim(), LetterStatus.sent, uuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
@@ -213,8 +212,7 @@ export async function updateLetterAssignee({
        UPDATE letters
        SET assigned_responder_uuid = $2::text
        WHERE uuid = $1::text
-       RETURNING
-         uuid, title, content, created, assigned_responder_uuid, access_key, access_password, access_password_salt;
+       RETURNING *;
     `;
     const queryValues = [letterUuid, assigneeUuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
