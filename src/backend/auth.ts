@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { getConfig } from './config';
 import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
-import { UpsertUserParams, User } from './models/user';
+import { UpsertUserParams, User } from './models/users';
 import { UserRole } from '../common/constants-common';
 
 export interface DiscourseSsoData {

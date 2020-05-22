@@ -50,8 +50,7 @@ export async function upsertUser(userParams: UpsertUserParams): Promise<User | n
       DO UPDATE SET
         email = EXCLUDED.email,
         full_name = EXCLUDED.full_name
-      RETURNING
-        id, uuid, created, role, full_name, email, discourse_user_id, is_active;
+      RETURNING *;
     `;
     const queryValues = [discourseUserId, email, fullName];
     const result = await db.query<UserQueryResult>(queryText, queryValues);
@@ -68,8 +67,7 @@ export async function getUsers(): Promise<Array<User> | null> {
   try {
     const client = await db.getClient();
     const queryText = `
-      SELECT
-        id, uuid, created, role, full_name, email, discourse_user_id, is_active
+      SELECT *
       FROM users;
     `;
     const result = await db.query<UserQueryResult>(queryText, []);
@@ -85,8 +83,7 @@ export async function getUserByUuid(uuid: User['uuid']): Promise<User | null> {
   try {
     const client = await db.getClient();
     const queryText = `
-      SELECT
-        id, uuid, created, role, full_name, email, discourse_user_id, is_active
+      SELECT *
       FROM users
       WHERE uuid = $1::text;
     `;
@@ -110,7 +107,7 @@ export async function updateUserRole({ role, uuid }: { role: UserRole; uuid: Use
       UPDATE users
       SET role = $1::text
       WHERE uuid = $2::text
-      RETURNING id, uuid, created, role, full_name, email, discourse_user_id, is_active;
+      RETURNING *;
     `;
     const queryValues = [role, uuid];
     const result = await db.query<UserQueryResult>(queryText, queryValues);

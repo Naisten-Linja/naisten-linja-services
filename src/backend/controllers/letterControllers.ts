@@ -1,13 +1,13 @@
 import type { ApiLetterAccessInfo, ApiSendLetterParams, ApiLetterAdmin } from '../../common/constants-common';
-import { createLetterCredentials } from '../models/letter';
 import {
   Letter,
+  createLetterCredentials,
   updateLetterContent,
   getLetterByUuid,
   getLetterByCredentials,
   getLetters,
   updateLetterAssignee,
-} from '../models/letter';
+} from '../models/letters';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
 

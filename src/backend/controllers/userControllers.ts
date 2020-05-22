@@ -1,7 +1,5 @@
 import { ApiUserData } from '../../common/constants-common';
-import { getUsers, getUserByUuid, updateUserRole } from '../models/user';
-
-import { User } from '../models/user';
+import { User, getUsers, getUserByUuid, updateUserRole } from '../models/users';
 
 export async function getApiUsers(): Promise<Array<ApiUserData>> {
   const dbUsers = await getUsers();

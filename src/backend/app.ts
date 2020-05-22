@@ -8,8 +8,8 @@ import { UserRole, ApiLetterAdmin } from '../common/constants-common';
 import { getConfig } from './config';
 import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
-import { upsertUser, UpsertUserParams } from './models/user';
-import { getApiUsers, updateApiUserRole } from './controllers/userController';
+import { upsertUser, UpsertUserParams } from './models/users';
+import { getApiUsers, updateApiUserRole } from './controllers/userControllers';
 import { assignLetter, initiateLetter, sendLetter, readLetter, getAllLetters } from './controllers/letterControllers';
 
 export function createApp(port: number) {
@@ -85,8 +85,6 @@ export function createApp(port: number) {
   });
 
   app.get('/auth/sso/verify', async (req, res) => {
-    console.log('string    ', generateRandomString(5, 'base64'));
-    console.log('string    ', generateRandomString(8, 'hex'));
     const { frontendUrl } = getConfig();
     if (!req.session) {
       console.log('Missing Session in request');
