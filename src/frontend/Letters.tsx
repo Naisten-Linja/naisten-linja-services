@@ -1,25 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import axios from 'axios';
 
 import type { ApiLetterAdmin, ApiUserData } from '../common/constants-common';
-import { BACKEND_URL } from './constants-frontend';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
+import { useRequest } from './http';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { token } = useAuth();
   const { addNotification } = useNotifications();
+  const { getRequest, postRequest } = useRequest();
 
   const fetchLetters = useCallback(async () => {
     try {
-      const result = await axios.get<{ data: Array<ApiLetterAdmin> }>(`${BACKEND_URL}/letters`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const result = await getRequest<{ data: Array<ApiLetterAdmin> }>(`/api/letters`, {
+        useJwt: true,
       });
       setLetters(
         result.data.data.sort(
@@ -41,15 +38,10 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   }) => {
     const email = (users.find((u) => u.uuid === assigneeUuid) || {}).email;
     try {
-      const result = await axios.post(
-        `${BACKEND_URL}/letters/assign`,
+      const result = await postRequest(
+        '/api/letters/assign',
         { letterUuid, assigneeUuid },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
+        { useJwt: true },
       );
       if (result.data.data) {
         addNotification({
@@ -73,10 +65,8 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const result = await axios.get(`${BACKEND_URL}/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const result = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
+          useJwt: true,
         });
         setUsers(result.data.data);
       } catch (err) {

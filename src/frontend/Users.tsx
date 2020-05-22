@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import axios from 'axios';
 
-import { BACKEND_URL } from './constants-frontend';
 import { ApiUserData, UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
+import { useRequest } from './http';
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { token, user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();
+  const { getRequest, putRequest } = useRequest();
 
   const updateUserRole = async ({
     email,
@@ -22,11 +22,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     role: UserRole;
   }) => {
     try {
-      await axios.put(
-        `${BACKEND_URL}/users/${uuid}/role`,
-        { role },
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-      );
+      await putRequest(`/api/users/${uuid}/role`, { role }, { useJwt: true });
       addNotification({
         type: 'success',
         message: `Updated ${email} role to ${role}`,
@@ -45,10 +41,8 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   useEffect(() => {
     try {
       const fetchUsers = async () => {
-        const result = await axios.get(`${BACKEND_URL}/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const result = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
+          useJwt: true,
         });
         setUsers(result.data.data);
       };

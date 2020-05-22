@@ -17,7 +17,7 @@ import { Letters } from './Letters';
 import 'turretcss/turret/_color.css';
 import './assets/turret.css';
 
-// Theme placeholder case there is a need for theme variables.
+// Theme placeholder in case there is a need for theme variables.
 // For colors or orther turret-specific variables,
 // we can make use of css variables instead
 const theme = {};

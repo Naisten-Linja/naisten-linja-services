@@ -65,7 +65,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   function login() {
     setToken(null);
     setUser(null);
-    window.location.replace(`${BACKEND_URL}/auth/sso`);
+    window.location.replace(`${BACKEND_URL}/api/auth/sso`);
   }
 
   function logout() {

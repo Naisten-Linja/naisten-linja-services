@@ -1,28 +1,33 @@
 import React, { useRef, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import axios from 'axios';
 import styled from 'styled-components';
 
 import type { ApiLetterContent } from '../common/constants-common';
-import { BACKEND_URL } from './constants-frontend';
 import { useNotifications } from './NotificationsContext';
+import { useRequest } from './http';
 
 export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
-  const formRef = useRef<HTMLFormElement | null>(null);
   const { addNotification } = useNotifications();
   const [letter, setLetter] = useState<ApiLetterContent | null>(null);
+  const { postRequest } = useRequest();
+  const formRef = useRef<HTMLFormElement | null>(null);
+
   const fetchLetter = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (formRef && formRef.current) {
       const { accessKey, accessPassword } = formRef.current;
       try {
-        const credentials = {
+        const letterCredentials = {
           // @ts-ignore
           accessKey: accessKey.value,
           accessPassword: accessPassword.value,
         };
-        const result = await axios.post(`${BACKEND_URL}/online-letter/read`, credentials);
-        setLetter(result.data.data as ApiLetterContent);
+        const result = await postRequest<{ data: ApiLetterContent }>(
+          '/api/online-letter/read',
+          letterCredentials,
+          { useJwt: true },
+        );
+        setLetter(result.data.data);
       } catch (err) {
         console.log(err);
         addNotification({

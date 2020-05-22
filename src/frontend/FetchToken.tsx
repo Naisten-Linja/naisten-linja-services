@@ -2,19 +2,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { RouteComponentProps, Redirect } from '@reach/router';
 
-import { BACKEND_URL } from './constants-frontend';
 import { useAuth } from './AuthContext';
+import { useRequest } from './http';
 
 export const FetchToken = (props: RouteComponentProps<{ nonce?: string }>) => {
   const { nonce } = props;
   const [done, setDone] = useState<boolean>(false);
   const { setToken } = useAuth();
+  const { getRequest } = useRequest();
 
   useEffect(() => {
     const source = axios.CancelToken.source();
     const getToken = async (nonce: string) => {
       try {
-        const result = await axios.get(`${BACKEND_URL}/auth/token/${nonce}`, {
+        const result = await getRequest<{ data: { token: string } }>(`/api/auth/token/${nonce}`, {
           withCredentials: true,
           cancelToken: source.token,
         });
