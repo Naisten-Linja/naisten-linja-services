@@ -34,6 +34,8 @@ export function getConfig() {
     throw `BACKEND_URL has hostname = null!`;
   }
   return {
+    environment: process.env.ENVIRONMENT!,
+
     frontendUrl: process.env.FRONTEND_URL!,
     backendUrl: process.env.BACKEND_URL!,
     hostName: hostname,
@@ -42,7 +44,6 @@ export function getConfig() {
     discourseUrl: process.env.DISCOURSE_URL!,
     discourseSsoSecret: process.env.DISCOURSE_SSO_SECRET!,
     cookieSecret: process.env.COOKIE_SECRET!,
-    environment: process.env.ENVIRONMENT!,
 
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
     letterPrivateKey: process.env.LETTER_PRIVATE_KEY!,

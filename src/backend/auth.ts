@@ -72,7 +72,7 @@ export function validateSsoRequest(req: Request) {
   }
 
   // THIS STEP IS VERY IMPORTANT
-  // Make sure the sso string is authenticity by comparing its decoded
+  // Make sure the sso string is authenticity by comparing its encrypted
   // bytes (using the private key) to the signature bytes
   const ssoHmac = hmacSha256(sso) as Buffer;
   const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0; // 0 means no difference

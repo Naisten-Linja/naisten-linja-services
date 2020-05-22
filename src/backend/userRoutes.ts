@@ -1,6 +1,6 @@
 import express from 'express';
-import { getApiUsers, updateApiUserRole } from './controllers/userControllers';
 
+import { getApiUsers, updateApiUserRole } from './userControllers';
 import { UserRole } from '../common/constants-common';
 
 const router = express.Router();

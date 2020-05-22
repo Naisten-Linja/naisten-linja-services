@@ -59,16 +59,17 @@ export function createApp() {
       },
     }),
   );
+
   app.use(
     jwt({ secret: jwtPrivateKey }).unless({
       path: [
-        '/auth',
-        '/auth/sso',
-        '/auth/sso/verify',
-        /^\/auth\/token\/.*/,
-        '/online-letter/start',
-        '/online-letter/send',
-        '/online-letter/read',
+        '/api/auth',
+        '/api/auth/sso',
+        '/api/auth/sso/verify',
+        /^\/api\/auth\/token\/.*/,
+        '/api/online-letter/start',
+        '/api/online-letter/send',
+        '/api/online-letter/read',
       ],
     }),
   );
@@ -90,10 +91,10 @@ export function createApp() {
     }),
   );
 
-  app.use('/auth', authRoutes);
-  app.use('/users', userRoutes);
-  app.use('/online-letter', onlineLetterRoutes);
-  app.use('/letters', letterRoutes);
+  app.use('/api/auth', authRoutes);
+  app.use('/api/users', userRoutes);
+  app.use('/api/online-letter', onlineLetterRoutes);
+  app.use('/api/letters', letterRoutes);
 
   app.use(
     expressWinston.errorLogger({

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { initiateLetter, sendLetter, readLetter } from './controllers/letterControllers';
+import { initiateLetter, sendLetter, readLetter } from './letterControllers';
 
 const router = express.Router();
 
