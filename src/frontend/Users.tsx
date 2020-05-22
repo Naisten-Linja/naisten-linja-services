@@ -14,22 +14,33 @@ export const Users = (props: UsersProps) => {
   const { token, user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();
 
-  const updateUserRole = async ({ email, uuid, role }: { email: string; uuid: string; role: UserRole }) => {
+  const updateUserRole = async ({
+    email,
+    uuid,
+    role,
+  }: {
+    email: string;
+    uuid: string;
+    role: UserRole;
+  }) => {
     try {
       await axios.put(
         `${BACKEND_URL}/users/${uuid}/role`,
         { role },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
-      addNotification({ type: 'success', message: `Updated ${email} role to ${role}`, timestamp: Date.now() });
+      addNotification({
+        type: 'success',
+        message: `Updated ${email} role to ${role}`,
+        timestamp: Date.now(),
+      });
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: `Failed to update ${email} role to ${role}`, timestamp: Date.now() });
+      addNotification({
+        type: 'error',
+        message: `Failed to update ${email} role to ${role}`,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -71,7 +82,11 @@ export const Users = (props: UsersProps) => {
                   <select
                     defaultValue={u.role}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      updateUserRole({ uuid: u.uuid, email: u.email, role: e.target.value as UserRole });
+                      updateUserRole({
+                        uuid: u.uuid,
+                        email: u.email,
+                        role: e.target.value as UserRole,
+                      });
                     }}
                     disabled={loggedInUser !== null && u.uuid === loggedInUser.uuid}
                   >

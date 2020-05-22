@@ -12,7 +12,13 @@ import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/users';
 import { getApiUsers, updateApiUserRole } from './controllers/userControllers';
-import { assignLetter, initiateLetter, sendLetter, readLetter, getAllLetters } from './controllers/letterControllers';
+import {
+  assignLetter,
+  initiateLetter,
+  sendLetter,
+  readLetter,
+  getAllLetters,
+} from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -95,7 +101,11 @@ export function createApp(port: number) {
     const { frontendUrl } = getConfig();
     if (!req.session) {
       console.log('Missing Session in request');
-      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
+      res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          JSON.stringify({ error: 'unable to login' }),
+        )}`,
+      );
       return;
     }
     // req.session.touch();
@@ -107,11 +117,19 @@ export function createApp(port: number) {
     const { frontendUrl } = getConfig();
     if (!req.session) {
       console.log('Missing Session in request');
-      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
+      res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          JSON.stringify({ error: 'unable to login' }),
+        )}`,
+      );
     }
     if (!validateSsoRequest(req)) {
       console.log('Invalid sso return request', req.query);
-      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
+      res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          JSON.stringify({ error: 'unable to login' }),
+        )}`,
+      );
       return;
     }
 
@@ -119,7 +137,11 @@ export function createApp(port: number) {
     // Create/Update user information in the database
     const user = await upsertUser(userData);
     if (!user) {
-      res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`);
+      res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          JSON.stringify({ error: 'unable to login' }),
+        )}`,
+      );
       return;
     }
 
@@ -182,7 +204,9 @@ export function createApp(port: number) {
 
     // Verify if role in request body is valid
     if (!req.body.role || Object.values(UserRole).indexOf(req.body.role) < 0) {
-      res.status(400).json({ error: `invalid role. allowed roles are ${Object.values(UserRole).join(', ')}` });
+      res
+        .status(400)
+        .json({ error: `invalid role. allowed roles are ${Object.values(UserRole).join(', ')}` });
       return;
     }
 
@@ -214,7 +238,13 @@ export function createApp(port: number) {
       return;
     }
 
-    const letter = await sendLetter({ uuid, accessKey, accessPassword, title: trimmedTitle, content: trimmedContent });
+    const letter = await sendLetter({
+      uuid,
+      accessKey,
+      accessPassword,
+      title: trimmedTitle,
+      content: trimmedContent,
+    });
     if (!letter) {
       res.status(400).json({ error: 'failed to send letter' });
       return;

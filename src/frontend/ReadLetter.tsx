@@ -38,7 +38,10 @@ export const ReadLetter = (props: RouteComponentProps) => {
       <h1>Read letter</h1>
       {letter && (
         <>
-          <p>Here is the letter you have sent to us on {new Date(letter.created).toLocaleDateString('fi-FI')}</p>
+          <p>
+            Here is the letter you have sent to us on{' '}
+            {new Date(letter.created).toLocaleDateString('fi-FI')}
+          </p>
           <h2>{letter.title}</h2>
           <LetterContent>{letter.content}</LetterContent>
         </>

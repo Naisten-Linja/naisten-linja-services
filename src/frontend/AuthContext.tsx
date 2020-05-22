@@ -47,7 +47,9 @@ function getUserDataFromToken(token: string | null): TokenUserData | null {
 }
 
 export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
-  const [user, setUser] = useState<TokenUserData | null>(getUserDataFromToken(localStorage.getItem('token')));
+  const [user, setUser] = useState<TokenUserData | null>(
+    getUserDataFromToken(localStorage.getItem('token')),
+  );
   const [token, setStateToken] = useState<string | null>(localStorage.getItem('token'));
   const { addNotification } = useNotifications();
 
@@ -76,7 +78,11 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      addNotification({ type: 'success', message: `Welcome ${user.email}!`, timestamp: Date.now() });
+      addNotification({
+        type: 'success',
+        message: `Welcome ${user.email}!`,
+        timestamp: Date.now(),
+      });
     }
   }, [user]);
 
@@ -90,7 +96,11 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     }
   }, [token, setToken]);
 
-  return <AuthContext.Provider value={{ token, user, logout, login, setToken }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ token, user, logout, login, setToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export function useAuth() {

@@ -20,7 +20,10 @@ function getPool(): Pool {
   return pool;
 }
 
-function query<R extends QueryResultRow = any, I extends any[] = any[]>(queryText: string, values: I) {
+function query<R extends QueryResultRow = any, I extends any[] = any[]>(
+  queryText: string,
+  values: I,
+) {
   const pgPool = getPool();
   return pgPool.query<R, I>(queryText, values);
 }

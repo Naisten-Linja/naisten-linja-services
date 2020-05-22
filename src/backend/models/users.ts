@@ -100,7 +100,13 @@ export async function getUserByUuid(uuid: User['uuid']): Promise<User | null> {
   }
 }
 
-export async function updateUserRole({ role, uuid }: { role: UserRole; uuid: User['uuid'] }): Promise<User | null> {
+export async function updateUserRole({
+  role,
+  uuid,
+}: {
+  role: UserRole;
+  uuid: User['uuid'];
+}): Promise<User | null> {
   try {
     const client = await db.getClient();
     const queryText = `

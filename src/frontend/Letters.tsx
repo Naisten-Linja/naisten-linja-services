@@ -21,14 +21,24 @@ export const Letters = (props: RouteComponentProps) => {
           'Content-Type': 'application/json',
         },
       });
-      setLetters(result.data.data.sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime()));
+      setLetters(
+        result.data.data.sort(
+          (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime(),
+        ),
+      );
     } catch (err) {
       setLetters([]);
       addNotification({ type: 'error', message: 'Unable to get letters', timestamp: Date.now() });
     }
   }, [setLetters]);
 
-  const assignLetter = async ({ letterUuid, assigneeUuid }: { letterUuid: string; assigneeUuid: string }) => {
+  const assignLetter = async ({
+    letterUuid,
+    assigneeUuid,
+  }: {
+    letterUuid: string;
+    assigneeUuid: string;
+  }) => {
     const email = (users.find((u) => u.uuid === assigneeUuid) || {}).email;
     try {
       const result = await axios.post(
@@ -42,13 +52,21 @@ export const Letters = (props: RouteComponentProps) => {
         },
       );
       if (result.data.data) {
-        addNotification({ type: 'success', message: `Letter was assigned to ${email}`, timestamp: Date.now() });
+        addNotification({
+          type: 'success',
+          message: `Letter was assigned to ${email}`,
+          timestamp: Date.now(),
+        });
         fetchLetters();
       }
     } catch (err) {
       console.log(err);
       fetchLetters();
-      addNotification({ type: 'error', message: `Unable to assign letter to ${email}`, timestamp: Date.now() });
+      addNotification({
+        type: 'error',
+        message: `Unable to assign letter to ${email}`,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -104,7 +122,10 @@ export const Letters = (props: RouteComponentProps) => {
                     <option value="">unassigned</option>;
                     {users.map((u) => {
                       return (
-                        <option key={`assign-letter-option-${letter.uuid}-${u.uuid}`} value={u.uuid}>
+                        <option
+                          key={`assign-letter-option-${letter.uuid}-${u.uuid}`}
+                          value={u.uuid}
+                        >
                           {u.email} {u.fullName && `(${u.fullName})`}
                         </option>
                       );

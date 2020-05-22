@@ -3,5 +3,5 @@
   "trailingComma": "all",
   "bracketSpacing": true,
   "jsxBracketSameLine": false,
-  "printWidth": 120
+  "printWidth": 100
 }

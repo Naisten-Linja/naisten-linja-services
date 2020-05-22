@@ -1,4 +1,8 @@
-import type { ApiLetterCredentials, ApiSendLetterParams, ApiLetterAdmin } from '../../common/constants-common';
+import type {
+  ApiLetterCredentials,
+  ApiSendLetterParams,
+  ApiLetterAdmin,
+} from '../../common/constants-common';
 import {
   Letter,
   createLetterCredentials,
@@ -19,7 +23,10 @@ export async function initiateLetter(): Promise<ApiLetterCredentials | null> {
   return credentials;
 }
 
-export async function validateLetterCredentials({ accessKey, accessPassword }: ApiLetterCredentials): Promise<boolean> {
+export async function validateLetterCredentials({
+  accessKey,
+  accessPassword,
+}: ApiLetterCredentials): Promise<boolean> {
   const letter = await getLetterByCredentials({ accessKey, accessPassword });
   if (!letter) {
     return false;
@@ -29,9 +36,13 @@ export async function validateLetterCredentials({ accessKey, accessPassword }: A
   // Get accessKey hash
   const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
   // Get password hash
-  const { hash: accessPasswordHash } = saltHash({ password: accessPassword, salt: letter.accessPasswordSalt });
+  const { hash: accessPasswordHash } = saltHash({
+    password: accessPassword,
+    salt: letter.accessPasswordSalt,
+  });
   // Make sure hash values match those that are stored in the database
-  const isValid = accessKeyHash === letter.accessKey && accessPasswordHash === letter.accessPassword;
+  const isValid =
+    accessKeyHash === letter.accessKey && accessPasswordHash === letter.accessPassword;
 
   return isValid;
 }
