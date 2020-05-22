@@ -33,11 +33,17 @@ export async function upsertUser(userParams: UpsertUserParams): Promise<User | n
         id, uuid, created, role, full_name, email, discourse_user_id, is_active;
     `;
     const queryValues = [discourseUserId, email, fullName];
-    const result = await db.query<User>(queryText, queryValues);
-    if (!result.rows[0].fullName) {
-      result.rows[0].fullName = null;
-    }
-    return result.rows[0];
+    const result = await db.query(queryText, queryValues);
+    const row = result.rows[0];
+    return {
+      id: row.id,
+      uuid: row.uuid,
+      created: row.created,
+      role: row.role,
+      fullName: row.full_name || null,
+      email: row.email,
+      discourseUserId: row.discourse_user_id,
+    };
   } catch (err) {
     console.error('Failed to create or update user');
     console.error(err);

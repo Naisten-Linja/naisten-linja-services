@@ -2,6 +2,7 @@ import type { LetterAccessInfo, SendLetterParams } from '../../common/constants-
 import { generateLetterPlaceHolder } from '../models/letter';
 import { Letter, updateLetterContent, getLetterByUuid } from '../models/letter';
 import { saltHash } from '../utils';
+import { getConfig } from '../config';
 
 export async function createLetterController(): Promise<LetterAccessInfo | null> {
   const letter = await generateLetterPlaceHolder();
@@ -18,8 +19,12 @@ export async function validateLetterCredentials({
     return false;
   }
 
-  const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letter.salt });
-  const { hash: accessPasswordHash } = saltHash({ password: accessPassword, salt: letter.salt });
+  const { letterAccessKeySalt } = getConfig();
+  // Get accessKey hash
+  const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
+  // Get password hash
+  const { hash: accessPasswordHash } = saltHash({ password: accessPassword, salt: letter.accessPasswordSalt });
+  // Make sure hash values match those that are stored in the database
   const isValid = accessKeyHash === letter.accessKey && accessPasswordHash === letter.accessPassword;
 
   return isValid;
@@ -39,3 +44,5 @@ export async function sendLetter({
   const letter = await updateLetterContent({ uuid, title, content });
   return letter;
 }
+
+// export async function readLetter({ accessKey: string, accessPassword: string });

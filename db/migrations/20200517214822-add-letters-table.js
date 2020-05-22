@@ -20,15 +20,15 @@ exports.up = function (db, callback) {
   async.series(
     [
       db.createTable.bind(db, 'letters', {
-        id: { type: 'int', autoIncrement: true, unique: true },
+        id: { type: 'int', autoIncrement: true, primary: true },
         uuid: { type: 'string', notNull: true, unique: true },
         created: { type: 'date', notNull: true },
         status: { type: 'string', notNull: true, defaultValue: 'pending' },
 
         // Set the uniqueness as a combination of both keys
-        access_key: { type: 'string', primary: true, notNull: true },
-        access_password: { type: 'string', primary: true, notNull: true },
-        salt: { type: 'string', notNull: true },
+        access_key: { type: 'string', unique: true, notNull: true },
+        access_password: { type: 'string', notNull: true },
+        access_password_salt: { type: 'string', notNull: true },
 
         title: { type: 'string' },
         content: { type: 'text' },
