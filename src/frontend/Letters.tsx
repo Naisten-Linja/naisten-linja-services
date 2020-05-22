@@ -2,20 +2,20 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import axios from 'axios';
 
-import type { LetterAdmin, ApiUserData } from '../common/constants-common';
+import type { ApiLetterAdmin, ApiUserData } from '../common/constants-common';
 import { BACKEND_URL } from './constants-frontend';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 
 export const Letters = (props: RouteComponentProps) => {
-  const [letters, setLetters] = useState<Array<LetterAdmin>>([]);
+  const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { token } = useAuth();
   const { addNotification } = useNotifications();
 
   const fetchLetters = useCallback(async () => {
     try {
-      const result = await axios.get<{ data: Array<LetterAdmin> }>(`${BACKEND_URL}/letters`, {
+      const result = await axios.get<{ data: Array<ApiLetterAdmin> }>(`${BACKEND_URL}/letters`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

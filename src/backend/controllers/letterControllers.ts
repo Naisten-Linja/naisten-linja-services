@@ -1,5 +1,5 @@
-import type { LetterAccessInfo, SendLetterParams, LetterAdmin } from '../../common/constants-common';
-import { generateLetterPlaceHolder } from '../models/letter';
+import type { ApiLetterAccessInfo, ApiSendLetterParams, ApiLetterAdmin } from '../../common/constants-common';
+import { createLetterCredentials } from '../models/letter';
 import {
   Letter,
   updateLetterContent,
@@ -11,8 +11,8 @@ import {
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
 
-export async function createLetterController(): Promise<LetterAccessInfo | null> {
-  const letter = await generateLetterPlaceHolder();
+export async function initiateLetter(): Promise<ApiLetterAccessInfo | null> {
+  const letter = await createLetterCredentials();
   return letter;
 }
 
@@ -20,7 +20,7 @@ export async function validateLetterCredentials({
   uuid,
   accessKey,
   accessPassword,
-}: LetterAccessInfo): Promise<boolean> {
+}: ApiLetterAccessInfo): Promise<boolean> {
   const letter = await getLetterByUuid(uuid);
   if (!letter) {
     return false;
@@ -43,7 +43,7 @@ export async function sendLetter({
   accessKey,
   accessPassword,
   uuid,
-}: SendLetterParams): Promise<Letter | null> {
+}: ApiSendLetterParams): Promise<Letter | null> {
   const isValid = await validateLetterCredentials({ uuid, accessKey, accessPassword });
   if (!isValid) {
     return null;
@@ -76,7 +76,7 @@ export async function assignLetter({
 }: {
   letterUuid: string;
   assigneeUuid: string;
-}): Promise<LetterAdmin | null> {
+}): Promise<ApiLetterAdmin | null> {
   const letter = await updateLetterAssignee({ letterUuid, assigneeUuid });
   if (!letter) {
     return null;

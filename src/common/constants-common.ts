@@ -26,13 +26,13 @@ export enum LetterStatus {
   sent = 'sent',
 }
 
-export interface LetterAccessInfo {
+export interface ApiLetterAccessInfo {
   uuid: string;
   accessKey: string;
   accessPassword: string;
 }
 
-export interface LetterAdmin {
+export interface ApiLetterAdmin {
   uuid: string;
   title: string | null;
   content: string | null;
@@ -47,7 +47,7 @@ export interface ApiLetterContent {
   created: string;
 }
 
-export interface SendLetterParams {
+export interface ApiSendLetterParams {
   uuid: string;
   accessKey: string;
   accessPassword: string;

@@ -3,7 +3,7 @@ import { generate as generatePass } from 'generate-password';
 import shortid from 'shortid';
 
 import { saltHash, generateRandomString } from '../utils';
-import { LetterAccessInfo, LetterStatus } from '../../common/constants-common';
+import { ApiLetterAccessInfo, LetterStatus } from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -66,7 +66,7 @@ export async function getLetters(): Promise<Array<Letter> | null> {
 
 // Initiate a new letter with just the accessKey, accessPass, and a random salt value used
 // to hash both of the access credentials.
-export async function generateLetterPlaceHolder(): Promise<LetterAccessInfo | null> {
+export async function createLetterCredentials(): Promise<ApiLetterAccessInfo | null> {
   const { letterAccessKeySalt } = getConfig();
   // Generate a random 8 character long accessKey
   const accessKey = generateRandomString(4, 'hex').slice(0, 8).toUpperCase();

@@ -4,19 +4,13 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 
-import { UserRole, LetterAdmin } from '../common/constants-common';
+import { UserRole, ApiLetterAdmin } from '../common/constants-common';
 import { getConfig } from './config';
 import { getQueryData, encodeString, generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser, UpsertUserParams } from './models/user';
-import { getApiUsers, updateApiUserRole } from './controllers/user';
-import {
-  assignLetter,
-  createLetterController,
-  sendLetter,
-  readLetter,
-  getAllLetters,
-} from './controllers/letterControllers';
+import { getApiUsers, updateApiUserRole } from './controllers/userController';
+import { assignLetter, initiateLetter, sendLetter, readLetter, getAllLetters } from './controllers/letterControllers';
 
 export function createApp(port: number) {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
@@ -185,7 +179,7 @@ export function createApp(port: number) {
   });
 
   app.post('/online-letter/start', async (req, res) => {
-    const letter = await createLetterController();
+    const letter = await initiateLetter();
     if (!letter) {
       res.status(400).json({ error: 'unable to start a letter' });
       return;
@@ -244,7 +238,7 @@ export function createApp(port: number) {
     }
     const result = letters
       .map(
-        (letter): LetterAdmin => {
+        (letter): ApiLetterAdmin => {
           const { created, uuid, title, content, assignedResponderUuid, status } = letter;
           return { uuid, created, title, content, assignedResponderUuid, status };
         },

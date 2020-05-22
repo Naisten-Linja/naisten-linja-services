@@ -33,8 +33,6 @@ export const Users = (props: UsersProps) => {
     }
   };
 
-  const assignLetter = async (letterUuid: string, userUuid: string) => {};
-
   useEffect(() => {
     try {
       const fetchUsers = async () => {

@@ -5,10 +5,10 @@ import axios from 'axios';
 import { BACKEND_URL } from './constants-frontend';
 import { Button } from './ui-components/buttons';
 import { useNotifications } from './NotificationsContext';
-import type { LetterAccessInfo } from '../common/constants-common';
+import type { ApiLetterAccessInfo } from '../common/constants-common';
 
 export const SendLetter = (props: RouteComponentProps) => {
-  const [letterCredentials, setLetterCredentials] = useState<LetterAccessInfo | null>(null);
+  const [letterCredentials, setLetterCredentials] = useState<ApiLetterAccessInfo | null>(null);
   const [isLetterSent, setIsLetterSent] = useState<boolean>(false);
   const { addNotification } = useNotifications();
   const formRef = useRef<HTMLFormElement | null>(null);
