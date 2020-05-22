@@ -7,7 +7,6 @@ import {
   Letter,
   createLetterCredentials,
   updateLetterContent,
-  getLetterByUuid,
   getLetterByCredentials,
   getLetters,
   updateLetterAssignee,

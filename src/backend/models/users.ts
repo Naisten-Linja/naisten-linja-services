@@ -41,7 +41,6 @@ function queryResultToUser(row: UserQueryResult): User {
 
 export async function upsertUser(userParams: UpsertUserParams): Promise<User | null> {
   try {
-    const client = await db.getClient();
     const { discourseUserId, email, fullName } = userParams;
     const queryText = `
       INSERT INTO users (discourse_user_id, email, full_name)
@@ -54,7 +53,6 @@ export async function upsertUser(userParams: UpsertUserParams): Promise<User | n
     `;
     const queryValues = [discourseUserId, email, fullName];
     const result = await db.query<UserQueryResult>(queryText, queryValues);
-    const row = result.rows[0];
     return queryResultToUser(result.rows[0]);
   } catch (err) {
     console.error('Failed to create or update user');
@@ -65,7 +63,6 @@ export async function upsertUser(userParams: UpsertUserParams): Promise<User | n
 
 export async function getUsers(): Promise<Array<User> | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
       SELECT *
       FROM users;
@@ -81,7 +78,6 @@ export async function getUsers(): Promise<Array<User> | null> {
 
 export async function getUserByUuid(uuid: User['uuid']): Promise<User | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
       SELECT *
       FROM users
@@ -108,7 +104,6 @@ export async function updateUserRole({
   uuid: User['uuid'];
 }): Promise<User | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
       UPDATE users
       SET role = $1::text

@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -6,11 +6,9 @@ import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 
+import authRoutes from './authRoutes';
 import { UserRole, ApiLetterAdmin } from '../common/constants-common';
 import { getConfig } from './config';
-import { getQueryData, encodeString, generateRandomString } from './utils';
-import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
-import { upsertUser, UpsertUserParams } from './models/users';
 import { getApiUsers, updateApiUserRole } from './controllers/userControllers';
 import {
   assignLetter,
@@ -20,7 +18,7 @@ import {
   getAllLetters,
 } from './controllers/letterControllers';
 
-export function createApp(port: number) {
+export function createApp() {
   const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
 
   const app = express();
@@ -87,7 +85,7 @@ export function createApp(port: number) {
         winston.format.colorize(),
         winston.format.timestamp(),
         winston.format.printf((info) => {
-          const { timestamp, level, message, ...args } = info;
+          const { timestamp, level, message } = info;
           const ts = timestamp.slice(0, 19).replace('T', ' ');
           return `${ts} [${level}]: ${message}`;
         }),
@@ -97,91 +95,7 @@ export function createApp(port: number) {
     }),
   );
 
-  app.get('/auth/sso', async (req, res) => {
-    const { frontendUrl } = getConfig();
-    if (!req.session) {
-      console.log('Missing Session in request');
-      res.redirect(
-        `${frontendUrl}/login?error=${encodeURIComponent(
-          JSON.stringify({ error: 'unable to login' }),
-        )}`,
-      );
-      return;
-    }
-    // req.session.touch();
-    const redirectUrl = createSso(req);
-    res.redirect(redirectUrl);
-  });
-
-  app.get('/auth/sso/verify', async (req, res) => {
-    const { frontendUrl } = getConfig();
-    if (!req.session) {
-      console.log('Missing Session in request');
-      res.redirect(
-        `${frontendUrl}/login?error=${encodeURIComponent(
-          JSON.stringify({ error: 'unable to login' }),
-        )}`,
-      );
-    }
-    if (!validateSsoRequest(req)) {
-      console.log('Invalid sso return request', req.query);
-      res.redirect(
-        `${frontendUrl}/login?error=${encodeURIComponent(
-          JSON.stringify({ error: 'unable to login' }),
-        )}`,
-      );
-      return;
-    }
-
-    const userData = generateUserDataFromSsoRequest(req);
-    // Create/Update user information in the database
-    const user = await upsertUser(userData);
-    if (!user) {
-      res.redirect(
-        `${frontendUrl}/login?error=${encodeURIComponent(
-          JSON.stringify({ error: 'unable to login' }),
-        )}`,
-      );
-      return;
-    }
-
-    const token = await createToken({
-      email: user.email,
-      role: user.role,
-      fullName: user.fullName,
-      uuid: user.uuid,
-    });
-    const tokenNonce = generateRandomString(16, 'base64');
-    req.session!.tokenData = {
-      token,
-      nonce: tokenNonce,
-    };
-    res.redirect(`${frontendUrl}/login/${encodeURIComponent(tokenNonce)}`);
-  });
-
-  app.get('/auth/token/:nonce', (req, res) => {
-    const nonce = req.param('nonce');
-    if (!req.session || !req.session.tokenData || !nonce) {
-      res.status(403).json({ error: 'unauthorized' });
-      return;
-    }
-
-    if (nonce !== req.session.tokenData.nonce) {
-      res.status(403).json({ error: 'unauthorized' });
-      console.log('Nonce value for token request does not match');
-      return;
-    }
-
-    const token = req.session.tokenData.token;
-    // Now the Single Sign On process from Discourse is done, delete the session token
-    delete req.session.tokenData;
-
-    res.json({
-      data: {
-        token,
-      },
-    });
-  });
+  app.use('/auth', authRoutes);
 
   app.get('/users', async (req, res) => {
     // Only allow admin to see users list
@@ -219,7 +133,7 @@ export function createApp(port: number) {
     res.status(201).json({ data: updatedUser });
   });
 
-  app.post('/online-letter/start', async (req, res) => {
+  app.post('/online-letter/start', async (_, res) => {
     const letter = await initiateLetter();
     if (!letter) {
       res.status(400).json({ error: 'unable to start a letter' });
@@ -323,7 +237,7 @@ export function createApp(port: number) {
         winston.format.colorize(),
         winston.format.timestamp(),
         winston.format.printf((info) => {
-          const { timestamp, level, message, ...args } = info;
+          const { timestamp, level, message } = info;
           const ts = timestamp.slice(0, 19).replace('T', ' ');
           return `${ts} [${level}]: ${message}`;
         }),
@@ -335,5 +249,5 @@ export function createApp(port: number) {
 }
 
 const { port } = getConfig();
-const app = createApp(port);
+const app = createApp();
 app.listen(port, () => console.log(`app listening at http://localhost:${port}`));

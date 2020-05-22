@@ -1,6 +1,5 @@
 import db from '../db';
 import { generate as generatePass } from 'generate-password';
-import shortid from 'shortid';
 
 import { saltHash, generateRandomString } from '../utils';
 import { LetterStatus, ApiLetterCredentials } from '../../common/constants-common';
@@ -82,7 +81,6 @@ export async function createLetterCredentials(): Promise<ApiLetterCredentials | 
   });
 
   try {
-    const client = await db.getClient();
     const queryText = `
        INSERT INTO letters (access_key, access_password, access_password_salt)
        VALUES ($1::text, $2::text, $3::text)
@@ -147,7 +145,6 @@ export async function getLetterByCredentials({
 
 export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
        SELECT *
        FROM letters
@@ -176,7 +173,6 @@ export async function updateLetterContent({
   content: string;
 }): Promise<Letter | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
        UPDATE letters
        SET
@@ -207,7 +203,6 @@ export async function updateLetterAssignee({
   assigneeUuid: string;
 }): Promise<Letter | null> {
   try {
-    const client = await db.getClient();
     const queryText = `
        UPDATE letters
        SET assigned_responder_uuid = $2::text

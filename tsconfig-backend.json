@@ -12,7 +12,10 @@
   },
   "include": [
     "src/*.d.ts",
-    "src/backend",
-    "src/common"
+    "src/backend/**/*.ts",
+    "src/common/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

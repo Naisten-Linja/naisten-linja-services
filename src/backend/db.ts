@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResultRow } from 'pg';
+import { Pool, QueryResultRow } from 'pg';
 
 import { getConfig } from './config';
 

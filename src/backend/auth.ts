@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { getConfig } from './config';
 import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
-import { UpsertUserParams, User } from './models/users';
-import { UserRole } from '../common/constants-common';
+import { UpsertUserParams } from './models/users';
 
 export interface DiscourseSsoData {
   admin?: string;
@@ -104,7 +103,7 @@ type TokenData = {
   role: string;
 };
 // Create a JWT token
-export async function createToken(data: TokenData) {
+export async function createToken(data: TokenData): Promise<string | null> {
   try {
     const { jwtPrivateKey } = getConfig();
     const token = await jwt.sign(data, jwtPrivateKey, { expiresIn: '7d' }); // token will expire in 7 days
@@ -112,20 +111,24 @@ export async function createToken(data: TokenData) {
   } catch (err) {
     console.error('Failed to create token');
     console.error(err);
+    return null;
   }
 }
 
 // Construct user data from the decoded return sso
 // This will be used to create / update user information in the database
-export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams {
+export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams | null {
   const ssoStr = encodeString(`${req.query.sso}`, 'base64', 'utf8');
   const ssoData = getQueryData(ssoStr) as DiscourseSsoData;
   const { external_id, email, name, admin, groups } = ssoData;
   const isAdmin = admin === 'true';
   const isVolunteer = groups && groups.split(',').indexOf('Volunteers') > -1;
-  return {
-    email,
-    discourseUserId: external_id ? parseInt(external_id, 10) : undefined,
-    fullName: name ? name.replace('+', ' ') : undefined,
-  };
+  if (isAdmin || isVolunteer) {
+    return {
+      email,
+      discourseUserId: external_id ? parseInt(external_id, 10) : undefined,
+      fullName: name ? name.replace('+', ' ') : undefined,
+    };
+  }
+  return null;
 }
