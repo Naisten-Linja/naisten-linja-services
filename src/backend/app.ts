@@ -3,6 +3,8 @@ import session from 'express-session';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
+import winston from 'winston';
+import expressWinston from 'express-winston';
 
 import { UserRole, ApiLetterAdmin } from '../common/constants-common';
 import { getConfig } from './config';
@@ -69,6 +71,23 @@ export function createApp(port: number) {
         '/online-letter/send',
         '/online-letter/read',
       ],
+    }),
+  );
+
+  app.use(
+    expressWinston.logger({
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.timestamp(),
+        winston.format.printf((info) => {
+          const { timestamp, level, message, ...args } = info;
+          const ts = timestamp.slice(0, 19).replace('T', ' ');
+          return `${ts} [${level}]: ${message}`;
+        }),
+      ),
+      expressFormat: true,
+      colorize: true,
     }),
   );
 
@@ -266,6 +285,21 @@ export function createApp(port: number) {
     }
     res.status(201).json({ data: letter });
   });
+
+  app.use(
+    expressWinston.errorLogger({
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.timestamp(),
+        winston.format.printf((info) => {
+          const { timestamp, level, message, ...args } = info;
+          const ts = timestamp.slice(0, 19).replace('T', ' ');
+          return `${ts} [${level}]: ${message}`;
+        }),
+      ),
+    }),
+  );
 
   return app;
 }
