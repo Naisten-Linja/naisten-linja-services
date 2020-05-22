@@ -26,10 +26,12 @@ export async function initiateLetter(): Promise<ApiLetterCredentials | null> {
 export async function validateLetterCredentials({
   accessKey,
   accessPassword,
-}: ApiLetterCredentials): Promise<boolean> {
+}: ApiLetterCredentials): Promise<
+  { isValid: false; letter: null } | { isValid: true; letter: Letter }
+> {
   const letter = await getLetterByCredentials({ accessKey, accessPassword });
   if (!letter) {
-    return false;
+    return { isValid: false, letter: null };
   }
 
   const { letterAccessKeySalt } = getConfig();
@@ -44,7 +46,7 @@ export async function validateLetterCredentials({
   const isValid =
     accessKeyHash === letter.accessKey && accessPasswordHash === letter.accessPassword;
 
-  return isValid;
+  return isValid ? { isValid, letter } : { isValid: false, letter: null };
 }
 
 export async function sendLetter({
@@ -52,14 +54,16 @@ export async function sendLetter({
   content,
   accessKey,
   accessPassword,
-  uuid,
 }: ApiSendLetterParams): Promise<Letter | null> {
-  const isValid = await validateLetterCredentials({ accessKey, accessPassword });
-  if (!isValid) {
-    return null;
+  const { isValid, letter } = await validateLetterCredentials({
+    accessKey,
+    accessPassword,
+  });
+  if (isValid && letter) {
+    const updatedLetter = await updateLetterContent({ uuid: letter.uuid, title, content });
+    return updatedLetter;
   }
-  const letter = await updateLetterContent({ uuid, title, content });
-  return letter;
+  return null;
 }
 
 export async function readLetter({

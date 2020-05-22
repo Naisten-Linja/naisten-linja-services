@@ -14,17 +14,16 @@ router.post('/start', async (_, res) => {
 });
 
 router.post('/send', async (req, res) => {
-  const { uuid, title, content, accessKey, accessPassword } = req.body;
+  const { title, content, accessKey, accessPassword } = req.body;
   const trimmedTitle = title ? title.trim() : '';
   const trimmedContent = content ? content.trim() : '';
 
-  if (!uuid || !trimmedTitle || !trimmedContent || !accessKey || !accessPassword) {
+  if (!trimmedTitle || !trimmedContent || !accessKey || !accessPassword) {
     res.status(400).json({ error: 'missing title, content, accessKey or accessPassword' });
     return;
   }
 
   const letter = await sendLetter({
-    uuid,
     accessKey,
     accessPassword,
     title: trimmedTitle,

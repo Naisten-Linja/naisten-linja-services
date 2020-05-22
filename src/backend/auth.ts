@@ -38,7 +38,7 @@ export function createSso(req: Request) {
   }
 
   const { backendUrl, discourseUrl } = getConfig();
-  const ssoReturnUrl = `${backendUrl}/auth/sso/verify`;
+  const ssoReturnUrl = `${backendUrl}/api/auth/sso/verify`;
   const nonce = generateRandomString(16, 'base64');
   const query = `nonce=${nonce}&return_sso_url=${ssoReturnUrl}`;
   const payload = encodeString(query, 'utf8', 'base64');

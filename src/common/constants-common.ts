@@ -47,7 +47,6 @@ export interface ApiLetterContent {
 }
 
 export interface ApiSendLetterParams {
-  uuid: string;
   accessKey: string;
   accessPassword: string;
   title: string;

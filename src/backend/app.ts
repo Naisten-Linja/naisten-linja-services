@@ -50,7 +50,7 @@ export function createApp() {
         httpOnly: true,
         domain: hostName,
         // Cookie is needed only in /auth routes for Discourse SSO
-        path: '/auth',
+        path: '/api/auth',
         // Cookie will expires if ther is no new requests for 10 minutes , and
         // a new empty cookie will be generated instead.
         // In the context of our SSO login flow, this means the user has 10 minutes
