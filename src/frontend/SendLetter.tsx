@@ -7,7 +7,7 @@ import { Button } from './ui-components/buttons';
 import { useNotifications } from './NotificationsContext';
 import type { ApiLetterCredentials } from '../common/constants-common';
 
-export const SendLetter = (props: RouteComponentProps) => {
+export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
   const [letterCredentials, setLetterCredentials] = useState<ApiLetterCredentials | null>(null);
   const [isLetterSent, setIsLetterSent] = useState<boolean>(false);
   const { addNotification } = useNotifications();

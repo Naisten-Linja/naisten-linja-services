@@ -17,7 +17,7 @@ export const AuthContext = React.createContext<IAuthContext>({
   user: null,
   logout: () => {},
   login: () => {},
-  setToken: (t: string | null) => {},
+  setToken: (_: string | null) => {},
 });
 
 function validateUserData(userData: TokenUserData): boolean {

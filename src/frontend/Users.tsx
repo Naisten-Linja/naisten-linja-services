@@ -7,9 +7,7 @@ import { ApiUserData, UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 
-interface UsersProps extends RouteComponentProps {}
-
-export const Users = (props: UsersProps) => {
+export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { token, user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();

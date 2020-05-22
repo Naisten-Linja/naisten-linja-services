@@ -7,7 +7,7 @@ import { BACKEND_URL } from './constants-frontend';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 
-export const Letters = (props: RouteComponentProps) => {
+export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { token } = useAuth();

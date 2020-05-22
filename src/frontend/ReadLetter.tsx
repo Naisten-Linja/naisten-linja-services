@@ -7,7 +7,7 @@ import type { ApiLetterContent } from '../common/constants-common';
 import { BACKEND_URL } from './constants-frontend';
 import { useNotifications } from './NotificationsContext';
 
-export const ReadLetter = (props: RouteComponentProps) => {
+export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
   const { addNotification } = useNotifications();
   const [letter, setLetter] = useState<ApiLetterContent | null>(null);
