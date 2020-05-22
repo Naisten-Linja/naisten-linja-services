@@ -3,7 +3,7 @@ import { generate as generatePass } from 'generate-password';
 import shortid from 'shortid';
 
 import { saltHash, generateRandomString } from '../utils';
-import { LetterStatus } from '../../common/constants-common';
+import { LetterStatus, ApiLetterCredentials } from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -65,9 +65,9 @@ export async function getLetters(): Promise<Array<Letter> | null> {
   }
 }
 
-// Initiate a new letter with just the accessKey, accessPass, and a random salt value used
-// to hash both of the access credentials.
-export async function createLetterCredentials(): Promise<Letter | null> {
+// Generate a new letter with random accessKey and accessPassword
+// Returning the original form of both keys
+export async function createLetterCredentials(): Promise<ApiLetterCredentials | null> {
   const { letterAccessKeySalt } = getConfig();
   // Generate a random 8 character long accessKey
   const accessKey = generateRandomString(4, 'hex').slice(0, 8).toUpperCase();
@@ -84,14 +84,14 @@ export async function createLetterCredentials(): Promise<Letter | null> {
     const queryText = `
        INSERT INTO letters (access_key, access_password, access_password_salt)
        VALUES ($1::text, $2::text, $3::text)
-       RETURNING *
+       RETURNING uuid;
     `;
     const queryValues = [accessKeyHash, accessPasswordHash, accessPasswordSalt];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
-    return queryResultToLetter(result.rows[0]);
+    return { accessKey, accessPassword };
   } catch (err) {
     console.error('Failed to generate a new letter');
     console.error(err);

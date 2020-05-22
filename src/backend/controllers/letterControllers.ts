@@ -1,4 +1,4 @@
-import type { ApiLetterAccessInfo, ApiSendLetterParams, ApiLetterAdmin } from '../../common/constants-common';
+import type { ApiLetterCredentials, ApiSendLetterParams, ApiLetterAdmin } from '../../common/constants-common';
 import {
   Letter,
   createLetterCredentials,
@@ -11,18 +11,15 @@ import {
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
 
-export async function initiateLetter(): Promise<ApiLetterAccessInfo | null> {
-  const letter = await createLetterCredentials();
-  if (!letter) {
+export async function initiateLetter(): Promise<ApiLetterCredentials | null> {
+  const credentials = await createLetterCredentials();
+  if (!credentials) {
     return null;
   }
-  return {
-    accessKey: letter.accessKey,
-    accessPassword: letter.accessPassword,
-  };
+  return credentials;
 }
 
-export async function validateLetterCredentials({ accessKey, accessPassword }: ApiLetterAccessInfo): Promise<boolean> {
+export async function validateLetterCredentials({ accessKey, accessPassword }: ApiLetterCredentials): Promise<boolean> {
   const letter = await getLetterByCredentials({ accessKey, accessPassword });
   if (!letter) {
     return false;

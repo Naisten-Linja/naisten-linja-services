@@ -26,7 +26,7 @@ export enum LetterStatus {
   sent = 'sent',
 }
 
-export interface ApiLetterAccessInfo {
+export interface ApiLetterCredentials {
   accessKey: string;
   accessPassword: string;
 }
