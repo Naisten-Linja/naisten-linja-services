@@ -1,5 +1,4 @@
 import crypto, { HexBase64Latin1Encoding } from 'crypto';
-import { getConfig } from './config';
 
 // Encode string from a defined encoding to a different form
 export function encodeString(s: string, encodingFrom: BufferEncoding, encodingTo: BufferEncoding) {
@@ -12,12 +11,10 @@ export function generateRandomString(length: number = 10, encoding: BufferEncodi
 }
 
 // Generate a HMAC SHA-256 hash using the provided Discourse SSO key
-export function hmacSha256(payload: string, encoding?: HexBase64Latin1Encoding) {
-  const { discourseSsoSecret } = getConfig();
-
+export function hmacSha256(payload: string, secret: string, encoding?: HexBase64Latin1Encoding) {
   return encoding
-    ? crypto.createHmac('sha256', discourseSsoSecret).update(payload).digest(encoding)
-    : crypto.createHmac('sha256', discourseSsoSecret).update(payload, 'utf8').digest();
+    ? crypto.createHmac('sha256', secret).update(payload).digest(encoding)
+    : crypto.createHmac('sha256', secret).update(payload, 'utf8').digest();
 }
 
 // Return an objects with values mapping from a get query string
@@ -35,14 +32,13 @@ export function getQueryData(queryString: string) {
 }
 
 // Salt hash a string
-export function saltHash({ salt, password }: { salt?: string; password: string }) {
+// If salt is not provided, generate a random 64 character long salt string.
+// Returns hash value and salt used for hashing
+export function saltHash(password: string, salt?: string): { hash: string; salt: string } {
   if (!salt) {
     const randStr = generateRandomString(32, 'hex');
     salt = randStr.slice(0, 64);
   }
   const hash = crypto.createHmac('sha512', salt).update(password).digest('hex');
-  return {
-    salt,
-    hash,
-  };
+  return { salt, hash };
 }

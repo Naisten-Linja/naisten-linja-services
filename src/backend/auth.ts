@@ -37,12 +37,12 @@ export function createSso(req: Request) {
     return '/';
   }
 
-  const { backendUrl, discourseUrl } = getConfig();
+  const { backendUrl, discourseUrl, discourseSsoSecret } = getConfig();
   const ssoReturnUrl = `${backendUrl}/api/auth/sso/verify`;
   const nonce = generateRandomString(16, 'base64');
   const query = `nonce=${nonce}&return_sso_url=${ssoReturnUrl}`;
   const payload = encodeString(query, 'utf8', 'base64');
-  const sig = hmacSha256(payload, 'hex');
+  const sig = hmacSha256(payload, discourseSsoSecret, 'hex');
 
   // keep 'nonce' value in cookie to compare with the return request
   // from discourse in 'validateSsoRequest'
@@ -74,7 +74,8 @@ export function validateSsoRequest(req: Request) {
   // THIS STEP IS VERY IMPORTANT
   // Make sure the sso string is authenticity by comparing its encrypted
   // bytes (using the private key) to the signature bytes
-  const ssoHmac = hmacSha256(sso) as Buffer;
+  const { discourseSsoSecret } = getConfig();
+  const ssoHmac = hmacSha256(sso, discourseSsoSecret) as Buffer;
   const isValidSignature = Buffer.compare(ssoHmac, Buffer.from(sig, 'hex')) === 0; // 0 means no difference
   if (!isValidSignature) {
     console.log('Invalid signature for', sso);

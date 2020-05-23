@@ -11,6 +11,19 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
 
+  const fetchUsers = useCallback(async () => {
+    try {
+      const usersResult = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
+        useJwt: true,
+      });
+      setUsers(usersResult.data.data);
+    } catch (err) {
+      console.log(err);
+      addNotification({ type: 'error', message: 'Unable to get users', timestamp: Date.now() });
+      setUsers([]);
+    }
+  }, [addNotification, getRequest]);
+
   const fetchLetters = useCallback(async () => {
     try {
       const result = await getRequest<{ data: Array<ApiLetterAdmin> }>(`/api/letters`, {
@@ -25,7 +38,16 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setLetters([]);
       addNotification({ type: 'error', message: 'Unable to get letters', timestamp: Date.now() });
     }
-  }, [setLetters, addNotification, getRequest]);
+  }, [addNotification, getRequest]);
+
+  const fetchData = useCallback(async () => {
+    await fetchUsers();
+    await fetchLetters();
+  }, [fetchUsers, fetchLetters]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const assignLetter = async ({
     letterUuid,
@@ -47,35 +69,17 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
           message: `Letter was assigned to ${email}`,
           timestamp: Date.now(),
         });
-        fetchLetters();
       }
     } catch (err) {
       console.log(err);
-      fetchLetters();
       addNotification({
         type: 'error',
         message: `Unable to assign letter to ${email}`,
         timestamp: Date.now(),
       });
     }
+    await fetchLetters();
   };
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const result = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
-          useJwt: true,
-        });
-        setUsers(result.data.data);
-      } catch (err) {
-        console.log(err);
-        addNotification({ type: 'error', message: 'Unable to get users', timestamp: Date.now() });
-        setUsers([]);
-      }
-    };
-    fetchUsers();
-    fetchLetters();
-  }, [fetchLetters, addNotification, getRequest]);
 
   return (
     <>
@@ -94,9 +98,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
             return (
               <tr key={`letter-list-item-${letter.uuid}`}>
                 <td>{new Date(letter.created).toLocaleString()}</td>
-                <td>
-                  {letter.title} [ {letter.uuid} ]
-                </td>
+                <td>{letter.title}</td>
                 <td>{letter.status}</td>
                 <td>
                   <select

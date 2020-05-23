@@ -36,12 +36,9 @@ export async function validateLetterCredentials({
 
   const { letterAccessKeySalt } = getConfig();
   // Get accessKey hash
-  const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
+  const { hash: accessKeyHash } = saltHash(accessKey, letterAccessKeySalt);
   // Get password hash
-  const { hash: accessPasswordHash } = saltHash({
-    password: accessPassword,
-    salt: letter.accessPasswordSalt,
-  });
+  const { hash: accessPasswordHash } = saltHash(accessPassword, letter.accessPasswordSalt);
   // Make sure hash values match those that are stored in the database
   const isValid =
     accessKeyHash === letter.accessKey && accessPasswordHash === letter.accessPassword;

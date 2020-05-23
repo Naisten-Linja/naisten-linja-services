@@ -75,10 +75,8 @@ export async function createLetterCredentials(): Promise<ApiLetterCredentials | 
     uppercase: true,
     numbers: true,
   });
-  const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
-  const { hash: accessPasswordHash, salt: accessPasswordSalt } = saltHash({
-    password: accessPassword,
-  });
+  const { hash: accessKeyHash } = saltHash(accessKey, letterAccessKeySalt);
+  const { hash: accessPasswordHash, salt: accessPasswordSalt } = saltHash(accessPassword);
 
   try {
     const queryText = `
@@ -111,7 +109,7 @@ export async function getLetterByCredentials({
       return null;
     }
     const { letterAccessKeySalt } = getConfig();
-    const { hash: accessKeyHash } = saltHash({ password: accessKey, salt: letterAccessKeySalt });
+    const { hash: accessKeyHash } = saltHash(accessKey, letterAccessKeySalt);
 
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
@@ -127,10 +125,7 @@ export async function getLetterByCredentials({
     const letter = queryResultToLetter(result.rows[0]);
 
     // Make sure the accessPassword is valid
-    const { hash: accessPasswordHash } = saltHash({
-      password: accessPassword,
-      salt: letter.accessPasswordSalt,
-    });
+    const { hash: accessPasswordHash } = saltHash(accessPassword, letter.accessPasswordSalt);
     if (accessPasswordHash !== letter.accessPassword) {
       return null;
     }
