@@ -5,6 +5,7 @@ import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { Users } from './Users';
 import { Letters } from './Letters';
+import { Reply } from './Reply';
 
 export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -15,6 +16,7 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
     <Router>
       <Users path="users" />
       <Letters path="letters" />
+      <Reply path="letters/:letterUuid" />
     </Router>
   );
 };

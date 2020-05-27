@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useNavigate } from '@reach/router';
 
 import type { ApiLetterAdmin, ApiUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
@@ -10,6 +10,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
+  const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -96,14 +97,21 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         <tbody>
           {letters.map((letter) => {
             return (
-              <tr key={`letter-list-item-${letter.uuid}`}>
+              <tr
+                key={`letter-list-item-${letter.uuid}`}
+                onClick={() => navigate(`letters/${letter.uuid}`)}
+              >
                 <td>{new Date(letter.created).toLocaleString()}</td>
                 <td>{letter.title}</td>
                 <td>{letter.status}</td>
                 <td>
                   <select
                     defaultValue={letter.assignedResponderUuid || ''}
+                    onClick={(e: React.MouseEvent<HTMLSelectElement>) => {
+                      e.stopPropagation();
+                    }}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                      e.preventDefault();
                       if (e.target.value) {
                         assignLetter({ assigneeUuid: e.target.value, letterUuid: letter.uuid });
                       }

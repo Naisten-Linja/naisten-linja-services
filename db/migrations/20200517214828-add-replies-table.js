@@ -25,7 +25,7 @@ exports.up = function (db, callback) {
         created: { type: 'timestamp', notNull: true },
         updated: { type: 'timestamp', notNull: true },
 
-        is_published: { type: 'boolean', notNull: true, defaultValue: false },
+        status: { type: 'string', notNull: true, defaultValue: 'draft' }, // options: draft, in_review, published
         content: { type: 'text', notNull: true },
 
         // If the content was created by a Naisten Linja staff, this should be set to 'staff'
