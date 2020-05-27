@@ -22,8 +22,8 @@ exports.up = function (db, callback) {
       db.createTable.bind(db, 'replies', {
         id: { type: 'int', primaryKey: true, autoIncrement: true },
         uuid: { type: 'string', notNull: true, unique: true },
-        created: { type: 'timestamp', notNull: true },
-        updated: { type: 'timestamp', notNull: true },
+        created: { type: 'timestamp' },
+        updated: { type: 'timestamp' },
 
         status: { type: 'string', notNull: true, defaultValue: 'draft' }, // options: draft, in_review, published
         content: { type: 'text', notNull: true },
@@ -44,7 +44,7 @@ exports.up = function (db, callback) {
         // this will automatially be set to null.
         // In case the reply was created by the person who sent the letter,
         // this should be set to NULL
-        internal_authorUuid: {
+        internal_author_uuid: {
           type: 'string',
           foreignKey: {
             name: 'replies_users_uuid_fk',
@@ -56,7 +56,7 @@ exports.up = function (db, callback) {
           },
         },
 
-        letter_id: {
+        letter_uuid: {
           type: 'string',
           notNull: true,
           foreignKey: {

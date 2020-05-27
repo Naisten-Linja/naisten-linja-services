@@ -52,3 +52,31 @@ export interface ApiSendLetterParams {
   title: string;
   content: string;
 }
+
+export enum ResponderType {
+  internal = 'internal',
+  sender = 'sender',
+}
+
+export enum ReplyStatus {
+  draft = 'draft',
+  in_review = 'in_review',
+  published = 'published',
+}
+
+export interface ApiReplyParamsAdmin {
+  letterUuid: string;
+  content: string;
+  status: ReplyStatus;
+}
+
+export interface ApiReplyAdmin {
+  uuid: string;
+  letterUuid: string;
+  internalAuthorUuid: string | null;
+  status: ReplyStatus;
+  authorType: ResponderType;
+  content: string;
+  created: string;
+  updated: string;
+}

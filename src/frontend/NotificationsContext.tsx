@@ -97,7 +97,7 @@ export function useNotifications() {
 
 const NotificationContainer = styled.div`
   position: fixed;
-  width: 15rem;
+  width: 18rem;
   bottom: 2rem;
   right: 2rem;
   background: 'red';
@@ -109,6 +109,8 @@ const NotificationItem = styled.div<{ type: Notification['type'] }>`
   border-radius: 0.1rem;
   margin: 0.2rem 0;
   width: 100%;
-  font-size: 0.7rem;
   background: var(--white);
+  -webkit-box-shadow: -1px 1px 2px -2px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: -1px 1px 2px -2px rgba(0, 0, 0, 0.75);
+  box-shadow: -1px 1px 2px -2px rgba(0, 0, 0, 0.75);
 `;

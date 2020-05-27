@@ -22,6 +22,7 @@ const theme = {};
 
 const AppContainer = styled.div`
   padding-top: 2rem;
+  padding-bottom: 5rem;
 `;
 
 export const App = () => {

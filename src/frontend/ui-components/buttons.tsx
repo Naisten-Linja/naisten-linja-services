@@ -1,19 +1,19 @@
 import React from 'react';
 
 interface ButtonProps {
-  type?: 'primary' | 'secondary' | 'tertiary';
+  buttonType?: 'primary' | 'secondary' | 'tertiary';
   className?: string;
-  onClick?: () => any;
+  onClick?: (e?: any) => void;
 }
 
 export const Button: React.FunctionComponent<ButtonProps> = ({
   children,
-  type = 'primary',
+  buttonType = 'primary',
   className = '',
   ...props
 }) => {
   return (
-    <button {...props} className={`button button-${type} ${className}`}>
+    <button {...props} className={`button button-${buttonType} ${className}`}>
       {children}
     </button>
   );
@@ -21,12 +21,12 @@ export const Button: React.FunctionComponent<ButtonProps> = ({
 
 export const ButtonSmall: React.FunctionComponent<ButtonProps> = ({
   children,
-  type = 'primary',
+  buttonType = 'primary',
   className = '',
   ...props
 }) => {
   return (
-    <button {...props} className={`button button-${type} button-xs ${className}`}>
+    <button {...props} className={`button button-${buttonType} button-xs ${className}`}>
       {children}
     </button>
   );
@@ -34,12 +34,12 @@ export const ButtonSmall: React.FunctionComponent<ButtonProps> = ({
 
 export const ButtonText: React.FunctionComponent<ButtonProps> = ({
   children,
-  type = 'primary',
+  buttonType = 'primary',
   className = '',
   ...props
 }) => {
   return (
-    <button {...props} className={`button button-${type} button-text ${className}`}>
+    <button {...props} className={`button button-${buttonType} button-text ${className}`}>
       {children}
     </button>
   );
@@ -47,12 +47,12 @@ export const ButtonText: React.FunctionComponent<ButtonProps> = ({
 
 export const ButtonTextSmall: React.FunctionComponent<ButtonProps> = ({
   children,
-  type = 'primary',
+  buttonType = 'primary',
   className = '',
   ...props
 }) => {
   return (
-    <button {...props} className={`button button-${type} button-xs button-text ${className}`}>
+    <button {...props} className={`button button-${buttonType} button-xs button-text ${className}`}>
       {children}
     </button>
   );

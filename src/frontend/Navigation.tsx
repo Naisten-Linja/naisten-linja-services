@@ -19,7 +19,7 @@ export const Navigation = () => {
             </li>
             {!user && (
               <li>
-                <ButtonSmall type="secondary" onClick={login}>
+                <ButtonSmall buttonType="secondary" onClick={login}>
                   login
                 </ButtonSmall>
               </li>
@@ -27,7 +27,7 @@ export const Navigation = () => {
             {user && (
               <li>
                 {user.email} ({user.role}) {` `}
-                <ButtonSmall type="secondary" onClick={logout} className="button button-xxs">
+                <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
                   Logout
                 </ButtonSmall>
               </li>

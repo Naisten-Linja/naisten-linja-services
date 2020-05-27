@@ -1,4 +1,4 @@
-import type {
+import {
   ApiLetterCredentials,
   ApiSendLetterParams,
   ApiLetterAdmin,
@@ -99,4 +99,16 @@ export async function assignLetter({
 export async function getLetter(uuid: string): Promise<Letter | null> {
   const letter = await getLetterByUuid(uuid);
   return letter;
+}
+
+// Check if a letter is assigned a user
+export async function checkResponderValidity(
+  letterUuid: string,
+  userUuid: string,
+): Promise<boolean> {
+  const letter = await getLetterByUuid(letterUuid);
+  if (!letter) {
+    return false;
+  }
+  return letter.assignedResponderUuid === userUuid;
 }
