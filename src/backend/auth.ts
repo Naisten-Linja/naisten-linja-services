@@ -108,7 +108,11 @@ type TokenData = {
 export async function createToken(data: TokenData): Promise<string | null> {
   try {
     const { jwtPrivateKey } = getConfig();
-    const token = await jwt.sign(data, jwtPrivateKey, { expiresIn: '7d' }); // token will expire in 7 days
+    // token will expire in 7 days
+    // TODO: would be better to have short-lived token and a long-live
+    // refresh token that is used to refresh token when the long-lived
+    // one exprired.
+    const token = await jwt.sign(data, jwtPrivateKey, { expiresIn: '7d' });
     return token;
   } catch (err) {
     console.error('Failed to create token');
