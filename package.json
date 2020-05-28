@@ -55,9 +55,9 @@
     "check-node-version": "^4.0.3",
     "cors": "^2.8.5",
     "nodemon": "^2.0.4",
-    "react-scripts": "3.4.1",
+    "react-scripts": "^3.4.1",
     "ts-node": "^8.10.1",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.3"
   },
   "browserslist": {
     "production": [

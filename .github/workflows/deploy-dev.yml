@@ -27,5 +27,4 @@ jobs:
         run: CI=1 npm test
       - name: Deploy backend
         run: |
-          heroku login
           heroku push -a naistenlinja-services-dev
