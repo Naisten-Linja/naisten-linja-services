@@ -38,7 +38,7 @@ export const App = () => {
                 <NotFound default />
                 <Admin path="admin/*" />
                 <Volunteer path="volunteer/*" />
-                <SendLetter path="write" />
+                <SendLetter path="/" />
                 <ReadLetter path="read" />
                 <FetchToken path="login/:nonce" />
               </Router>
