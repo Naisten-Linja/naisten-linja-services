@@ -21,3 +21,7 @@ jobs:
         run: npm install
       - name: Run tests
         run: CI=1 npm test
+      - name: Test frontend builds
+        run: CI=1 npm frontend-build
+      - name: Test backend builds
+        run: CI=1 npm backend-build
