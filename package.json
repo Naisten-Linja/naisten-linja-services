@@ -7,7 +7,8 @@
   "scripts": {
     "backend-build": "npm run lint-node && rm -rf build-backend && tsc --project tsconfig-backend.json",
     "backend-dev": "nodemon --watch 'src/backend/**/*.ts' -x TS_NODE_PROJECT=tsconfig-backend.json ts-node src/backend/app.ts",
-    "frontend-dev": "REACT_APP_DISCOURSE_URL=${DISCOURSE_URL} REACT_APP_BACKEND_URL=${BACKEND_URL} PORT=8000 BROWSER=none react-scripts start",
+    "frontend-dev": "PORT=8000 BROWSER=none react-scripts start",
+    "frontend-build": "npm run lint-node && react-scripts build",
     "db-migrate": "db-migrate",
     "lint-node": "check-node-version --package",
     "test": "echo \"Error: no test specified\" && exit 1"
