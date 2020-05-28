@@ -15,9 +15,6 @@
     "src/index-backend.ts",
     "src/*.d.ts",
     "src/backend/**/*.ts",
-    "src/common/**/*.ts",
-  ],
-  "exclude": [
-    "node_modules"
+    "src/common/**/*.ts"
   ]
 }
