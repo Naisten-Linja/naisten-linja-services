@@ -5,9 +5,9 @@
     "node": ">=12 <13"
   },
   "scripts": {
-    "backend-build": "npm:lint-node && rm -rf build-backend && tsc --project tsconfig-backend.json",
+    "backend-build": "npm run lint-node && rm -rf build-backend && tsc --project tsconfig-backend.json",
     "backend-dev": "nodemon --watch 'src/backend/**/*.ts' -x TS_NODE_PROJECT=tsconfig-backend.json ts-node src/backend/app.ts",
-    "backend-prod-start": "node build-backend/index-backend.js",
+    "backend-prod-start": "npm run db-migrate up && node build-backend/index-backend.js",
     "frontend-dev": "PORT=8000 BROWSER=none react-scripts start",
     "frontend-build": "npm run lint-node && react-scripts build",
     "db-migrate": "db-migrate",
