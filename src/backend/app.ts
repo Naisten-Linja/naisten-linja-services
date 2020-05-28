@@ -120,7 +120,3 @@ export function createApp() {
 
   return app;
 }
-
-const { port } = getConfig();
-const app = createApp();
-app.listen(port, () => console.log(`app listening at http://localhost:${port}`));

@@ -4,6 +4,7 @@
     "target": "es2017",
     "module": "commonjs",
     "strict": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "typeRoots": ["node_modules/@types"],
     "types": ["node"],
@@ -11,9 +12,10 @@
     "outDir": "build-backend"
   },
   "include": [
+    "src/index-backend.ts",
     "src/*.d.ts",
     "src/backend/**/*.ts",
-    "src/common/**/*.ts"
+    "src/common/**/*.ts",
   ],
   "exclude": [
     "node_modules"
