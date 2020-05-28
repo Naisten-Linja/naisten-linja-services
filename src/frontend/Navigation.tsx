@@ -60,7 +60,7 @@ const MainMenu = () => {
         {user && user.role === UserRole.volunteer && (
           <>
             <li>
-              <Link to="volunteer/letters">You assigned letters</Link>
+              <Link to="volunteer/letters">Your assigned letters</Link>
             </li>
           </>
         )}

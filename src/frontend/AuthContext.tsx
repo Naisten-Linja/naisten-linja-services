@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
-import { BACKEND_URL } from './constants-frontend';
+import { BACKEND_URL, DISCOURSE_URL } from './constants-frontend';
 
 interface IAuthContext {
   token: string | null;
@@ -73,7 +73,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     setUser(null);
     addNotification({ type: 'success', message: 'Logged out' });
     // @ts-ignore
-    // window.location.replace(`${DISCOURSE_URL}`);
+    window.location.replace(`${DISCOURSE_URL}`);
   }
 
   useEffect(() => {
