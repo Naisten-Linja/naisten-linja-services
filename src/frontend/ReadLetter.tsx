@@ -5,6 +5,7 @@ import type { ApiLetterContent } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
 import { LetterContent } from './ui-components/content';
+import { Button } from './ui-components/buttons';
 
 export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
   const { addNotification } = useNotifications();
@@ -64,6 +65,13 @@ export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
               <LetterContent>{letter.replyContent}</LetterContent>
             </>
           )}
+          <Button
+            onClick={() => {
+              setLetter(null);
+            }}
+          >
+            Logout
+          </Button>
         </>
       )}
       {!letter && (

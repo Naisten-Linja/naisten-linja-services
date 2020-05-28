@@ -35,7 +35,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       });
       setLetters(
         result.data.data.sort(
-          (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime(),
+          (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
         ),
       );
     } catch (err) {
