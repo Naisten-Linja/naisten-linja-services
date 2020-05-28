@@ -8,7 +8,7 @@ import {
   createLetterCredentials,
   updateLetterContent,
   getLetterByCredentials,
-  getLetters,
+  getSentLetters,
   updateLetterAssignee,
   getLetterByUuid,
 } from './models/letters';
@@ -78,7 +78,7 @@ export async function readLetter({
 }
 
 export async function getAllLetters(): Promise<Array<Letter> | null> {
-  return await getLetters();
+  return await getSentLetters();
 }
 
 export async function assignLetter({

@@ -44,6 +44,27 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
   };
 }
 
+export async function getSentLetters(): Promise<Array<Letter> | null> {
+  try {
+    // Fetch the letter using the unique accessKeyHash
+    const queryText = `
+       SELECT *
+       FROM letters
+       WHERE status = 'sent'
+       ORDER BY id DESC;
+    `;
+    const result = await db.query<LetterQueryResult>(queryText, []);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return result.rows.map((r) => queryResultToLetter(r));
+  } catch (err) {
+    console.error('Failed to fetch letter by accessKey');
+    console.error(err);
+    return null;
+  }
+}
+
 export async function getLetters(): Promise<Array<Letter> | null> {
   try {
     // Fetch the letter using the unique accessKeyHash
