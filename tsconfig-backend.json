@@ -7,6 +7,7 @@
     "noEmit": false,
     "esModuleInterop": true,
     "typeRoots": ["node_modules/@types"],
+    "types": ["node"],
     "lib": ["es2017"],
     "outDir": "build-backend"
   },

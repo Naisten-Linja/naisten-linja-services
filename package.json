@@ -7,13 +7,13 @@
   "scripts": {
     "backend-build": "npm run lint-node && tsc --project tsconfig-backend.json",
     "backend-dev": "nodemon --watch 'src/backend/**/*.ts' -x TS_NODE_PROJECT=tsconfig-backend.json ts-node src/backend/app.ts",
-    "backend-prod-start": "node build-backend/index-backend.js",
+    "backend-prod-start": "npm run db-migrate up && node build-backend/index-backend.js",
     "frontend-dev": "PORT=8000 BROWSER=none react-scripts start",
     "frontend-build": "npm run lint-node && react-scripts build",
     "db-migrate": "db-migrate",
     "lint-node": "check-node-version --package",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "postinstall": "npm run backend-build && npm run db-migrate up"
+    "postinstall": "npm run backend-build"
   },
   "dependencies": {
     "@reach/router": "^1.3.3",
