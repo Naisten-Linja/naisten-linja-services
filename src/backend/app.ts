@@ -10,6 +10,7 @@ import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import onlineLetterRoutes from './onlineLetterRoutes';
 import letterRoutes from './letterRoutes';
+import { getUserByUuid } from './models/users';
 
 import { getConfig } from './config';
 
@@ -77,6 +78,25 @@ export function createApp() {
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
       res.status(401).json({ error: 'unauthorized' });
+    }
+    next();
+  });
+  // @ts-ignore
+  app.use(async (req, res, next) => {
+    // @ts-ignore
+    const { user } = req;
+    if (user && user.uuid) {
+      const dbUser = await getUserByUuid(user.uuid);
+      // Check if user information in jwt token matches info from the database.
+      if (
+        !dbUser ||
+        dbUser.role !== user.role ||
+        dbUser.email !== user.email ||
+        dbUser.fullName !== user.fullName
+      ) {
+        res.status(401).json({ error: 'invalid jwt token' });
+        return;
+      }
     }
     next();
   });

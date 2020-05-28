@@ -31,18 +31,18 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   };
 
   useEffect(() => {
-    try {
-      const fetchUsers = async () => {
+    const fetchUsers = async () => {
+      try {
         const result = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
           useJwt: true,
         });
         setUsers(result.data.data);
-      };
-      fetchUsers();
-    } catch (err) {
-      console.log(err);
-      setUsers([]);
-    }
+      } catch (err) {
+        console.log(err.response.status);
+        setUsers([]);
+      }
+    };
+    fetchUsers();
   }, [getRequest]);
 
   return (
