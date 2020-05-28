@@ -48,11 +48,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           );
           setReply(result.data.data);
         }
-        addNotification({
-          type: 'success',
-          message: `Reply was saved with status ${status}`,
-          timestamp: Date.now(),
-        });
+        addNotification({ type: 'success', message: `Reply was saved with status ${status}` });
       } catch (err) {
         console.log(err);
         addNotification({
@@ -97,11 +93,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         setLetter(result.data.data);
       } catch (err) {
         console.log(err);
-        addNotification({
-          type: 'error',
-          message: 'Unable to fetch letter',
-          timestamp: Date.now(),
-        });
+        addNotification({ type: 'error', message: 'Unable to fetch letter' });
       }
     };
     fetchLetter();

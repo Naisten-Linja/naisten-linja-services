@@ -23,11 +23,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
       };
       setLetterCredentials(credentials);
     } catch (err) {
-      addNotification({
-        type: 'error',
-        message: 'Unable to start a letter, please try again.',
-        timestamp: Date.now(),
-      });
+      addNotification({ type: 'error', message: 'Unable to start a letter, please try again.' });
     }
   };
 
@@ -50,11 +46,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
         }
       } catch (err) {
         console.log(err);
-        addNotification({
-          type: 'error',
-          message: 'There was an error in sending your letter',
-          timestamp: Date.now(),
-        });
+        addNotification({ type: 'error', message: 'There was an error in sending your letter' });
       }
     }
   };

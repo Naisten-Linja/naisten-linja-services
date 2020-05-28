@@ -33,7 +33,6 @@ export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
         addNotification({
           type: 'error',
           message: 'There has been an error fetching your message',
-          timestamp: Date.now(),
         });
       }
     }

@@ -71,18 +71,14 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   function logout() {
     setToken(null);
     setUser(null);
-    addNotification({ type: 'success', message: 'Logged out', timestamp: Date.now() });
+    addNotification({ type: 'success', message: 'Logged out' });
     // @ts-ignore
     // window.location.replace(`${DISCOURSE_URL}`);
   }
 
   useEffect(() => {
     if (user) {
-      addNotification({
-        type: 'success',
-        message: `Welcome ${user.email}!`,
-        timestamp: Date.now(),
-      });
+      addNotification({ type: 'success', message: `Welcome ${user.email}!` });
     }
   }, [user, addNotification]);
 

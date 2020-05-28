@@ -23,18 +23,10 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   }) => {
     try {
       await putRequest(`/api/users/${uuid}/role`, { role }, { useJwt: true });
-      addNotification({
-        type: 'success',
-        message: `Updated ${email} role to ${role}`,
-        timestamp: Date.now(),
-      });
+      addNotification({ type: 'success', message: `Updated ${email} role to ${role}` });
     } catch (err) {
       console.log(err);
-      addNotification({
-        type: 'error',
-        message: `Failed to update ${email} role to ${role}`,
-        timestamp: Date.now(),
-      });
+      addNotification({ type: 'error', message: `Failed to update ${email} role to ${role}` });
     }
   };
 

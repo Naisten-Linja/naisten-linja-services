@@ -20,7 +20,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setUsers(usersResult.data.data);
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get users', timestamp: Date.now() });
+      addNotification({ type: 'error', message: 'Unable to get users' });
       setUsers([]);
     }
   }, [addNotification, getRequest]);
@@ -37,7 +37,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       );
     } catch (err) {
       setLetters([]);
-      addNotification({ type: 'error', message: 'Unable to get letters', timestamp: Date.now() });
+      addNotification({ type: 'error', message: 'Unable to get letters' });
     }
   }, [addNotification, getRequest]);
 
@@ -65,19 +65,11 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         { useJwt: true },
       );
       if (result.data.data) {
-        addNotification({
-          type: 'success',
-          message: `Letter was assigned to ${email}`,
-          timestamp: Date.now(),
-        });
+        addNotification({ type: 'success', message: `Letter was assigned to ${email}` });
       }
     } catch (err) {
       console.log(err);
-      addNotification({
-        type: 'error',
-        message: `Unable to assign letter to ${email}`,
-        timestamp: Date.now(),
-      });
+      addNotification({ type: 'error', message: `Unable to assign letter to ${email}` });
     }
     await fetchLetters();
   };

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 interface Notification {
   type: 'error' | 'info' | 'warning' | 'success';
   message: string;
-  timestamp: number;
+  timestamp?: number;
 }
 
 export type AddNotificationParams = Omit<Notification, 'timestamp'>;
@@ -37,9 +37,11 @@ export const NotificationsContextWrapper: React.FunctionComponent = ({ children 
     return () => window.removeEventListener('AddNotification', eventHandler);
   }, [notifications]);
 
-  const addNotification = useCallback((message: Notification) => {
+  const addNotification = useCallback((msg: Notification) => {
     const event = new CustomEvent<{ message: Notification }>('addNotification');
-    event.initCustomEvent('AddNotification', false, false, { message });
+    event.initCustomEvent('AddNotification', false, false, {
+      message: { ...msg, timestamp: Date.now() },
+    });
     window.dispatchEvent(event);
   }, []);
 
@@ -57,8 +59,8 @@ export const NotificationsContextWrapper: React.FunctionComponent = ({ children 
     const expireNotifications = setInterval(() => {
       const lifeTime = 8000;
       notifications.forEach((n) => {
-        if (n.timestamp + lifeTime < Date.now()) {
-          deleteNotification(n.timestamp);
+        if (n.timestamp! + lifeTime < Date.now()) {
+          deleteNotification(n.timestamp!);
         }
       });
     }, 500);
@@ -80,7 +82,7 @@ export const NotificationsContextWrapper: React.FunctionComponent = ({ children 
           <NotificationItem
             key={`notification-${n.type}-${n.timestamp}`}
             type={n.type}
-            onClick={() => deleteNotification(n.timestamp)}
+            onClick={() => deleteNotification(n.timestamp!)}
           >
             {n.message}
           </NotificationItem>
