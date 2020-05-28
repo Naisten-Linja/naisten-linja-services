@@ -1,4 +1,4 @@
-import { createReply, getReplies, updateReply } from './models/replies';
+import { createReply, getReply, updateReply } from './models/replies';
 import { getLetterByUuid } from './models/letters';
 import { ApiReplyAdmin, ReplyStatus, ResponderType } from '../common/constants-common';
 
@@ -35,12 +35,13 @@ export async function replyToLetter({
   return { uuid, authorType, created, updated, internalAuthorUuid, letterUuid, status, content };
 }
 
-export async function getLettersReplies(letterUuid: string): Promise<Array<ApiReplyAdmin>> {
-  const replies = await getReplies(letterUuid);
-  return replies.map((reply) => {
-    const { uuid, authorType, created, updated, internalAuthorUuid, status, content } = reply;
-    return { uuid, authorType, created, updated, internalAuthorUuid, letterUuid, status, content };
-  });
+export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin | null> {
+  const reply = await getReply(letterUuid);
+  if (!reply) {
+    return null;
+  }
+  const { uuid, authorType, created, updated, internalAuthorUuid, status, content } = reply;
+  return { uuid, authorType, created, updated, internalAuthorUuid, letterUuid, status, content };
 }
 
 export async function updateLettersReply(

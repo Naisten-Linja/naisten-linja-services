@@ -2,6 +2,7 @@ import {
   ApiLetterCredentials,
   ApiSendLetterParams,
   ApiLetterAdmin,
+  ReplyStatus,
 } from '../common/constants-common';
 import {
   Letter,
@@ -11,9 +12,11 @@ import {
   getSentLetters,
   updateLetterAssignee,
   getLetterByUuid,
+  getAssignedLetters,
 } from './models/letters';
 import { saltHash } from './utils';
 import { getConfig } from './config';
+import { getReply, Reply } from './models/replies';
 
 export async function initiateLetter(): Promise<ApiLetterCredentials | null> {
   const credentials = await createLetterCredentials();
@@ -69,12 +72,17 @@ export async function readLetter({
 }: {
   accessKey: string;
   accessPassword: string;
-}): Promise<Letter | null> {
+}): Promise<{ letter: Letter | null; reply: Reply | null }> {
   if (!accessKey || !accessPassword) {
-    return null;
+    return { letter: null, reply: null };
   }
   const letter = await getLetterByCredentials({ accessKey, accessPassword });
-  return letter;
+  const reply = letter ? await getReply(letter.uuid) : null;
+  return { letter, reply: reply && reply.status === ReplyStatus.published ? reply : null };
+}
+
+export async function getAllAssignedLetters(userUuid: string): Promise<Array<Letter> | null> {
+  return await getAssignedLetters(userUuid);
 }
 
 export async function getAllLetters(): Promise<Array<Letter> | null> {
@@ -92,8 +100,28 @@ export async function assignLetter({
   if (!letter) {
     return null;
   }
-  const { uuid, created, title, content, assignedResponderUuid, status } = letter;
-  return { uuid, created, title, content, assignedResponderUuid, status };
+  const {
+    uuid,
+    created,
+    title,
+    content,
+    assignedResponderUuid,
+    assignedResponderEmail,
+    assignedResponderFullName,
+    status,
+    replyStatus,
+  } = letter;
+  return {
+    uuid,
+    created,
+    title,
+    content,
+    assignedResponderUuid,
+    assignedResponderEmail,
+    assignedResponderFullName,
+    status,
+    replyStatus,
+  };
 }
 
 export async function getLetter(uuid: string): Promise<Letter | null> {

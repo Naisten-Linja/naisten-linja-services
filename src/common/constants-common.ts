@@ -36,14 +36,19 @@ export interface ApiLetterAdmin {
   title: string | null;
   content: string | null;
   status: LetterStatus;
+  replyStatus: ReplyStatus | null;
   created: string;
   assignedResponderUuid: string | null;
+  assignedResponderEmail: string | null;
+  assignedResponderFullName: string | null;
 }
 
 export interface ApiLetterContent {
   title: string;
   content: string;
   created: string;
+  replyContent: string | null;
+  replyUpdated: string | null;
 }
 
 export interface ApiSendLetterParams {

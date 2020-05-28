@@ -57,6 +57,13 @@ const MainMenu = () => {
             </li>
           </>
         )}
+        {user && user.role === UserRole.volunteer && (
+          <>
+            <li>
+              <Link to="volunteer/letters">You assigned letters</Link>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );

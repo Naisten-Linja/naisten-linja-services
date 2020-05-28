@@ -1,24 +1,29 @@
 import express from 'express';
 
-import { getAllLetters, assignLetter, getLetter } from './letterControllers';
+import { getAllLetters, getAllAssignedLetters, assignLetter, getLetter } from './letterControllers';
 import {
   replyToLetter,
   isUserAssignedToLetter,
-  getLettersReplies,
+  getLettersReply,
   updateLettersReply,
 } from './replyController';
-import { ApiLetterAdmin, UserRole, ResponderType } from '../common/constants-common';
+import { ApiLetterAdmin, UserRole, ResponderType, ReplyStatus } from '../common/constants-common';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  // Only allow staff to edit user's role
   // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
+  const { user } = req;
+  const isStaff = user.role === UserRole.staff;
+  const isVolunteer = user.role === UserRole.volunteer;
+
+  // Only allow staff to edit user's role
+  if (!isStaff && !isVolunteer) {
     res.status(403).json({ error: 'unauthorized' });
     return;
   }
-  const letters = await getAllLetters();
+
+  const letters = isStaff ? await getAllLetters() : await getAllAssignedLetters(user.uuid);
   if (!letters) {
     res.status(200).json({ data: [] });
     return;
@@ -26,8 +31,28 @@ router.get('/', async (req, res) => {
   const result = letters
     .map(
       (letter): ApiLetterAdmin => {
-        const { created, uuid, title, content, assignedResponderUuid, status } = letter;
-        return { uuid, created, title, content, assignedResponderUuid, status };
+        const {
+          created,
+          uuid,
+          title,
+          content,
+          assignedResponderUuid,
+          assignedResponderEmail,
+          assignedResponderFullName,
+          status,
+          replyStatus,
+        } = letter;
+        return {
+          uuid,
+          created,
+          title,
+          content,
+          assignedResponderUuid,
+          assignedResponderEmail,
+          assignedResponderFullName,
+          status,
+          replyStatus,
+        };
       },
     )
     .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
@@ -37,26 +62,35 @@ router.get('/', async (req, res) => {
 router.get('/:uuid', async (req, res) => {
   // Only allow staff to edit user's role
   // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
+  const { user } = req;
+  const isStaff = user.role === UserRole.staff;
+  const isVolunteer = user.role === UserRole.volunteer;
+  if (!isVolunteer && !isStaff) {
     res.status(403).json({ error: 'unauthorized' });
     return;
   }
   const { uuid } = req.params;
-  if (!uuid) {
-    res.status(400).json({ error: 'missing uuid' });
-  }
   const letter = await getLetter(uuid);
   if (!letter) {
     res.status(404).json({ error: 'not found' });
     return;
   }
+
+  // Only allow volunteers to access letters assigned to them
+  if (isVolunteer && letter.assignedResponderUuid !== user.uuid) {
+    res.status(403).json({ error: 'unauthorized' });
+    return;
+  }
+
   res.status(200).json({ data: letter });
 });
 
 router.post('/assign', async (req, res) => {
-  // Only allow staff to edit user's role
   // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
+  const { user } = req;
+
+  // Only allow staff to assign letters
+  if (user.role !== UserRole.staff) {
     res.status(403).json({ error: 'unauthorized' });
     return;
   }
@@ -74,7 +108,7 @@ router.post('/assign', async (req, res) => {
   res.status(201).json({ data: letter });
 });
 
-router.post('/:uuid/replies', async (req, res) => {
+router.post('/:uuid/reply', async (req, res) => {
   // @ts-ignore
   const user = req.user;
   const isVolunteer = user.role === UserRole.volunteer;
@@ -103,7 +137,7 @@ router.post('/:uuid/replies', async (req, res) => {
   res.status(201).json({ data: reply });
 });
 
-router.get('/:uuid/replies', async (req, res) => {
+router.get('/:uuid/reply', async (req, res) => {
   // @ts-ignore
   const user = req.user;
   const isVolunteer = user.role === UserRole.volunteer;
@@ -113,11 +147,11 @@ router.get('/:uuid/replies', async (req, res) => {
     res.status(401).json({ error: `User ${user.email} don't have acces to this letter's reply` });
     return;
   }
-  const replies = await getLettersReplies(req.params.uuid);
-  res.status(200).json({ data: replies });
+  const reply = await getLettersReply(req.params.uuid);
+  res.status(200).json({ data: reply });
 });
 
-router.post('/:letterUuid/replies/:replyUuid', async (req, res) => {
+router.post('/:letterUuid/reply/:replyUuid', async (req, res) => {
   const { letterUuid, replyUuid } = req.params;
   // @ts-ignore
   const user = req.user;
@@ -132,6 +166,10 @@ router.post('/:letterUuid/replies/:replyUuid', async (req, res) => {
   const { content, status } = req.body;
   if (!content || !status) {
     res.status(400).json({ error: 'Missing content or status in request' });
+    return;
+  }
+  if (status === ReplyStatus.published && user.role !== 'staff') {
+    res.status(401).json({ error: 'Non staff users are not allowed to publish a response' });
     return;
   }
   const reply = await updateLettersReply(replyUuid, content, status);

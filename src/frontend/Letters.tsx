@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 
-import type { ApiLetterAdmin, ApiUserData } from '../common/constants-common';
+import { ApiLetterAdmin, ApiUserData, UserRole } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
+import { useAuth } from './AuthContext';
 import { useRequest } from './http';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
@@ -10,6 +11,8 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
+  const { user } = useAuth();
+  const isStaff = user && user.role === UserRole.staff;
   const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
@@ -23,7 +26,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       addNotification({ type: 'error', message: 'Unable to get users' });
       setUsers([]);
     }
-  }, [addNotification, getRequest]);
+  }, [getRequest, addNotification]);
 
   const fetchLetters = useCallback(async () => {
     try {
@@ -42,9 +45,11 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   }, [addNotification, getRequest]);
 
   const fetchData = useCallback(async () => {
-    await fetchUsers();
+    if (isStaff) {
+      await fetchUsers();
+    }
     await fetchLetters();
-  }, [fetchUsers, fetchLetters]);
+  }, [fetchUsers, fetchLetters, isStaff]);
 
   useEffect(() => {
     fetchData();
@@ -82,8 +87,8 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
           <tr>
             <th>Created</th>
             <th>Title</th>
-            <th>Status</th>
-            <th>Assigned to</th>
+            <th>Reply status</th>
+            {isStaff && <th>Assigned to</th>}
           </tr>
         </thead>
         <tbody>
@@ -95,33 +100,35 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
               >
                 <td>{new Date(letter.created).toLocaleString()}</td>
                 <td>{letter.title}</td>
-                <td>{letter.status}</td>
-                <td>
-                  <select
-                    defaultValue={letter.assignedResponderUuid || ''}
-                    onClick={(e: React.MouseEvent<HTMLSelectElement>) => {
-                      e.stopPropagation();
-                    }}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      e.preventDefault();
-                      if (e.target.value) {
-                        assignLetter({ assigneeUuid: e.target.value, letterUuid: letter.uuid });
-                      }
-                    }}
-                  >
-                    <option value="">unassigned</option>;
-                    {users.map((u) => {
-                      return (
-                        <option
-                          key={`assign-letter-option-${letter.uuid}-${u.uuid}`}
-                          value={u.uuid}
-                        >
-                          {u.email} {u.fullName && `(${u.fullName})`}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </td>
+                <td>{letter.replyStatus || ''}</td>
+                {isStaff && (
+                  <td>
+                    <select
+                      defaultValue={letter.assignedResponderUuid || ''}
+                      onClick={(e: React.MouseEvent<HTMLSelectElement>) => {
+                        e.stopPropagation();
+                      }}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        // e.preventDefault();
+                        if (e.target.value) {
+                          assignLetter({ assigneeUuid: e.target.value, letterUuid: letter.uuid });
+                        }
+                      }}
+                    >
+                      <option value="">unassigned</option>;
+                      {users.map((u) => {
+                        return (
+                          <option
+                            key={`option-letter-${letter.uuid}-user-${u.uuid}`}
+                            value={u.uuid}
+                          >
+                            {u.email} {u.fullName && `(${u.fullName})`}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                )}
               </tr>
             );
           })}

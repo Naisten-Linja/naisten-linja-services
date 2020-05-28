@@ -34,16 +34,13 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
       const { title, content } = formRef.current;
       const { accessKey, accessPassword } = letterCredentials;
       try {
-        const result = await postRequest('/api/online-letter/send', {
+        await postRequest('/api/online-letter/send', {
           accessKey,
           accessPassword,
           title: title.value,
           content: content.value,
         });
-        if (result.data.data.success) {
-          setIsLetterSent(true);
-          setLetterCredentials(null);
-        }
+        setIsLetterSent(true);
       } catch (err) {
         console.log(err);
         addNotification({ type: 'error', message: 'There was an error in sending your letter' });
@@ -54,8 +51,29 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <>
       <h1>Online letter</h1>
-      {isLetterSent && <div>Your letter has been sent!</div>}
-      {(!letterCredentials || isLetterSent) && (
+      {isLetterSent && letterCredentials && (
+        <>
+          <p>Your letter has been sent!</p>
+          <p>
+            Once again, please make sure you have recorded the following credentials to read the
+            letter:
+          </p>
+          <p>
+            Access key: {letterCredentials.accessKey}
+            <br />
+            Access password: {letterCredentials.accessPassword}
+          </p>
+          <Button
+            onClick={() => {
+              setIsLetterSent(false);
+              setLetterCredentials(null);
+            }}
+          >
+            Clear
+          </Button>
+        </>
+      )}
+      {!letterCredentials && !isLetterSent && (
         <>
           <p>
             <Button onClick={createLetter}>Write us a letter</Button>
@@ -66,7 +84,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
           </p>
         </>
       )}
-      {letterCredentials && (
+      {letterCredentials && !isLetterSent && (
         <>
           <p>
             Access key: {letterCredentials.accessKey}

@@ -48,6 +48,22 @@ export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
           </p>
           <h2>{letter.title}</h2>
           <LetterContent>{letter.content}</LetterContent>
+          {!letter.replyContent && (
+            <p>
+              <b>We will read and respond to your letter soon!</b>
+            </p>
+          )}
+          {letter.replyContent && letter.replyUpdated && (
+            <>
+              <h2>Response:</h2>
+              <p>
+                <i>
+                  <b>Sent on:</b> {new Date(letter.replyUpdated).toLocaleDateString('fi-FI')}
+                </i>
+              </p>
+              <LetterContent>{letter.replyContent}</LetterContent>
+            </>
+          )}
         </>
       )}
       {!letter && (

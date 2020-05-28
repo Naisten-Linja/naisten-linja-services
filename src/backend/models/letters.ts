@@ -2,7 +2,7 @@ import db from '../db';
 import { generate as generatePass } from 'generate-password';
 
 import { saltHash, generateRandomString } from '../utils';
-import { LetterStatus, ApiLetterCredentials } from '../../common/constants-common';
+import { LetterStatus, ApiLetterCredentials, ReplyStatus } from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -13,14 +13,18 @@ export interface Letter {
   content: string | null;
   title: string | null;
   assignedResponderUuid: string | null;
+  assignedResponderEmail: string | null;
+  assignedResponderFullName: string | null;
   created: string;
   status: LetterStatus;
+  replyStatus: ReplyStatus | null;
 }
 
 export interface LetterQueryResult {
   id: number;
   uuid: string;
   status: LetterStatus;
+  reply_status?: ReplyStatus;
   created: string;
   access_key: string;
   access_password: string;
@@ -28,6 +32,8 @@ export interface LetterQueryResult {
   title?: string;
   content?: string;
   assigned_responder_uuid?: string;
+  assigned_responder_email?: string;
+  assigned_responder_full_name?: string;
 }
 
 function queryResultToLetter(row: LetterQueryResult): Letter {
@@ -41,17 +47,55 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     title: row.title || null,
     content: row.content || null,
     assignedResponderUuid: row.assigned_responder_uuid || null,
+    assignedResponderEmail: row.assigned_responder_email || null,
+    assignedResponderFullName: row.assigned_responder_full_name || null,
+    replyStatus: row.reply_status || null,
   };
+}
+
+export async function getAssignedLetters(userUuid: string): Promise<Array<Letter> | null> {
+  try {
+    // Fetch the letter using the unique accessKeyHash
+    const queryText = `
+       SELECT
+         letters.*,
+         users.email as assigned_responder_email,
+         users.full_name as assigned_responder_full_name,
+         replies.status as reply_status
+       FROM letters
+       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
+       LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
+       WHERE
+         letters.status = 'sent' AND letters.assigned_responder_uuid = $1::text
+       ORDER BY letters.id DESC;
+    `;
+    const queryValues = [userUuid];
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return result.rows.map((r) => queryResultToLetter(r));
+  } catch (err) {
+    console.error('Failed to fetch letter by accessKey');
+    console.error(err);
+    return null;
+  }
 }
 
 export async function getSentLetters(): Promise<Array<Letter> | null> {
   try {
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
-       SELECT *
+       SELECT
+         letters.*,
+         users.email as assigned_responder_email,
+         users.full_name as assigned_responder_full_name,
+         replies.status as reply_status
        FROM letters
-       WHERE status = 'sent'
-       ORDER BY id DESC;
+       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
+       LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
+       WHERE letters.status = 'sent'
+       ORDER BY letters.id DESC;
     `;
     const result = await db.query<LetterQueryResult>(queryText, []);
     if (result.rows.length < 1) {
@@ -69,8 +113,12 @@ export async function getLetters(): Promise<Array<Letter> | null> {
   try {
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
-       SELECT *
+       SELECT
+         letters.*,
+         users.email as assigned_responder_email,
+         users.full_name as assigned_responder_full_name
        FROM letters
+       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
        ORDER BY id DESC;
     `;
     const result = await db.query<LetterQueryResult>(queryText, []);
@@ -134,9 +182,13 @@ export async function getLetterByCredentials({
 
     // Fetch the letter using the unique accessKeyHash
     const queryText = `
-       SELECT *
+       SELECT
+         letters.*,
+         users.email as assigned_responder_email,
+         users.full_name as assigned_responder_full_name
        FROM letters
-       WHERE access_key=$1::text;
+       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
+       WHERE letters.access_key=$1::text;
     `;
     const queryValues = [accessKeyHash];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
@@ -162,9 +214,13 @@ export async function getLetterByCredentials({
 export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   try {
     const queryText = `
-       SELECT *
+       SELECT
+         letters.*,
+         users.email as assigned_responder_email,
+         users.full_name as assigned_responder_full_name
        FROM letters
-       WHERE uuid=$1::text;
+       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
+       WHERE letters.uuid=$1::text;
     `;
     const queryValues = [uuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
@@ -221,11 +277,11 @@ export async function updateLetterAssignee({
   try {
     const queryText = `
        UPDATE letters
-       SET assigned_responder_uuid = $2::text
-       WHERE uuid = $1::text
+       SET assigned_responder_uuid = $1::text
+       WHERE letters.uuid = $2::text
        RETURNING *;
     `;
-    const queryValues = [letterUuid, assigneeUuid];
+    const queryValues = [assigneeUuid, letterUuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

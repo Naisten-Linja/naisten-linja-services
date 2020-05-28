@@ -37,7 +37,7 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
   };
 }
 
-export async function getReplies(letterUuid: string): Promise<Array<Reply>> {
+export async function getReply(letterUuid: string): Promise<Reply | null> {
   try {
     const queryText = `
        SELECT * from replies
@@ -46,13 +46,13 @@ export async function getReplies(letterUuid: string): Promise<Array<Reply>> {
     const queryValues = [letterUuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
-      return [];
+      return null;
     }
-    return result.rows.map((r) => queryResultToReply(r));
+    return queryResultToReply(result.rows[0]);
   } catch (err) {
-    console.error(`Failed fetch replies to letter ${letterUuid}`);
+    console.error(`Failed fetch reply to letter ${letterUuid}`);
     console.error(err);
-    return [];
+    return null;
   }
 }
 

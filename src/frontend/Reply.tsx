@@ -18,6 +18,8 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const [reply, setReply] = useState<ApiReplyAdmin | null>(null);
   const disableReplyEdit =
     user && user.role === UserRole.volunteer && reply && reply.status !== ReplyStatus.draft;
+  const showSendForReviewBtn = !reply || reply.status === ReplyStatus.draft;
+  const showPublishBtn = reply && reply.status === ReplyStatus.in_review;
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const sendReply = async (status: ReplyStatus) => {
@@ -25,10 +27,10 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       // @ts-ignore
       const { replyContent } = formRef.current;
       try {
-        // If there is no replies for letter, create a new reply
+        // If there is no reply for letter, create a new reply
         if (!reply) {
           const result = await postRequest<{ data: ApiReplyAdmin }>(
-            `/api/letters/${letter.uuid}/replies`,
+            `/api/letters/${letter.uuid}/reply`,
             { letterUuid: letter.uuid, content: replyContent.value, status },
             { useJwt: true },
           );
@@ -38,7 +40,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           // @ts-ignore
           const { replyUuid } = formRef.current;
           const result = await postRequest<{ data: ApiReplyAdmin }>(
-            `/api/letters/${letter.uuid}/replies/${replyUuid.value}`,
+            `/api/letters/${letter.uuid}/reply/${replyUuid.value}`,
             {
               status,
               letterUuid: letter.uuid,
@@ -67,18 +69,15 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
 
   const fetchReply = useCallback(async () => {
     try {
-      const result = await getRequest<{ data: Array<ApiReplyAdmin> }>(
-        `/api/letters/${letterUuid}/replies`,
-        {
-          useJwt: true,
-        },
-      );
-      setReply(result.data.data[0] || null);
+      const result = await getRequest<{ data: ApiReplyAdmin }>(`/api/letters/${letterUuid}/reply`, {
+        useJwt: true,
+      });
+      setReply(result.data.data || null);
     } catch (err) {
       console.log(err);
       addNotification({
         type: 'error',
-        message: 'Unable to fetch replies',
+        message: 'Unable to fetch reply',
         timestamp: Date.now(),
       });
     }
@@ -107,14 +106,37 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         <textarea required id="replyContent" rows={10} defaultValue={reply ? reply.content : ''} />
       </p>
       <p className="field">
-        <Button>Submit reply for review</Button>
+        {showSendForReviewBtn && (
+          <Button
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              sendReply(ReplyStatus.in_review);
+            }}
+          >
+            Submit reply for review
+          </Button>
+        )}
+
+        {showPublishBtn && (
+          <Button
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              sendReply(ReplyStatus.published);
+            }}
+          >
+            Publish reply
+          </Button>
+        )}
+
         <ButtonText
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.preventDefault();
             sendReply(ReplyStatus.draft);
           }}
         >
-          Save reply as draft
+          {reply && reply.status === ReplyStatus.published
+            ? 'Unpublish reply'
+            : 'Save reply as draft'}
         </ButtonText>
       </p>
     </form>
@@ -122,9 +144,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
 
   const replyContent = !reply ? null : <LetterContent>{reply.content}</LetterContent>;
 
-  return !letter ? null : (
+  return !letter || !user ? null : (
     <>
-      <Link to="/admin/letters">&lt; all letters</Link>
+      <Link to={user.role === UserRole.staff ? '/admin/letters' : '/volunteer/letters'}>
+        &lt; all letters
+      </Link>
       <h1>{letter.title}</h1>
       <p>
         <i>

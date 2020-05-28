@@ -42,7 +42,7 @@ router.post('/read', async (req, res) => {
     res.status(400).json({ error: 'missing title, content, accessKey or accessPassword' });
     return;
   }
-  const letter = await readLetter({ accessKey, accessPassword });
+  const { letter, reply } = await readLetter({ accessKey, accessPassword });
   if (!letter) {
     res.status(403).json({ error: 'Wrong letter access credentials' });
     return;
@@ -51,6 +51,8 @@ router.post('/read', async (req, res) => {
     title: letter.title,
     content: letter.content,
     created: letter.created,
+    replyContent: reply ? reply.content : null,
+    replyUpdated: reply ? reply.updated : null,
   };
   res.status(200).json({ data: letterContent });
 });
