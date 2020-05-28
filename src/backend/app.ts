@@ -14,7 +14,7 @@ import letterRoutes from './letterRoutes';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, hostName, environment, frontendUrl, jwtPrivateKey } = getConfig();
+  const { cookieSecret, hostName, environment, frontendUrl, jwtSecret } = getConfig();
 
   const app = express();
 
@@ -61,7 +61,7 @@ export function createApp() {
   );
 
   app.use(
-    jwt({ secret: jwtPrivateKey }).unless({
+    jwt({ secret: jwtSecret }).unless({
       path: [
         '/api/auth',
         '/api/auth/sso',
