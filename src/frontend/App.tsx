@@ -1,7 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Router } from '@reach/router';
-import { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 
 import { NotFound } from './NotFound';
 import { FetchToken } from './FetchToken';
@@ -21,6 +20,12 @@ import './assets/turret.css';
 // we can make use of css variables instead
 const theme = {};
 
+const GlobalStyle = createGlobalStyle`
+  .button {
+    margin-right: 1rem;
+  }
+`;
+
 const AppContainer = styled.div`
   padding-top: 2rem;
   padding-bottom: 5rem;
@@ -29,8 +34,9 @@ const AppContainer = styled.div`
 export const App = () => {
   return (
     <>
-      <AuthContextWrapper>
-        <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <ThemeProvider theme={theme}>
+        <AuthContextWrapper>
           <NotificationsContextWrapper>
             <Navigation />
             <AppContainer className="container">
@@ -44,8 +50,8 @@ export const App = () => {
               </Router>
             </AppContainer>
           </NotificationsContextWrapper>
-        </ThemeProvider>
-      </AuthContextWrapper>
+        </AuthContextWrapper>
+      </ThemeProvider>
     </>
   );
 };

@@ -152,11 +152,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <h1>{letter.title}</h1>
       <p>
         <i>
-          <b>Created:</b> {new Date(letter.created).toLocaleString('fi-FI')}
-        </i>
-        <br />
-        <i>
-          <b>Status:</b> {letter.status}
+          <b>Created:</b> {new Date(letter.created).toLocaleString('en-GB')}
         </i>
       </p>
       <LetterContent>{letter.content}</LetterContent>
@@ -165,7 +161,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b> {new Date(reply.updated).toLocaleString('fi-FI')}
+            <b>Updated on:</b> {new Date(reply.updated).toLocaleString('en-GB')}
           </i>
           <br />
           <i>

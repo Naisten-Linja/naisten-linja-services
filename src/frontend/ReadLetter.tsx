@@ -45,7 +45,7 @@ export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
         <>
           <p>
             Here is the letter you have sent to us on{' '}
-            {new Date(letter.created).toLocaleDateString('fi-FI')}
+            {new Date(letter.created).toLocaleDateString('en-GB')}
           </p>
           <h2>{letter.title}</h2>
           <LetterContent>{letter.content}</LetterContent>
@@ -59,7 +59,7 @@ export const ReadLetter: React.FunctionComponent<RouteComponentProps> = () => {
               <h2>Response:</h2>
               <p>
                 <i>
-                  <b>Sent on:</b> {new Date(letter.replyUpdated).toLocaleDateString('fi-FI')}
+                  <b>Sent on:</b> {new Date(letter.replyUpdated).toLocaleDateString('en-GB')}
                 </i>
               </p>
               <LetterContent>{letter.replyContent}</LetterContent>

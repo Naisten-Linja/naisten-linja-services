@@ -1,10 +1,22 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps, Link } from '@reach/router';
+import styled from 'styled-components';
+import SelectSearch from 'react-select-search';
 
 import { ApiLetterAdmin, ApiUserData, UserRole } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 import { useAuth } from './AuthContext';
 import { useRequest } from './http';
+
+import './assets/react-select-search.css';
+
+const LettersTable = styled.table`
+  tr {
+    height: 4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
@@ -13,7 +25,6 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const { getRequest, postRequest } = useRequest();
   const { user } = useAuth();
   const isStaff = user && user.role === UserRole.staff;
-  const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -44,16 +55,15 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     }
   }, [addNotification, getRequest]);
 
-  const fetchData = useCallback(async () => {
-    if (isStaff) {
-      await fetchUsers();
-    }
-    await fetchLetters();
-  }, [fetchUsers, fetchLetters, isStaff]);
-
   useEffect(() => {
+    const fetchData = async () => {
+      if (user && user.role === UserRole.staff) {
+        await fetchUsers();
+      }
+      await fetchLetters();
+    };
     fetchData();
-  }, [fetchData]);
+  }, [fetchLetters, fetchUsers, user]);
 
   const assignLetter = async ({
     letterUuid,
@@ -79,10 +89,15 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     await fetchLetters();
   };
 
+  const assigneeOptions = users.map((u) => ({
+    name: `${u.email}${u.fullName ? ' - ' + u.fullName : ''}`,
+    value: u.uuid as string | null,
+  }));
+
   return (
     <>
       <h1>Letters</h1>
-      <table>
+      <LettersTable>
         <thead>
           <tr>
             <th>Created</th>
@@ -94,46 +109,32 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         <tbody>
           {letters.map((letter) => {
             return (
-              <tr
-                key={`letter-list-item-${letter.uuid}`}
-                onClick={() => navigate(`letters/${letter.uuid}`)}
-              >
+              <tr key={`letter-list-item-${letter.uuid}`}>
                 <td>{new Date(letter.created).toLocaleString()}</td>
-                <td>{letter.title}</td>
+                <td>
+                  <Link to={letter.uuid}>{letter.title}</Link>
+                </td>
                 <td>{letter.replyStatus || ''}</td>
                 {isStaff && (
                   <td>
-                    <select
-                      defaultValue={letter.assignedResponderUuid || ''}
-                      onClick={(e: React.MouseEvent<HTMLSelectElement>) => {
-                        e.stopPropagation();
-                      }}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                        // e.preventDefault();
-                        if (e.target.value) {
-                          assignLetter({ assigneeUuid: e.target.value, letterUuid: letter.uuid });
+                    <SelectSearch
+                      options={assigneeOptions}
+                      value={letter.assignedResponderUuid}
+                      placeholder="Assign to a user"
+                      search
+                      onChange={(assigneeUuid: string) => {
+                        if (assigneeUuid !== letter.assignedResponderUuid) {
+                          assignLetter({ letterUuid: letter.uuid, assigneeUuid });
                         }
                       }}
-                    >
-                      <option value="">unassigned</option>;
-                      {users.map((u) => {
-                        return (
-                          <option
-                            key={`option-letter-${letter.uuid}-user-${u.uuid}`}
-                            value={u.uuid}
-                          >
-                            {u.email} {u.fullName && `(${u.fullName})`}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    />
                   </td>
                 )}
               </tr>
             );
           })}
         </tbody>
-      </table>
+      </LettersTable>
     </>
   );
 };
