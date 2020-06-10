@@ -11,6 +11,7 @@ export function checkVariables() {
     'COOKIE_SECRET',
     'JWT_SECRET',
     'LETTER_ACCESS_KEY_SALT',
+    'LETTER_AES_KEY',
     'DB_NAME',
     'DB_USERNAME',
     'DB_PASSWORD',
@@ -46,6 +47,7 @@ export function getConfig() {
 
     jwtSecret: process.env.JWT_SECRET!,
     letterAccessKeySalt: process.env.LETTER_ACCESS_KEY_SALT!,
+    letterAesKey: process.env.LETTER_AES_KEY!,
 
     dbName: process.env.DB_NAME!,
     dbUser: process.env.DB_USERNAME!,
