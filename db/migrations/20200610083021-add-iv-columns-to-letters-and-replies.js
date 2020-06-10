@@ -18,7 +18,8 @@ exports.setup = function (options, seedLink) {
 exports.up = function (db, callback) {
   async.series(
     [
-      db.addColumn.bind(db, 'letters', 'iv', { type: 'string' }),
+      db.addColumn.bind(db, 'letters', 'title_iv', { type: 'string' }),
+      db.addColumn.bind(db, 'letters', 'content_iv', { type: 'string' }),
       db.addColumn.bind(db, 'replies', 'iv', { type: 'string' }),
     ],
     callback,
