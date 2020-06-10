@@ -40,19 +40,8 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
   };
 }
 
-async function encryptAllReplies(): Promise<void> {
-  const queryText = `SELECT * from replies;`;
-  const result = await db.query<ReplyQueryResult>(queryText, []);
-  if (result.rows.length > 0) {
-    result.rows.forEach((r) => {
-      updateReply({ uuid: r.uuid, content: r.content, status: r.status });
-    });
-  }
-}
-
 export async function getReply(letterUuid: string): Promise<Reply | null> {
   try {
-    await encryptAllReplies();
     const queryText = `
        SELECT * from replies
        WHERE letter_uuid = $1::text;

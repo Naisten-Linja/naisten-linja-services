@@ -39,12 +39,9 @@ export interface LetterQueryResult {
 }
 
 function queryResultToLetter(row: LetterQueryResult): Letter {
-  const title = row.title ? (row.title_iv ? aesDecrypt(row.title, row.title_iv) : row.title) : null;
-  const content = row.content
-    ? row.content_iv
-      ? aesDecrypt(row.content, row.content_iv)
-      : row.content
-    : null;
+  const title = row.title ? aesDecrypt(row.title, row.title_iv) : null;
+  const content = row.content ? aesDecrypt(row.content, row.content_iv) : null;
+
   return {
     uuid: row.uuid,
     status: row.status,
@@ -109,12 +106,7 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
     if (result.rows.length < 1) {
       return null;
     }
-    return result.rows.map((r) => {
-      if (!r.title_iv && r.title && !r.content_iv && r.content) {
-        updateLetterContent({ uuid: r.uuid, content: r.content, title: r.title });
-      }
-      return queryResultToLetter(r);
-    });
+    return result.rows.map((r) => queryResultToLetter(r));
   } catch (err) {
     console.error('Failed to fetch letter by accessKey');
     console.error(err);
