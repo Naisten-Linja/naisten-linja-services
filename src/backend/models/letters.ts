@@ -1,7 +1,7 @@
 import db from '../db';
 import { generate as generatePass } from 'generate-password';
 
-import { saltHash, generateRandomString } from '../utils';
+import { saltHash, generateRandomString, aesDecrypt, aesEncrypt } from '../utils';
 import { LetterStatus, ApiLetterCredentials, ReplyStatus } from '../../common/constants-common';
 import { getConfig } from '../config';
 
@@ -34,9 +34,17 @@ export interface LetterQueryResult {
   assigned_responder_uuid?: string;
   assigned_responder_email?: string;
   assigned_responder_full_name?: string;
+  title_iv: string;
+  content_iv: string;
 }
 
 function queryResultToLetter(row: LetterQueryResult): Letter {
+  const title = row.title ? (row.title_iv ? aesDecrypt(row.title, row.title_iv) : row.title) : null;
+  const content = row.content
+    ? row.content_iv
+      ? aesDecrypt(row.content, row.content_iv)
+      : row.content
+    : null;
   return {
     uuid: row.uuid,
     status: row.status,
@@ -44,8 +52,8 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     accessKey: row.access_key,
     accessPassword: row.access_password,
     accessPasswordSalt: row.access_password_salt,
-    title: row.title || null,
-    content: row.content || null,
+    title,
+    content,
     assignedResponderUuid: row.assigned_responder_uuid || null,
     assignedResponderEmail: row.assigned_responder_email || null,
     assignedResponderFullName: row.assigned_responder_full_name || null,
@@ -101,7 +109,13 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
     if (result.rows.length < 1) {
       return null;
     }
-    return result.rows.map((r) => queryResultToLetter(r));
+    return result.rows.map((r) => {
+      if (!r.title_iv && r.title && !r.content_iv && r.content) {
+        console.log('UPDATING LETTER!=======');
+        updateLetterContent({ uuid: r.uuid, content: r.content, title: r.title });
+      }
+      return queryResultToLetter(r);
+    });
   } catch (err) {
     console.error('Failed to fetch letter by accessKey');
     console.error(err);
@@ -245,16 +259,27 @@ export async function updateLetterContent({
   content: string;
 }): Promise<Letter | null> {
   try {
+    const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
+    const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
     const queryText = `
        UPDATE letters
        SET
          title = $1::text,
-         content = $2::text,
-         status = $3::text
-       WHERE uuid = $4::text
+         title_iv = $2::text,
+         content = $3::text,
+         content_iv = $4::text,
+         status = $5::text
+       WHERE uuid = $6::text
        RETURNING *;
     `;
-    const queryValues = [title.trim(), content.trim(), LetterStatus.sent, uuid];
+    const queryValues = [
+      encryptedTitle,
+      titleIv,
+      encryptedContent,
+      contentIv,
+      LetterStatus.sent,
+      uuid,
+    ];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

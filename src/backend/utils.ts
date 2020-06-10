@@ -66,7 +66,7 @@ export function aesDecrypt(encryptedStr: string, ivHex: string): string {
   const { letterAesKey } = getConfig();
   const iv = Buffer.from(ivHex, 'hex');
   const encrypted = Buffer.from(encryptedStr, 'hex');
-  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(letterAesKey), iv);
+  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(letterAesKey, 'hex'), iv);
   const decrypted = decipher.update(encrypted);
   return Buffer.concat([decrypted, decipher.final()]).toString('utf8');
 }
