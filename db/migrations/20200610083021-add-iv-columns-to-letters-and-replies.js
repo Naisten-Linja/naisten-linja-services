@@ -20,7 +20,7 @@ exports.up = function (db, callback) {
     [
       db.addColumn.bind(db, 'letters', 'title_iv', { type: 'string' }),
       db.addColumn.bind(db, 'letters', 'content_iv', { type: 'string' }),
-      db.addColumn.bind(db, 'replies', 'iv', { type: 'string' }),
+      db.addColumn.bind(db, 'replies', 'content_iv', { type: 'string' }),
     ],
     callback,
   );

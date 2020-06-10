@@ -111,7 +111,6 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
     }
     return result.rows.map((r) => {
       if (!r.title_iv && r.title && !r.content_iv && r.content) {
-        console.log('UPDATING LETTER!=======');
         updateLetterContent({ uuid: r.uuid, content: r.content, title: r.title });
       }
       return queryResultToLetter(r);
