@@ -15,7 +15,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, hostName, environment, frontendUrl, jwtSecret } = getConfig();
+  const { cookieSecret, hostName, environment, jwtSecret } = getConfig();
 
   const app = express();
 
