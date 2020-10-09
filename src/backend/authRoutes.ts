@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { getConfig } from './config';
 import { generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser } from './models/users';
@@ -8,13 +7,10 @@ import { upsertUser } from './models/users';
 const router = express.Router();
 
 router.get('/sso', async (req, res) => {
-  const { frontendUrl } = getConfig();
   if (!req.session) {
     console.log('Missing Session in request');
     res.redirect(
-      `${frontendUrl}/login?error=${encodeURIComponent(
-        JSON.stringify({ error: 'unable to login' }),
-      )}`,
+      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
     );
     return;
   }
@@ -24,21 +20,16 @@ router.get('/sso', async (req, res) => {
 });
 
 router.get('/sso/verify', async (req, res) => {
-  const { frontendUrl } = getConfig();
   if (!req.session) {
     console.log('Missing Session in request');
     res.redirect(
-      `${frontendUrl}/login?error=${encodeURIComponent(
-        JSON.stringify({ error: 'unable to login' }),
-      )}`,
+      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
     );
   }
   if (!validateSsoRequest(req)) {
     console.log('Invalid sso return request', req.query);
     res.redirect(
-      `${frontendUrl}/login?error=${encodeURIComponent(
-        JSON.stringify({ error: 'unable to login' }),
-      )}`,
+      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
     );
     return;
   }
@@ -47,9 +38,7 @@ router.get('/sso/verify', async (req, res) => {
   if (!userData) {
     console.log('Invalid user data', req.query);
     res.redirect(
-      `${frontendUrl}/login?error=${encodeURIComponent(
-        JSON.stringify({ error: 'not allowed role' }),
-      )}`,
+      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'not allowed role' }))}`,
     );
     return;
   }
@@ -57,9 +46,7 @@ router.get('/sso/verify', async (req, res) => {
   const user = await upsertUser(userData);
   if (!user) {
     res.redirect(
-      `${frontendUrl}/login?error=${encodeURIComponent(
-        JSON.stringify({ error: 'unable to login' }),
-      )}`,
+      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
     );
     return;
   }
@@ -75,7 +62,7 @@ router.get('/sso/verify', async (req, res) => {
     token,
     nonce: tokenNonce,
   };
-  res.redirect(`${frontendUrl}/login/${encodeURIComponent(tokenNonce)}`);
+  res.redirect(`/login/${encodeURIComponent(tokenNonce)}`);
 });
 
 router.get('/token/:nonce', (req, res) => {

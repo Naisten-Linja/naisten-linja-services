@@ -7,7 +7,6 @@ export function checkVariables() {
     'ALLOWED_ORIGINS',
     'DISCOURSE_URL',
     'BACKEND_URL',
-    'FRONTEND_URL',
     'DISCOURSE_SSO_SECRET',
     'COOKIE_SECRET',
     'JWT_SECRET',
@@ -38,7 +37,6 @@ export function getConfig() {
     environment: process.env.ENVIRONMENT!,
 
     allowedOrigins: process.env.ALLOWED_ORIGINS!.split(','),
-    frontendUrl: process.env.FRONTEND_URL!,
     backendUrl: process.env.BACKEND_URL!,
     hostName: hostname,
     port: parseInt(process.env.PORT!, 10),

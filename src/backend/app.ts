@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
+import path from 'path';
 
 import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
@@ -62,6 +63,8 @@ export function createApp() {
     }),
   );
 
+  app.use('/', express.static(path.join(__dirname, '../../build')));
+
   app.use(
     jwt({ secret: jwtSecret }).unless({
       path: [
@@ -72,6 +75,8 @@ export function createApp() {
         '/api/online-letter/start',
         '/api/online-letter/send',
         '/api/online-letter/read',
+        // Disable authentication for all routes that does not start with `/api`
+        /^(?!\/api.*$).*/,
       ],
     }),
   );
@@ -124,6 +129,10 @@ export function createApp() {
   app.use('/api/users', userRoutes);
   app.use('/api/online-letter', onlineLetterRoutes);
   app.use('/api/letters', letterRoutes);
+
+  app.get('*', (_, res) => {
+    res.sendFile(path.join(__dirname, '../../build/index.html'));
+  });
 
   app.use(
     expressWinston.errorLogger({
