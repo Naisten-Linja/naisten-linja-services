@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
-import { BACKEND_URL, DISCOURSE_URL } from './constants-frontend';
+import { DISCOURSE_URL } from './constants-frontend';
 
 interface IAuthContext {
   token: string | null;
@@ -65,7 +65,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   function login() {
     setToken(null);
     setUser(null);
-    window.location.replace(`${BACKEND_URL}/api/auth/sso`);
+    window.location.replace('/api/auth/sso');
   }
 
   function logout() {

@@ -16,7 +16,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, hostName, environment, jwtSecret, allowedOrigins } = getConfig();
+  const { cookieSecret, environment, jwtSecret, allowedOrigins } = getConfig();
 
   const app = express();
 
@@ -32,14 +32,16 @@ export function createApp() {
     }),
   );
   app.use(bodyParser.json());
-  // Add CORS headers
-  app.use(
-    cors({
-      credentials: true,
-      origin: allowedOrigins,
-      optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    }),
-  );
+
+  if (allowedOrigins) {
+    app.use(
+      cors({
+        credentials: true,
+        origin: allowedOrigins,
+        optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+      }),
+    );
+  }
 
   // Add session support - this is needed for SSO
   app.use(
@@ -51,7 +53,6 @@ export function createApp() {
       cookie: {
         secure: environment === 'production',
         httpOnly: true,
-        domain: hostName,
         // Cookie is needed only in /auth routes for Discourse SSO
         path: '/api/auth',
         // Cookie will expires if ther is no new requests for 10 minutes , and

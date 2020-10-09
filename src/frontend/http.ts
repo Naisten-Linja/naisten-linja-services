@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 
-import { BACKEND_URL } from './constants-frontend';
 import { useAuth } from './AuthContext';
 
 interface RequestConfig extends AxiosRequestConfig {
@@ -19,7 +18,7 @@ export function useRequest() {
 
   const getRequest = useCallback(
     async function <T = any, R = AxiosResponse<T>>(
-      url: string,
+      apiPath: string,
       reqConfig?: RequestConfig,
     ): Promise<R> {
       try {
@@ -27,7 +26,7 @@ export function useRequest() {
         if (useJwt) {
           headers.Authorization = `Bearer ${token}`;
         }
-        const result = await axios.get<T, R>(`${BACKEND_URL}${url}`, {
+        const result = await axios.get<T, R>(apiPath, {
           ...config,
           headers: {
             ...defaultHeaders,
@@ -47,7 +46,7 @@ export function useRequest() {
 
   const putRequest = useCallback(
     async function <T = any, R = AxiosResponse<T>>(
-      url: string,
+      apiPath: string,
       data?: Record<string, any>,
       reqConfig?: RequestConfig,
     ): Promise<R> {
@@ -56,7 +55,7 @@ export function useRequest() {
         if (useJwt) {
           headers.Authorization = `Bearer ${token}`;
         }
-        return axios.put<T, R>(`${BACKEND_URL}${url}`, data, {
+        return axios.put<T, R>(apiPath, data, {
           ...config,
           headers: {
             ...defaultHeaders,
@@ -75,7 +74,7 @@ export function useRequest() {
 
   const postRequest = useCallback(
     async function <T = any, R = AxiosResponse<T>>(
-      url: string,
+      apiPath: string,
       data?: any,
       reqConfig?: RequestConfig,
     ): Promise<R> {
@@ -84,7 +83,7 @@ export function useRequest() {
         if (useJwt) {
           headers.Authorization = `Bearer ${token}`;
         }
-        const result = await axios.post<T, R>(`${BACKEND_URL}${url}`, data, {
+        const result = await axios.post<T, R>(apiPath, data, {
           ...config,
           headers: {
             ...defaultHeaders,

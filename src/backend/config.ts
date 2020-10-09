@@ -1,12 +1,8 @@
-import url from 'url';
-
 export function checkVariables() {
   [
     'ENVIRONMENT',
     'PORT',
-    'ALLOWED_ORIGINS',
     'DISCOURSE_URL',
-    'BACKEND_URL',
     'DISCOURSE_SSO_SECRET',
     'COOKIE_SECRET',
     'JWT_SECRET',
@@ -27,18 +23,10 @@ export function checkVariables() {
 export function getConfig() {
   checkVariables();
 
-  const backendUrl = process.env.BACKEND_URL!;
-  const { hostname } = url.parse(backendUrl);
-
-  if (hostname === null) {
-    throw `BACKEND_URL has hostname = null!`;
-  }
   return {
     environment: process.env.ENVIRONMENT!,
 
-    allowedOrigins: process.env.ALLOWED_ORIGINS!.split(','),
-    backendUrl: process.env.BACKEND_URL!,
-    hostName: hostname,
+    allowedOrigins: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : null,
     port: parseInt(process.env.PORT!, 10),
 
     discourseUrl: process.env.DISCOURSE_URL!,

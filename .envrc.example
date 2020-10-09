@@ -7,12 +7,6 @@ export PORT=3000
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
 
-# BACKEND_URL is needed to construct api calls from frontend,
-# This is also used to construct redirection url in backend during Discourse SSO login
-export BACKEND_URL=http://localhost:3000
-# Needed for backend to redirect user back to the frontend site after SSO authentication redirection from Discourse.
-export FRONTEND_URL=http://localhost:8000
-
 # The list of allowed CORS origins requests to the backend API. If more than one origins are allowed,
 # they can can separated by a "," - without any space in between. For example: http://domain1.com,http://domain2.com
 export ALLOWED_ORIGINS=http://localhost:8000
@@ -36,4 +30,3 @@ export LETTER_AES_KEY=3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b8
 # We'll need this separate set of variables because
 # Create React App only exposes env variables with prefix `REACT_APP_` into process.env
 export REACT_APP_DISCOURSE_URL=${DISCOURSE_URL}
-export REACT_APP_BACKEND_URL=${BACKEND_URL}
