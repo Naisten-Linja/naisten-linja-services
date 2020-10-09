@@ -13,6 +13,10 @@ export BACKEND_URL=http://localhost:3000
 # Needed for backend to redirect user back to the frontend site after SSO authentication redirection from Discourse.
 export FRONTEND_URL=http://localhost:8000
 
+# The list of allowed CORS origins requests to the backend API. If more than one origins are allowed,
+# they can can separated by a "," - without any space in between. For example: http://domain1.com,http://domain2.com
+export ALLOWED_ORIGINS=http://localhost:8000
+
 export DB_USERNAME=naistenlinja_dev
 export DB_PASSWORD=naistenlinja_dev
 export DB_NAME=naistenlinja_dev

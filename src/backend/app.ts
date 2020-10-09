@@ -15,7 +15,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, hostName, environment, jwtSecret } = getConfig();
+  const { cookieSecret, hostName, environment, jwtSecret, allowedOrigins } = getConfig();
 
   const app = express();
 
@@ -35,10 +35,11 @@ export function createApp() {
   app.use(
     cors({
       credentials: true,
-      origin: '*',
+      origin: allowedOrigins,
       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
     }),
   );
+
   // Add session support - this is needed for SSO
   app.use(
     session({
@@ -74,6 +75,7 @@ export function createApp() {
       ],
     }),
   );
+
   // @ts-ignore
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
