@@ -4,6 +4,7 @@ export function checkVariables() {
   [
     'ENVIRONMENT',
     'PORT',
+    'ALLOWED_ORIGINS',
     'DISCOURSE_URL',
     'BACKEND_URL',
     'FRONTEND_URL',
@@ -36,6 +37,7 @@ export function getConfig() {
   return {
     environment: process.env.ENVIRONMENT!,
 
+    allowedOrigins: process.env.ALLOWED_ORIGINS!.split(','),
     frontendUrl: process.env.FRONTEND_URL!,
     backendUrl: process.env.BACKEND_URL!,
     hostName: hostname,
