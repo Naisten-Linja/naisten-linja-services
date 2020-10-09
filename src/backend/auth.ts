@@ -128,7 +128,7 @@ export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams |
   const ssoData = getQueryData(ssoStr) as DiscourseSsoData;
   const { external_id, email, name, admin, groups } = ssoData;
   const isAdmin = admin === 'true';
-  const isVolunteer = groups && groups.split(',').indexOf('Volunteers') > -1;
+  const isVolunteer = groups && groups.split(',').indexOf('volunteers') > -1;
   if (isAdmin || isVolunteer) {
     return {
       email,
