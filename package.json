@@ -5,6 +5,7 @@
     "node": ">=12 <13"
   },
   "scripts": {
+    "dev": "concurrently \"npm:backend-dev\" \"npm:frontend-dev\"",
     "backend-build": "npm run lint-node && tsc --project tsconfig-backend.json",
     "backend-dev": "nodemon --watch 'src/backend/**/*.ts' -x TS_NODE_PROJECT=tsconfig-backend.json ts-node src/index-backend.ts",
     "backend-prod-start": "npm run db-migrate up && node build-backend/index-backend.js",
@@ -52,6 +53,7 @@
     "@types/styled-components": "^5.1.0",
     "@types/winston": "^2.4.4",
     "axios": "^0.19.2",
+    "concurrently": "^5.3.0",
     "http-proxy-middleware": "^1.0.5",
     "nodemon": "^2.0.4",
     "normalize.css": "^8.0.1",
