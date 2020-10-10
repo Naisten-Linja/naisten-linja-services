@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get('/sso', async (req, res) => {
   if (!req.session) {
-    console.log('Missing Session in request');
+    console.error('Missing Session in request');
     res.redirect(
       `${req.headers.referer}login?error=${encodeURIComponent(
         JSON.stringify({ error: 'unable to login' }),

@@ -34,6 +34,7 @@ export interface DiscourseSsoData {
 //   DISCOURSE_ROOT_URL/session/sso_provider?sso=URL_ENCODED_PAYLOAD&sig=HEX_SIGNATURE
 export function createSso(req: Request) {
   if (!req.session) {
+    console.error('Missing Session in request');
     return '/';
   }
 
