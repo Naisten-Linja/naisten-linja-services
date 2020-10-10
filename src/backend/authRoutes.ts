@@ -10,7 +10,9 @@ router.get('/sso', async (req, res) => {
   if (!req.session) {
     console.log('Missing Session in request');
     res.redirect(
-      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
+      `${req.headers.referer}login?error=${encodeURIComponent(
+        JSON.stringify({ error: 'unable to login' }),
+      )}`,
     );
     return;
   }
@@ -23,13 +25,17 @@ router.get('/sso/verify', async (req, res) => {
   if (!req.session) {
     console.log('Missing Session in request');
     res.redirect(
-      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
+      `${req.headers.referer}login?error=${encodeURIComponent(
+        JSON.stringify({ error: 'unable to login' }),
+      )}`,
     );
   }
   if (!validateSsoRequest(req)) {
     console.log('Invalid sso return request', req.query);
     res.redirect(
-      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
+      `${req.headers.referer}login?error=${encodeURIComponent(
+        JSON.stringify({ error: 'unable to login' }),
+      )}`,
     );
     return;
   }
@@ -46,7 +52,9 @@ router.get('/sso/verify', async (req, res) => {
   const user = await upsertUser(userData);
   if (!user) {
     res.redirect(
-      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'unable to login' }))}`,
+      `${req.headers.referer}login?error=${encodeURIComponent(
+        JSON.stringify({ error: 'unable to login' }),
+      )}`,
     );
     return;
   }
@@ -62,7 +70,7 @@ router.get('/sso/verify', async (req, res) => {
     token,
     nonce: tokenNonce,
   };
-  res.redirect(`/login/${encodeURIComponent(tokenNonce)}`);
+  res.redirect(`${req.headers.referer}login/${encodeURIComponent(tokenNonce)}`);
 });
 
 router.get('/token/:nonce', (req, res) => {
