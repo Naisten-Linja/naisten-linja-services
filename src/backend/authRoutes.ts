@@ -3,6 +3,7 @@ import express from 'express';
 import { generateRandomString } from './utils';
 import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
 import { upsertUser } from './models/users';
+import { getConfig } from './config';
 
 const router = express.Router();
 
@@ -22,10 +23,11 @@ router.get('/sso', async (req, res) => {
 });
 
 router.get('/sso/verify', async (req, res) => {
+  const { serviceUrl } = getConfig();
   if (!req.session) {
     console.log('Missing Session in request');
     res.redirect(
-      `${req.headers.referer}login?error=${encodeURIComponent(
+      `${serviceUrl}/login?error=${encodeURIComponent(
         JSON.stringify({ error: 'unable to login' }),
       )}`,
     );
@@ -33,7 +35,7 @@ router.get('/sso/verify', async (req, res) => {
   if (!validateSsoRequest(req)) {
     console.log('Invalid sso return request', req.query);
     res.redirect(
-      `${req.headers.referer}login?error=${encodeURIComponent(
+      `${serviceUrl}/login?error=${encodeURIComponent(
         JSON.stringify({ error: 'unable to login' }),
       )}`,
     );
@@ -44,7 +46,9 @@ router.get('/sso/verify', async (req, res) => {
   if (!userData) {
     console.log('Invalid user data', req.query);
     res.redirect(
-      `/login?error=${encodeURIComponent(JSON.stringify({ error: 'not allowed role' }))}`,
+      `${serviceUrl}/login?error=${encodeURIComponent(
+        JSON.stringify({ error: 'not allowed role' }),
+      )}`,
     );
     return;
   }
@@ -52,7 +56,7 @@ router.get('/sso/verify', async (req, res) => {
   const user = await upsertUser(userData);
   if (!user) {
     res.redirect(
-      `${req.headers.referer}login?error=${encodeURIComponent(
+      `${serviceUrl}/login?error=${encodeURIComponent(
         JSON.stringify({ error: 'unable to login' }),
       )}`,
     );
@@ -70,7 +74,7 @@ router.get('/sso/verify', async (req, res) => {
     token,
     nonce: tokenNonce,
   };
-  res.redirect(`${req.headers.referer}login/${encodeURIComponent(tokenNonce)}`);
+  res.redirect(`${serviceUrl}/login/${encodeURIComponent(tokenNonce)}`);
 });
 
 router.get('/token/:nonce', (req, res) => {
