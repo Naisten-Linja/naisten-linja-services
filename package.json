@@ -13,7 +13,8 @@
     "db-migrate": "db-migrate",
     "lint-node": "check-node-version --package",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "postinstall": "npm run backend-build"
+    "build": "npm run backend-build && npm run frontend-build",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@reach/router": "^1.3.3",
