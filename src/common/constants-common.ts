@@ -85,3 +85,41 @@ export interface ApiReplyAdmin {
   created: string;
   updated: string;
 }
+
+export type WeekDays =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+export interface BookingRules {
+  weekDays: Record<
+    WeekDays,
+    {
+      slots: Array<{ start: number; end: number; seatCount: number }>;
+    }
+  >;
+  exceptions: {
+    [timeStamptString: string]: {
+      slots: Array<{ start: number; end: number; seatCount: number }>;
+    };
+  };
+}
+
+export interface ApiBookingType {
+  name: string;
+  rules: BookingRules;
+  uuid: string;
+}
+
+export interface ApiBooking {
+  bookingType: ApiBookingType;
+  email: string;
+  name: string;
+  phone: string;
+  user: ApiUserData;
+  uuid: string;
+}
