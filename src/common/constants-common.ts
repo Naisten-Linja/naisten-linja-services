@@ -95,11 +95,17 @@ export type WeekDays =
   | 'saturday'
   | 'sunday';
 
-export interface BookingRules {
+export interface BookingTypeRules {
   weekDays: Record<
     WeekDays,
     {
-      slots: Array<{ start: number; end: number; seatCount: number }>;
+      slots: Array<{
+        startHour: number;
+        startMinute: number;
+        endHour: number;
+        endMinute: number;
+        seatCount: number;
+      }>;
     }
   >;
   exceptions: {
@@ -111,7 +117,7 @@ export interface BookingRules {
 
 export interface ApiBookingType {
   name: string;
-  rules: BookingRules;
+  rules: BookingTypeRules;
   uuid: string;
 }
 

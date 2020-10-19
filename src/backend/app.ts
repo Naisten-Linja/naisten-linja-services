@@ -11,8 +11,8 @@ import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import onlineLetterRoutes from './onlineLetterRoutes';
 import letterRoutes from './letterRoutes';
+import bookingTypesRoutes from './bookingTypesRoutes';
 import { getUserByUuid } from './models/users';
-
 import { getConfig } from './config';
 
 export function createApp() {
@@ -133,6 +133,7 @@ export function createApp() {
   app.use('/api/users', userRoutes);
   app.use('/api/online-letter', onlineLetterRoutes);
   app.use('/api/letters', letterRoutes);
+  app.use('/api/booking-types', bookingTypesRoutes);
 
   app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../../build/index.html'));
