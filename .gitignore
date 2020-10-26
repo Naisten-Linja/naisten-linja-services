@@ -3,6 +3,7 @@ node_modules
 build
 build-backend
 .envrc
+db-data
 
 # misc
 .DS_Store
