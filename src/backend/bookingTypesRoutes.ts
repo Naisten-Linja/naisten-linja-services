@@ -9,13 +9,13 @@ router.post('/', async (req, res) => {
   // Only allow staff to edit user's role
   // @ts-ignore
   const { user } = req;
-  if (user.role === UserRole.staff) {
+  if (user.role !== UserRole.staff) {
     res.status(401).json({ error: 'unauthorized' });
     return;
   }
 
-  const { name, rules } = req.body;
-  const bookingType = await addBookingType({ name, rules });
+  const { name, rules, exceptions } = req.body;
+  const bookingType = await addBookingType({ name, rules, exceptions });
   if (!bookingType) {
     res.status(400).json({ error: 'unable to create new booking rule' });
     return;

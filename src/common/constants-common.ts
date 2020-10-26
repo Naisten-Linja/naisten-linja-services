@@ -95,30 +95,49 @@ export type WeekDays =
   | 'saturday'
   | 'sunday';
 
-export interface BookingTypeRules {
-  weekDays: Record<
-    WeekDays,
-    {
-      slots: Array<{
-        startHour: number;
-        startMinute: number;
-        endHour: number;
-        endMinute: number;
-        seatCount: number;
-      }>;
+interface SlotBookingRules {
+  disabled: false;
+  fullDay: false;
+  slots: Array<{
+    start: string;
+    end: string;
+    seats: number;
+  }>;
+}
+
+interface FullDayBookingRules {
+  disabled: false;
+  fullDay: true;
+  seats: number;
+}
+
+type DisabledDayRules =
+  | { disabled: true }
+  | {
+      disabled: true;
+      fullDay: true;
+      seats: number;
     }
-  >;
-  exceptions: {
-    [timeStamptString: string]: {
-      slots: Array<{ start: number; end: number; seatCount: number }>;
+  | {
+      disabled: true;
+      fullDay: false;
+      slots: SlotBookingRules['slots'];
     };
-  };
+
+export type BookingTypeRules = Record<
+  WeekDays,
+  SlotBookingRules | FullDayBookingRules | DisabledDayRules
+>;
+
+export interface BookingTypeExceptions {
+  [date: string]: SlotBookingRules | FullDayBookingRules;
 }
 
 export interface ApiBookingType {
+  uuid: string;
   name: string;
   rules: BookingTypeRules;
-  uuid: string;
+  exceptions: BookingTypeExceptions;
 }
 
 export interface ApiBooking {
