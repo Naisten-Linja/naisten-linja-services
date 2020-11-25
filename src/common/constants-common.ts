@@ -105,12 +105,6 @@ interface SlotBookingRules {
   }>;
 }
 
-interface FullDayBookingRules {
-  disabled: false;
-  fullDay: true;
-  seats: number;
-}
-
 type DisabledDayRules =
   | { disabled: true }
   | {
@@ -124,13 +118,10 @@ type DisabledDayRules =
       slots: SlotBookingRules['slots'];
     };
 
-export type BookingTypeRules = Record<
-  WeekDays,
-  SlotBookingRules | FullDayBookingRules | DisabledDayRules
->;
+export type BookingTypeRules = Record<WeekDays, SlotBookingRules | DisabledDayRules>;
 
 export interface BookingTypeExceptions {
-  [date: string]: SlotBookingRules | FullDayBookingRules;
+  [date: string]: SlotBookingRules;
 }
 
 export interface ApiBookingType {
