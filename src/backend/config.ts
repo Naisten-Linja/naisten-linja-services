@@ -26,7 +26,7 @@ export function getConfig() {
   return {
     environment: process.env.ENVIRONMENT!,
     hostname: process.env.HOSTNAME || 'localhost',
-    serviceUrl: `${process.env.HOSTNAME !== 'localhost' ? 'http' : 'https'}://${
+    serviceUrl: `${process.env.HOSTNAME === 'localhost' ? 'http' : 'https'}://${
       process.env.HOSTNAME || 'localhost:3000'
     }`,
 
