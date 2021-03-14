@@ -58,10 +58,16 @@ First, make sure there is no other Postgres instance running locally, or using p
 Quickly start a Postgres database in docker with
 
 ```
-docker run --name naisten_linja_db -e POSTGRES_USER=nl_dev -e POSTGRES_PASSWORD=nl_dev -e POSTGRES_DB=nl_dev -v ./dbdata:/var/lib/postgresql/data -p 5432:5432 postgres:11.9
+docker run --name naisten_linja_db -e POSTGRES_USER=nl_dev -e POSTGRES_PASSWORD=nl_dev -e POSTGRES_DB=nl_dev -v "/$(pwd)/dbdata:/var/lib/postgresql/data" -p 5432:5432 postgres:11.9
 ```
 
 Upon the first time, this will create a new container named `naisten_linja_db` with the credentials matching the default environment variables set in `.envrc` file.
+
+Run migrations
+
+```
+npm run db-migrate up all
+```
 
 ### Start the development environment
 
