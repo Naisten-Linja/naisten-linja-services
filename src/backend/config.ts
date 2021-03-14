@@ -22,7 +22,7 @@ export function checkVariables() {
 
 export function getConfig() {
   checkVariables();
-  console.log(process.env.HOSTNAME);
+
   return {
     environment: process.env.ENVIRONMENT!,
     hostname: process.env.HOSTNAME || 'localhost',
