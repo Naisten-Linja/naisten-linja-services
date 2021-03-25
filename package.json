@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm:backend-dev\" \"npm:frontend-dev\"",
     "backend-build": "npm run lint-node && tsc --project tsconfig-backend.json",
     "backend-dev": "nodemon --watch 'src/backend/**/*.ts' -x TS_NODE_PROJECT=tsconfig-backend.json ts-node src/index-backend.ts",
-    "backend-prod-start": "ENV=prod npm run db-migrate up && node build-backend/index-backend.js",
+    "backend-prod-start": "npm run db-migrate up && node build-backend/index-backend.js",
     "frontend-dev": "PORT=3000 BROWSER=none react-scripts start",
     "frontend-build": "npm run lint-node && REACT_APP_DISCOURSE_URL=\"https://ryhmat.naistenlinja.fi\" react-scripts build",
     "db-migrate": "db-migrate",

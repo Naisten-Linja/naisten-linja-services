@@ -1,5 +1,6 @@
 {
-  "dev": {
+  "defaultEnv": {"ENV": "ENVIRONMENT"},
+  "development": {
     "driver": "pg",
     "user": {"ENV": "DB_USERNAME"},
     "password": {"ENV": "DB_PASSWORD"},
@@ -15,13 +16,15 @@
     "host": {"ENV": "DB_HOST"},
     "port": {"ENV": "DB_PORT"}
   },
-  "prod": {
+  "production": {
     "driver": "pg",
     "user": {"ENV": "DB_USERNAME"},
     "password": {"ENV": "DB_PASSWORD"},
     "database": {"ENV": "DB_NAME"},
     "host": {"ENV": "DB_HOST"},
     "port": {"ENV": "DB_PORT"},
-    "ssl": "true"
+    "addIfNotExists": {
+      "sslmode": "require"
+    }
   }
 }
