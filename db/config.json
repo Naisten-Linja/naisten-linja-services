@@ -23,9 +23,11 @@
     "database": {"ENV": "DB_NAME"},
     "host": {"ENV": "DB_HOST"},
     "port": {"ENV": "DB_PORT"},
-    "ssl": "true",
     "addIfNotExists": {
       "sslmode": "require"
+    },
+    "overwrite": {
+      "native": true
     }
   }
 }
