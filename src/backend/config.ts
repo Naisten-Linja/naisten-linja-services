@@ -26,9 +26,9 @@ export function getConfig() {
   return {
     environment: process.env.ENVIRONMENT!,
     hostname: process.env.HOSTNAME || 'localhost',
-    serviceUrl: `${process.env.HOSTNAME === 'localhost' ? 'http' : 'https'}://${
-      process.env.HOSTNAME || 'localhost:3000'
-    }`,
+    serviceUrl: `${
+      process.env.HOSTNAME === 'localhost' || !process.env.HOSTNAME ? 'http' : 'https'
+    }://${process.env.HOSTNAME || 'localhost:3000'}`,
 
     allowedOrigins: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : null,
     port: parseInt(process.env.PORT!, 10),
