@@ -15,7 +15,7 @@ function getPool(): Pool {
       port: dbPort,
       host: dbHost,
       max: 100, // allow maximum 100 connections
-      ssl: true,
+      ssl: { rejectUnauthorized: false },
     });
   }
   return pool;
