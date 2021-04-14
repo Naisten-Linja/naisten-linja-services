@@ -7,7 +7,7 @@ import { FetchToken } from './FetchToken';
 import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
-import { SendLetter } from './SendLetter';
+import { FrontPage } from './FrontPage';
 import { ReadLetter } from './ReadLetter';
 import { Admin } from './Admin';
 import { Volunteer } from './Volunteer';
@@ -44,7 +44,7 @@ export const App = () => {
                 <NotFound default />
                 <Admin path="admin/*" />
                 <Volunteer path="volunteer/*" />
-                <SendLetter path="/" />
+                <FrontPage path="/" />
                 <ReadLetter path="read" />
                 <FetchToken path="login/:nonce" />
               </Router>
