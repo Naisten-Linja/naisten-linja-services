@@ -60,9 +60,7 @@ export function createApp() {
         // In the context of our SSO login flow, this means the user has 10 minutes
         // to complete the login process in Discourse
         maxAge: 600000,
-        ...(environment === 'production'
-          ? { domain: 'naistenlinja-services-dev.herokuapp.com' }
-          : {}),
+        ...(environment === 'production' ? { domain: 'services.naistenlinja.fi' } : {}),
       },
     }),
   );
