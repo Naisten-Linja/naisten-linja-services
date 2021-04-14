@@ -16,7 +16,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, environment, jwtSecret, allowedOrigins } = getConfig();
+  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname } = getConfig();
 
   const app = express();
 
@@ -60,7 +60,7 @@ export function createApp() {
         // In the context of our SSO login flow, this means the user has 10 minutes
         // to complete the login process in Discourse
         maxAge: 600000,
-        ...(environment === 'production' ? { domain: 'services.naistenlinja.fi' } : {}),
+        ...(environment === 'production' ? { domain: hostname } : {}),
       },
     }),
   );
