@@ -2,7 +2,7 @@ import { Pool, QueryResultRow } from 'pg';
 
 import { getConfig } from './config';
 
-const { dbName, dbHost, dbPort, dbUser, dbPassword } = getConfig();
+const { dbName, dbHost, dbPort, dbUser, dbPassword, environment } = getConfig();
 
 let pool: Pool | null = null;
 
@@ -15,7 +15,7 @@ function getPool(): Pool {
       port: dbPort,
       host: dbHost,
       max: 100, // allow maximum 100 connections
-      ssl: { rejectUnauthorized: false },
+      ...(environment !== 'development' ? { ssl: { rejectUnauthorized: false } } : {}), // enable ssl in production
     });
   }
   return pool;
