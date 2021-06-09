@@ -3,12 +3,13 @@
 This is the code for Naisten Linja's services including:
 
 - [x] User authentication via Discourse SSO at [ryhmat.naistenlinja.fi](https://ryhmat.naistenlinja.fi)
-- [] Volunteer bookings management
+- [ ] Volunteer bookings management
 - [x] Online letter API
 - [x] Admin interface for staff and volunteer to answer to online letters
 
 ## Production environment
 
+|         |                                  |
 |---------|----------------------------------|
 | URL     | https://services.naistenlinja.fi |
 | Hosting | Heroku                           |
@@ -18,7 +19,7 @@ This is the code for Naisten Linja's services including:
 
 ### Prerequisites
 
-Project requires Node.js version between 12 and 13. Our dependencies are installed and managed via NPM, and are defined in package.json
+Project requires Node.js version 14. Our dependencies are installed and managed via npm, and are defined in package.json
 
 To help managing node versions easily, we recommend using a node package manager like [nvm](https://github.com/nvm-sh/nvm).
 
@@ -84,4 +85,4 @@ Once the database and environment variables are setup, run
 npm run dev
 ```
 
-This will start both the frontend and backend development environment. The development service should be accessible at http://localhost:9000
+This will start both the frontend and backend development environment. The development service should be accessible at http://localhost:3000
