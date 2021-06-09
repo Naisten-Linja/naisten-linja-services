@@ -85,4 +85,4 @@ Once the database and environment variables are setup, run
 npm run dev
 ```
 
-This will start both the frontend and backend development environment. The development service should be accessible at http://localhost:9000
+This will start both the frontend and backend development environment. The development service should be accessible at http://localhost:3000
