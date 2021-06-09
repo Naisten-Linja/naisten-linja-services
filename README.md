@@ -18,7 +18,7 @@ This is the code for Naisten Linja's services including:
 
 ### Prerequisites
 
-Project requires Node.js version between 12 and 13. Our dependencies are installed and managed via NPM, and are defined in package.json
+Project requires Node.js version 14. Our dependencies are installed and managed via npm, and are defined in package.json
 
 To help managing node versions easily, we recommend using a node package manager like [nvm](https://github.com/nvm-sh/nvm).
 
