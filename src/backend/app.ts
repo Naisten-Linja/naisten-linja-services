@@ -6,6 +6,8 @@ import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 import path from 'path';
+import redis from 'redis';
+import connectRedis, { RedisStore } from 'connect-redis';
 
 import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
@@ -16,7 +18,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
 export function createApp() {
-  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname } = getConfig();
+  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
 
   const app = express();
 
@@ -43,6 +45,17 @@ export function createApp() {
     );
   }
 
+  const storeOption: { store?: RedisStore } = {};
+
+  if (redisUrl) {
+    const redisClient = redis.createClient({ url: redisUrl });
+    redisClient.on('error', (err) => {
+      console.log('Redis error: ', err);
+    });
+    const redisStore = connectRedis(session);
+    storeOption.store = new redisStore({ client: redisClient, url: redisUrl });
+  }
+
   // Add session support - this is needed for SSO
   app.use(
     session({
@@ -62,6 +75,7 @@ export function createApp() {
         maxAge: 600000,
         ...(environment === 'production' ? { domain: hostname } : {}),
       },
+      ...storeOption,
     }),
   );
 

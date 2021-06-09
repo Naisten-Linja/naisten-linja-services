@@ -19,6 +19,12 @@ export DB_NAME=naistenlinja_dev
 export DB_PORT=5433
 export DB_HOST=localhost
 
+# Only needed in production.
+# Uncomment this if you'd like to use Redis as session store when developing locally.
+# When used, make sure you have a redis instance running, and match the connection url accordingly
+# In our Heroku production, this variable is set in config vars
+# export REDIS_URL='redis://localhost:6379'
+
 export COOKIE_SECRET="1Kk9t6sICZxqIBdqSrvsk1SHJHQKJaqH^B&Eu1ebc%QwCQyDguW@9*&X1T5GyAHK"
 export JWT_SECRET="M61p@@Okk#RIAPdczSEe3WhVmhtK4MlnlgbRW5AUgPAQcl6%9BSvIYkat1EqvlG8"
 
