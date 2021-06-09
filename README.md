@@ -3,12 +3,13 @@
 This is the code for Naisten Linja's services including:
 
 - [x] User authentication via Discourse SSO at [ryhmat.naistenlinja.fi](https://ryhmat.naistenlinja.fi)
-- [] Volunteer bookings management
+- [ ] Volunteer bookings management
 - [x] Online letter API
 - [x] Admin interface for staff and volunteer to answer to online letters
 
 ## Production environment
 
+|         |                                  |
 |---------|----------------------------------|
 | URL     | https://services.naistenlinja.fi |
 | Hosting | Heroku                           |
