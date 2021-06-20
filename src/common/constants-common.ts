@@ -86,18 +86,18 @@ export interface ApiReplyAdmin {
   updated: string;
 }
 
-export type WeekDays =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
+export const weekDays = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+];
 
 interface SlotBookingRules {
-  disabled: false;
-  fullDay: false;
+  disabled: boolean;
   slots: Array<{
     start: string;
     end: string;
@@ -105,20 +105,15 @@ interface SlotBookingRules {
   }>;
 }
 
-type DisabledDayRules =
-  | { disabled: true }
-  | {
-      disabled: true;
-      fullDay: true;
-      seats: number;
-    }
-  | {
-      disabled: true;
-      fullDay: false;
-      slots: SlotBookingRules['slots'];
-    };
-
-export type BookingTypeRules = Record<WeekDays, SlotBookingRules | DisabledDayRules>;
+export type BookingTypeDailyRules = [
+  SlotBookingRules,
+  SlotBookingRules,
+  SlotBookingRules,
+  SlotBookingRules,
+  SlotBookingRules,
+  SlotBookingRules,
+  SlotBookingRules,
+];
 
 export interface BookingTypeExceptions {
   [date: string]: SlotBookingRules;
@@ -127,7 +122,7 @@ export interface BookingTypeExceptions {
 export interface ApiBookingType {
   uuid: string;
   name: string;
-  rules: BookingTypeRules;
+  rules: BookingTypeDailyRules;
   exceptions: BookingTypeExceptions;
 }
 

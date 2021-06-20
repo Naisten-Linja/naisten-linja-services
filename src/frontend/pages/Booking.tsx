@@ -3,7 +3,7 @@ import { RouteComponentProps } from '@reach/router';
 import { Calendar, CheckBox } from 'grommet';
 import styled from 'styled-components';
 
-import { ApiBookingType, WeekDays } from '../../common/constants-common';
+import { ApiBookingType } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 
@@ -83,7 +83,7 @@ const CalendarDateCell: React.FunctionComponent<CalendarDateCellProps> = ({
   }
 
   const isBookable = isBookableDay(date, bookingType);
-  const weekDay = weekDays[date.getDay()];
+  const weekDay = date.getDay();
   const dayRule = bookingType.rules[weekDay];
   return (
     <DayCell isDisabled={!isBookable}>
@@ -148,20 +148,10 @@ const DayCell = styled.div<{ isDisabled?: boolean }>`
 `;
 
 export function isBookableDay(date: Date, bookingType: ApiBookingType): boolean {
-  const weekDay = weekDays[date.getDay()];
+  const weekDay = date.getDay();
   return weekDay === undefined
     ? false
     : !bookingType.rules[weekDay]
     ? false
     : !bookingType.rules[weekDay].disabled;
 }
-
-export const weekDays: Array<WeekDays> = [
-  'sunday',
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-];

@@ -1,10 +1,10 @@
 import db from '../db';
 
-import { BookingTypeRules, BookingTypeExceptions } from '../../common/constants-common';
+import { BookingTypeDailyRules, BookingTypeExceptions } from '../../common/constants-common';
 
 export interface CreateBookingTypeParams {
   name: string;
-  rules: BookingTypeRules;
+  rules: BookingTypeDailyRules;
   exceptions: BookingTypeExceptions;
 }
 
@@ -12,7 +12,7 @@ export interface BookingType {
   id: number;
   uuid: string;
   name: string;
-  rules: BookingTypeRules;
+  rules: BookingTypeDailyRules;
   exceptions: BookingTypeExceptions;
   created: number;
 }
@@ -22,7 +22,7 @@ export interface BookingTypeQueryResult {
   uuid: string;
   name: string;
   created: number;
-  rules: BookingTypeRules;
+  rules: BookingTypeDailyRules;
   exceptions: BookingTypeExceptions;
 }
 
@@ -45,7 +45,7 @@ export async function createBookingType({
   try {
     const queryText = `
         INSERT INTO booking_types (name, rules, exceptions)
-        VALUES ($1::text, $2::jsonb, $3::jsonb)
+        VALUES ($1::text, $2::jsonb[], $3::jsonb[])
         RETURNING *;
     `;
     const queryValues = [name, rules, exceptions];
