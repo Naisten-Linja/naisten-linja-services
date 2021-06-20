@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, FieldArray } from 'formik';
 
 import {
   ApiBookingType,
@@ -62,14 +62,15 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       <button onClick={createNewBookingType}>Create booking</button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
+        const { rules, uuid, name } = bookingType;
         return (
-          <div className="container" key={bookingType.uuid}>
-            <h3>{bookingType.name}</h3>
+          <div className="container" key={uuid}>
+            <h3>{name}</h3>
             <button
               onClick={() =>
                 setEditStates({
                   ...editStates,
-                  [bookingType.uuid]: !isEditing,
+                  [uuid]: !isEditing,
                 })
               }
             >
@@ -90,7 +91,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                 </thead>
                 <tbody>
                   <tr>
-                    {bookingType.rules.map(({ disabled, slots = [] }, idx) => (
+                    {rules.map(({ disabled, slots = [] }, idx) => (
                       <td key={idx}>
                         {disabled
                           ? ''
@@ -156,6 +157,28 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({ bookingType })
                       <Field type="checkbox" name={`rules.${idx}.disabled`} />
                       Disabled
                     </label>
+                    <FieldArray
+                      name={`rules.${idx}.slots`}
+                      render={(arrayHelpers) => (
+                        <>
+                          {rules[idx].slots.map((_, slotIdx) => (
+                            <div key={`slot-${slotIdx}`}>
+                              <label>Start</label>
+                              <Field name={`rules.${idx}.slots.${slotIdx}.start`} type="text" />
+                              <label>End</label>
+                              <Field name={`rules.${idx}.slots.${slotIdx}.end`} type="text" />
+                              <label>Seats</label>
+                              <Field name={`rules.${idx}.slots.${slotIdx}.seats`} type="number" />
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => arrayHelpers.push({ start: '', end: '', seats: 0 })}
+                          >
+                            Add slot
+                          </button>
+                        </>
+                      )}
+                    />
                   </td>
                 ))}
               </tbody>
