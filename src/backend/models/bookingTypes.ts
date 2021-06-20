@@ -1,11 +1,11 @@
 import db from '../db';
 
-import { BookingTypeDailyRules, BookingTypeExceptions } from '../../common/constants-common';
+import { BookingTypeDailyRules, BookingTypeException } from '../../common/constants-common';
 
 export interface CreateBookingTypeParams {
   name: string;
   rules: BookingTypeDailyRules;
-  exceptions: BookingTypeExceptions;
+  exceptions: Array<BookingTypeException>;
 }
 
 export interface BookingType {
@@ -13,7 +13,7 @@ export interface BookingType {
   uuid: string;
   name: string;
   rules: BookingTypeDailyRules;
-  exceptions: BookingTypeExceptions;
+  exceptions: Array<BookingTypeException>;
   created: number;
 }
 
@@ -23,7 +23,7 @@ export interface BookingTypeQueryResult {
   name: string;
   created: number;
   rules: BookingTypeDailyRules;
-  exceptions: BookingTypeExceptions;
+  exceptions: Array<BookingTypeException>;
 }
 
 function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
