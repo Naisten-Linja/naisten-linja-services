@@ -25,8 +25,8 @@ exports.up = function (db, callback) {
         created: { type: 'timestamp', notNull: true },
 
         name: { type: 'string' },
-        // Rules that set which dates are bookable and possible exceptions
-        rules: { type: 'string', notNull: true },
+        rules: { type: 'jsonb[]', notNull: true },
+        exceptions: { type: 'jsonb[]', notNull: true },
       }),
       queries.autoGenerateUuid(db, 'booking_types'), // Generate uuid on create
       queries.autoGenerateCreated(db, 'booking_types'), // Generate created on create
