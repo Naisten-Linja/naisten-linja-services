@@ -96,13 +96,15 @@ export const weekDays = [
   'saturday',
 ];
 
-interface SlotBookingRules {
+export interface BookingSlot {
+  start: string;
+  end: string;
+  seats: number;
+}
+
+export interface SlotBookingRules {
   disabled: boolean;
-  slots: Array<{
-    start: string;
-    end: string;
-    seats: number;
-  }>;
+  slots: Array<BookingSlot>;
 }
 
 export type BookingTypeDailyRules = [
@@ -115,15 +117,17 @@ export type BookingTypeDailyRules = [
   SlotBookingRules,
 ];
 
-export interface BookingTypeExceptions {
-  [date: string]: SlotBookingRules;
+export interface BookingTypeException {
+  date: string;
+  disabled: boolean;
+  slots: SlotBookingRules;
 }
 
 export interface ApiBookingType {
   uuid: string;
   name: string;
   rules: BookingTypeDailyRules;
-  exceptions: BookingTypeExceptions;
+  exceptions: Array<BookingTypeException>;
 }
 
 export interface ApiBooking {
