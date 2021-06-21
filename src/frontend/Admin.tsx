@@ -7,6 +7,7 @@ import { Users } from './Users';
 import { Letters } from './Letters';
 import { Reply } from './Reply';
 import { BookingTypes } from './pages/BookingTypes';
+import { Booking } from './pages/Booking';
 
 export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -19,6 +20,7 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
       <Letters path="letters" />
       <Reply path="letters/:letterUuid" />
       <BookingTypes path="booking-types" />
+      <Booking path="booking" />
     </Router>
   );
 };

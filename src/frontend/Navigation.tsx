@@ -58,6 +58,9 @@ const MainMenu = () => {
             <li>
               <Link to="admin/booking-types">Booking Types</Link>
             </li>
+            <li>
+              <Link to="admin/booking">Booking</Link>
+            </li>
           </>
         )}
         {user && user.role === UserRole.volunteer && (
