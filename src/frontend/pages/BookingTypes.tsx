@@ -45,7 +45,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
   if (isCreatingNew) {
     return (
       <div className="container">
-        <h1>Booking types</h1>
+        <h1>New booking type</h1>
         <BookingTypeForm
           onSubmitCallback={() => setIsCreatingNew(false)}
           onCancelCallback={() => setIsCreatingNew(false)}

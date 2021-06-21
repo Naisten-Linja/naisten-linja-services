@@ -63,7 +63,7 @@ export async function createBookingType({
 
 export async function getAllBookingTypes(): Promise<Array<BookingType> | null> {
   try {
-    const queryText = `SELECT * from booking_types;`;
+    const queryText = `SELECT * from booking_types ORDER BY created DESC;`;
     const result = await db.query<BookingTypeQueryResult>(queryText, []);
     if (result.rows.length < 1) {
       return [];
