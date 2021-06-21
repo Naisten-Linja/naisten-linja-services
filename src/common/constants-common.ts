@@ -103,7 +103,7 @@ export interface BookingSlot {
 }
 
 export interface SlotBookingRules {
-  disabled: boolean;
+  enabled: boolean;
   slots: Array<BookingSlot>;
 }
 
@@ -119,12 +119,18 @@ export type BookingTypeDailyRules = [
 
 export interface BookingTypeException {
   date: string;
-  disabled: boolean;
+  enabled: boolean;
   slots: SlotBookingRules;
 }
 
 export interface ApiBookingType {
   uuid: string;
+  name: string;
+  rules: BookingTypeDailyRules;
+  exceptions: Array<BookingTypeException>;
+}
+
+export interface ApiBookingTypeParamsAdmin {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<BookingTypeException>;
