@@ -86,9 +86,9 @@ const CalendarDateCell: React.FunctionComponent<CalendarDateCellProps> = ({
   const weekDay = date.getDay();
   const dayRule = bookingType.rules[weekDay];
   return (
-    <DayCell isDisabled={!isBookable}>
+    <DayCell isEnabled={!isBookable}>
       <div>{date.getDate()}</div>
-      {!dayRule.disabled &&
+      {!dayRule.enabled &&
         dayRule.slots.map((slot, idx) => {
           const slotItem = {
             dateTimestamp: date.getTime(),
@@ -136,14 +136,14 @@ const CalendarContainer = styled.div`
   }
 `;
 
-const DayCell = styled.div<{ isDisabled?: boolean }>`
+const DayCell = styled.div<{ isEnabled?: boolean }>`
   width: 100%;
   height: 100%;
   background: #fff;
   padding: 0.5rem;
   border: 1px solid #ebebeb;
   border-radius: 8px;
-  color: ${({ isDisabled = true }) => (!isDisabled ? '#2e3138' : '#999999')};
+  color: ${({ isEnabled = true }) => (!isEnabled ? '#2e3138' : '#999999')};
   box-sizing: border-box;
 `;
 
@@ -153,5 +153,5 @@ export function isBookableDay(date: Date, bookingType: ApiBookingType): boolean 
     ? false
     : !bookingType.rules[weekDay]
     ? false
-    : !bookingType.rules[weekDay].disabled;
+    : bookingType.rules[weekDay].enabled;
 }
