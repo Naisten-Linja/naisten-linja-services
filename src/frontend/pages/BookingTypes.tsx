@@ -102,7 +102,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                 </thead>
                 <tbody>
                   {rules.map(({ slots = [] }, idx) => (
-                    <tr>
+                    <tr key={idx}>
                       <th> {weekDays[idx]}</th>
                       <td key={idx}>
                         {slots.length > 0
