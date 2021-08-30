@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, FieldArray } from 'formik';
 
 import {
@@ -11,6 +11,8 @@ import {
 } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import DayPickerModal from '../DayPickerModal/DayPickerModal';
+import { format } from 'date-fns';
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -23,6 +25,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   onSubmitCallback,
   onCancelCallback,
 }) => {
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const { postRequest } = useRequest();
   const { addNotification } = useNotifications();
 
@@ -39,6 +42,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
 
   const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
     try {
+      console.log(bookingType);
       await postRequest('/api/booking-types', bookingType, {
         useJwt: true,
       });
@@ -61,7 +65,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       }}
     >
       {({ values }) => {
-        const { rules } = values;
+        const { rules, exceptions } = values;
         return (
           <Form>
             <table className="table-responsive">
@@ -93,6 +97,48 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                       name="name"
                       required
                     />
+                  </td>
+                </tr>
+                <tr>
+                  <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                    Exceptions
+                  </th>
+                  <td className="font-weight-semibold font-size-s">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowDatePicker(!showDatePicker);
+                      }}
+                      className="button-xxs success"
+                    >
+                      Add exceptions
+                    </button>
+
+                    {!showDatePicker && (
+                      <ul className="list-unstyled">
+                        <FieldArray
+                          name="exceptions"
+                          render={(arrayHelpers) =>
+                            exceptions.map((exception, idx) => (
+                              <li className="flex align-items-center" key={`exception.${idx}`}>
+                                <p className="font-size-xs no-margin padding-right-s">
+                                  {format(new Date(exception.date), 'dd.MM.yyyy')}
+                                </p>
+                                <button
+                                  className="button button-tertiary button-text button-xxs"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    arrayHelpers.remove(idx);
+                                  }}
+                                >
+                                  Delete exception
+                                </button>
+                              </li>
+                            ))
+                          }
+                        />
+                      </ul>
+                    )}
                   </td>
                 </tr>
                 <tr>
@@ -185,6 +231,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                 ))}
               </tbody>
             </table>
+
+            {showDatePicker && (
+              <DayPickerModal showDatePicker={showDatePicker} closeModal={setShowDatePicker} />
+            )}
           </Form>
         );
       }}
