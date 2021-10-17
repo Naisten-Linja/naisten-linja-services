@@ -42,7 +42,6 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
 
   const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
     try {
-      console.log(bookingType);
       await postRequest('/api/booking-types', bookingType, {
         useJwt: true,
       });
@@ -66,6 +65,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
     >
       {({ values }) => {
         const { rules, exceptions } = values;
+        const filledRules = rules.filter((rule) => rule.slots.length !== 0);
         return (
           <Form>
             <table className="table-responsive">
@@ -110,6 +110,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         setShowDatePicker(!showDatePicker);
                       }}
                       className="button-xxs success"
+                      disabled={filledRules.length === 0}
                     >
                       Add exceptions
                     </button>
@@ -220,6 +221,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                 arrayHelpers.push({ start: '', end: '', seats: 0 });
                               }}
                               className="button-xxs success"
+                              data-testid={`add-slot-button-${weekDays[idx]}`}
                             >
                               Add slot
                             </button>
