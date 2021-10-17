@@ -151,9 +151,9 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
               </thead>
               <tbody>
                 {rules.map((_, idx) => (
-                  <tr>
+                  <tr key={`rule-${idx}`}>
                     <th className="font-size-s font-weight-semibold">{weekDays[idx]}</th>
-                    <td key={`rule-${idx}`}>
+                    <td>
                       <FieldArray
                         name={`rules.${idx}.slots`}
                         render={(arrayHelpers) => (
