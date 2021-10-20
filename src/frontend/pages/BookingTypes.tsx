@@ -5,6 +5,7 @@ import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { BookingTypeForm } from './BookingTypeForm';
+import { format } from 'date-fns';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -65,7 +66,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
-        const { rules, uuid, name } = bookingType;
+        const { rules, uuid, name, exceptions } = bookingType;
         return (
           <div className="margin-bottom-l" key={uuid}>
             {isEditing ? (
@@ -92,6 +93,25 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                       </button>
                     </td>
                     <td className="font-weight-bold font-size-xl">{name}</td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                      Exceptions
+                    </th>
+                    <td className="font-weight-semibold font-size-s">
+                      <ul className="list-unstyled">
+                        {exceptions.map((exceptionDateString, idx) => (
+                          <li className="flex align-items-center" key={`exception.${idx}`}>
+                            <div
+                              key={`exception-${idx}`}
+                              className="display-inline-block border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+                            >
+                              {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
                   </tr>
                   <tr>
                     <th className="font-weight-semibold" style={{ width: '7rem' }}>
