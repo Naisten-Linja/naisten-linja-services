@@ -1,11 +1,11 @@
 import db from '../db';
 
-import { BookingTypeDailyRules, BookingTypeException } from '../../common/constants-common';
+import { BookingTypeDailyRules } from '../../common/constants-common';
 
 export interface CreateBookingTypeParams {
   name: string;
   rules: BookingTypeDailyRules;
-  exceptions: Array<BookingTypeException>;
+  exceptions: Array<string>;
 }
 
 export interface BookingType {
@@ -13,7 +13,7 @@ export interface BookingType {
   uuid: string;
   name: string;
   rules: BookingTypeDailyRules;
-  exceptions: Array<BookingTypeException>;
+  exceptions: Array<string>;
   created: number;
 }
 
@@ -23,7 +23,7 @@ export interface BookingTypeQueryResult {
   name: string;
   created: number;
   rules: BookingTypeDailyRules;
-  exceptions: Array<BookingTypeException>;
+  exceptions: Array<string>;
 }
 
 function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
@@ -33,7 +33,7 @@ function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
     name: row.name,
     created: row.created,
     rules: row.rules,
-    exceptions: row.exceptions || [],
+    exceptions: row.exceptions,
   };
 }
 
@@ -45,10 +45,10 @@ export async function createBookingType({
   try {
     const queryText = `
         INSERT INTO booking_types (name, rules, exceptions)
-        VALUES ($1::text, $2::jsonb[], $3::jsonb[])
+        VALUES ($1::text, $2::jsonb[], $3::json)
         RETURNING *;
     `;
-    const queryValues = [name, rules, exceptions];
+    const queryValues = [name, rules, JSON.stringify(exceptions)];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

@@ -3,7 +3,6 @@ import DayPicker from 'react-day-picker';
 import Modal from 'react-modal';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
-import { BookingTypeException } from '../../common/constants-common';
 import { DateUtils } from 'react-day-picker';
 import { formatISO } from 'date-fns';
 
@@ -16,10 +15,12 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
   Modal.setAppElement('#root');
 
   const [{ value: exceptions }, , { setValue }] = useField('exceptions');
-  const dateExceptions = exceptions.map((item: BookingTypeException) => new Date(item.date));
+  const dateExceptions = exceptions.map(
+    (exceptionDateString: string) => new Date(exceptionDateString),
+  );
 
   const handleDayClick = (day: Date, { selected }: any) => {
-    let newExceptions = [...exceptions] as Array<BookingTypeException>;
+    let newExceptions = [...exceptions] as Array<string>;
 
     if (selected) {
       const selectedIndex = exceptions.findIndex((selectedItem: any) =>
@@ -27,11 +28,7 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
       );
       newExceptions.splice(selectedIndex, 1);
     } else {
-      newExceptions.push({
-        date: formatISO(day),
-        enabled: false,
-        slots: { enabled: false, slots: [] },
-      });
+      newExceptions.push(formatISO(day));
     }
 
     setValue(newExceptions);
