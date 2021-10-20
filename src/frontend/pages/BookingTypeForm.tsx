@@ -7,7 +7,6 @@ import {
   weekDays,
   BookingTypeDailyRules,
   BookingSlot,
-  BookingTypeException,
 } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
@@ -37,7 +36,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
           enabled: true,
           slots: [] as Array<BookingSlot>,
         })) as BookingTypeDailyRules,
-        exceptions: [] as Array<BookingTypeException>,
+        exceptions: [] as Array<string>,
       };
 
   const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
@@ -120,10 +119,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         <FieldArray
                           name="exceptions"
                           render={(arrayHelpers) =>
-                            exceptions.map((exception, idx) => (
+                            exceptions.map((exceptionDateString, idx) => (
                               <li className="flex align-items-center" key={`exception.${idx}`}>
                                 <p className="font-size-xs no-margin padding-right-s">
-                                  {format(new Date(exception.date), 'dd.MM.yyyy')}
+                                  {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
                                 </p>
                                 <button
                                   className="button button-tertiary button-text button-xxs"

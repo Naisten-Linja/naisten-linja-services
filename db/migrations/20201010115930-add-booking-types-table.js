@@ -26,7 +26,7 @@ exports.up = function (db, callback) {
 
         name: { type: 'string' },
         rules: { type: 'jsonb[]', notNull: true },
-        exceptions: { type: 'jsonb[]', notNull: true },
+        exceptions: { type: 'json', notNull: true },
       }),
       queries.autoGenerateUuid(db, 'booking_types'), // Generate uuid on create
       queries.autoGenerateCreated(db, 'booking_types'), // Generate created on create
