@@ -64,7 +64,12 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
     >
       {({ values }) => {
         const { rules, exceptions } = values;
-        const filledRules = rules.filter((rule) => rule.slots.length !== 0);
+        const filledRules = rules.filter(({ slots }) => {
+          const filledSlots = slots.filter(
+            ({ start, end, seats }) => start !== '' && end !== '' && seats > 0,
+          );
+          return filledSlots.length > 0;
+        });
         return (
           <Form>
             <table className="table-responsive">
@@ -169,6 +174,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         Start
                                       </label>
                                       <Field
+                                        aria-label="start date"
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.start`}
                                         type="text"
@@ -182,6 +188,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         End
                                       </label>
                                       <Field
+                                        aria-label="end date"
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.end`}
                                         type="text"
@@ -195,6 +202,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         Seats:{' '}
                                       </label>
                                       <Field
+                                        aria-label="seats"
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.seats`}
                                         type="number"
