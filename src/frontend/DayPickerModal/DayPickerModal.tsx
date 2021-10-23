@@ -1,9 +1,8 @@
 import React from 'react';
-import DayPicker from 'react-day-picker';
+import DayPicker, { DateUtils } from 'react-day-picker';
 import Modal from 'react-modal';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
-import { DateUtils } from 'react-day-picker';
 import { formatISO } from 'date-fns';
 
 interface DayPickerModalProps {
@@ -12,7 +11,11 @@ interface DayPickerModalProps {
 }
 
 const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeModal }) => {
-  Modal.setAppElement('#root');
+  const testEnv = process.env.NODE_ENV === 'test';
+
+  if (!testEnv) {
+    Modal.setAppElement('#root');
+  }
 
   const [{ value: exceptions }, , { setValue }] = useField('exceptions');
   const dateExceptions = exceptions.map(
@@ -38,7 +41,9 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
     <Modal
       isOpen={showDatePicker}
       contentLabel="Choose exeptions"
+      ariaHideApp={!testEnv}
       onRequestClose={() => closeModal(!showDatePicker)}
+      testId="date-picker-modal"
       style={{
         overlay: {
           position: 'fixed',
