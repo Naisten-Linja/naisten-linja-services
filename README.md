@@ -9,11 +9,21 @@ This is the code for Naisten Linja's services including:
 
 ## Production environment
 
-|         |                                  |
-|---------|----------------------------------|
-| URL     | https://services.naistenlinja.fi |
-| Hosting | Heroku                           |
-| DNS     | Cloudflare                       |
+|               |                                  |
+|---------------|----------------------------------|
+| URL           | https://services.naistenlinja.fi |
+| Discourse SSO | https://ryhmat.naistenlinja.fi   |
+| Hosting       | Heroku                           |
+| DNS           | Cloudflare                       |
+
+## Development environment
+
+|               |                                          |
+|---------------|------------------------------------------|
+| URL           | https://services-dev.naistenlinja.fi     |
+| Discourse SSO | https://online-group-dev.naistenlinja.fi |
+| Hosting       | Heroku                                   |
+| DNS           | Cloudflare                               |
 
 ## Development
 
@@ -86,3 +96,29 @@ npm run dev
 ```
 
 This will start both the frontend and backend development environment. The development service should be accessible at http://localhost:3000
+
+### Making changes to the database schema
+
+We are using [db-migrate](https://github.com/db-migrate/node-db-migrate) to manage database schema changes. All migration files are located in `./db/migrations/` folder, which should not be modified if they are already deployed to remote environments. New changes made to the database schema should be done through creating new migrations. Refer to db-migrate's [documentation page](https://db-migrate.readthedocs.io/en/latest/) for more details.
+
+These are a few basic commands
+
+```
+
+# Generate a new migration file at `./db/migrations/<timestamp>-your-migration-name.js`
+db-migrate create your-migration-name
+
+# Run all migrations
+db-migrate up
+
+# Run up to 3 migrations
+db-migrate up -c 3
+
+# Revert the latest migration
+db-migrate down
+
+# Revert up to 5 latest migrations
+db-migrate down -c 5
+```
+
+Upon success, there should be no error message in the terminal, and the changes should reflect when double checking the datbase schema through a database client for example.

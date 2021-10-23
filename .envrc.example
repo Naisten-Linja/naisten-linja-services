@@ -1,10 +1,11 @@
 export ENVIRONMENT=development
 export PORT=3000
 
-# Ask around the team for these 2 values. Alternatively, if you have access to Discourse Admin,
-# the sso secret can be found or defined in
+# Ask a team member to help you setup an admin account in the development
+# discourse site (online-group-dev.naistenlinja.fi).
+# After that, the sso secret can be found from Discourse admin dasboard at
 # Admin > Settings > Login, and look for `sso provider secrets` field
-export DISCOURSE_URL=
+export DISCOURSE_URL=https://online-group-dev.naistenlinja.fi
 export DISCOURSE_SSO_SECRET=
 
 # The list of allowed CORS origins requests to the backend API.
