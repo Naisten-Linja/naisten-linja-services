@@ -4,6 +4,7 @@ import Modal from 'react-modal';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
 import { formatISO } from 'date-fns';
+import { SlotBookingRules } from '../../common/constants-common';
 
 interface DayPickerModalProps {
   showDatePicker: boolean;
@@ -18,6 +19,7 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
   }
 
   const [{ value: exceptions }, , { setValue }] = useField('exceptions');
+  const [{ value: rules }] = useField('rules');
   const dateExceptions = exceptions.map(
     (exceptionDateString: string) => new Date(exceptionDateString),
   );
@@ -35,6 +37,17 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
     }
 
     setValue(newExceptions);
+  };
+
+  const getDisabledDays = () => {
+    const disabledDays = [] as Array<number>;
+    rules.forEach((rule: SlotBookingRules, index: number) => {
+      if (rule.slots.length === 0) {
+        disabledDays.push(index);
+      }
+    });
+
+    return disabledDays;
   };
 
   return (
@@ -77,7 +90,7 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
             <DayPicker
               selectedDays={dateExceptions}
               onDayClick={handleDayClick}
-              disabledDays={[{ before: new Date() }]}
+              disabledDays={[{ before: new Date() }, { daysOfWeek: getDisabledDays() }]}
             />
           </div>
 
