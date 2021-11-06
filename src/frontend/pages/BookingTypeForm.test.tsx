@@ -30,6 +30,6 @@ describe('BookingTypeForm', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Add exceptions' }));
 
-    await waitFor(() => expect(screen.getByTestId('date-picker-modal')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId('exceptions-date-picker')).toBeInTheDocument());
   });
 });
