@@ -10,8 +10,8 @@ import {
 } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
-import DayPickerModal from '../DayPickerModal/DayPickerModal';
 import { format } from 'date-fns';
+import ExceptionsDatePicker from '../ExceptionsDatePicker/ExceptionsDatePicker';
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -71,7 +71,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
           return filledSlots.length > 0;
         });
         return (
-          <Form>
+          <Form id="form">
             <table className="table-responsive">
               <thead>
                 <tr>
@@ -242,7 +242,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
             </table>
 
             {showDatePicker && (
-              <DayPickerModal showDatePicker={showDatePicker} closeModal={setShowDatePicker} />
+              <ExceptionsDatePicker
+                showDatePicker={showDatePicker}
+                closeModal={setShowDatePicker}
+              />
             )}
           </Form>
         );

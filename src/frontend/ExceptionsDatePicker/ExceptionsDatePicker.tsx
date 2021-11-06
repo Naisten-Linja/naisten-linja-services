@@ -1,23 +1,20 @@
 import React from 'react';
 import DayPicker, { DateUtils } from 'react-day-picker';
-import Modal from 'react-modal';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
 import { formatISO } from 'date-fns';
 import { SlotBookingRules } from '../../common/constants-common';
+import Modal from '../ui-components/Modal/Modal';
 
-interface DayPickerModalProps {
+interface ExceptionsDatePickerProps {
   showDatePicker: boolean;
   closeModal: (b: boolean) => void;
 }
 
-const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeModal }) => {
-  const testEnv = process.env.NODE_ENV === 'test';
-
-  if (!testEnv) {
-    Modal.setAppElement('#root');
-  }
-
+const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
+  showDatePicker,
+  closeModal,
+}) => {
   const [{ value: exceptions }, , { setValue }] = useField('exceptions');
   const [{ value: rules }] = useField('rules');
   const dateExceptions = exceptions.map(
@@ -53,34 +50,9 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
   return (
     <Modal
       isOpen={showDatePicker}
-      contentLabel="Choose exeptions"
-      ariaHideApp={!testEnv}
-      onRequestClose={() => closeModal(!showDatePicker)}
-      testId="date-picker-modal"
-      style={{
-        overlay: {
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        },
-        content: {
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: ' translate(-50%, -50%)',
-          border: '1px solid #ccc',
-          background: '#fff',
-          overflow: 'auto',
-          borderRadius: '4px',
-          outline: 'none',
-          padding: '20px',
-          minHeight: '30rem',
-          maxWidth: '30rem',
-        },
-      }}
+      label="Choose exeptions"
+      closeModal={closeModal}
+      testId="exceptions-date-picker"
     >
       <div className="height-100 text-align-center">
         <h1 className="font-weight-semibold">Choose exceptions</h1>
@@ -106,4 +78,4 @@ const DayPickerModal: React.FC<DayPickerModalProps> = ({ showDatePicker, closeMo
   );
 };
 
-export default DayPickerModal;
+export default ExceptionsDatePicker;
