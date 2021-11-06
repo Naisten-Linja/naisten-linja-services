@@ -2,9 +2,9 @@ import React from 'react';
 import DayPicker, { DateUtils } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
-import { formatISO } from 'date-fns';
 import { SlotBookingRules } from '../../common/constants-common';
 import Modal from '../ui-components/Modal/Modal';
+import { format } from 'date-fns';
 
 interface ExceptionsDatePickerProps {
   showDatePicker: boolean;
@@ -30,7 +30,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
       );
       newExceptions.splice(selectedIndex, 1);
     } else {
-      newExceptions.push(formatISO(day));
+      newExceptions.push(format(day, 'yyyy-MM-dd'));
     }
 
     setValue(newExceptions);
@@ -47,6 +47,8 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
     return disabledDays;
   };
 
+  const today = new Date(Date.now());
+
   return (
     <Modal
       isOpen={showDatePicker}
@@ -60,9 +62,10 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
         <div className="flex-column">
           <div>
             <DayPicker
+              month={today}
               selectedDays={dateExceptions}
               onDayClick={handleDayClick}
-              disabledDays={[{ before: new Date() }, { daysOfWeek: getDisabledDays() }]}
+              disabledDays={[{ before: today }, { daysOfWeek: getDisabledDays() }]}
             />
           </div>
 
