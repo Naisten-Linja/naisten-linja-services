@@ -56,7 +56,6 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         addNotification({
           type: 'error',
           message: 'There was an error saving the reply',
-          timestamp: Date.now(),
         });
       }
     }
@@ -78,7 +77,6 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       addNotification({
         type: 'error',
         message: 'Unable to fetch reply',
-        timestamp: Date.now(),
       });
     }
   }, [setReply, addNotification, getRequest, letterUuid]);

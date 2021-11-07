@@ -79,6 +79,7 @@ export function createApp() {
     }),
   );
 
+  // In production, serve the all the frontend static files in the `./build` directory
   app.use('/', express.static(path.join(__dirname, '../../build')));
 
   app.use(
@@ -98,7 +99,7 @@ export function createApp() {
   );
 
   // @ts-ignore
-  app.use((err, req, res, next) => {
+  app.use((err, _, res, next) => {
     if (err.name === 'UnauthorizedError') {
       res.status(401).json({ error: 'unauthorized' });
     }
@@ -147,6 +148,7 @@ export function createApp() {
   app.use('/api/letters', letterRoutes);
   app.use('/api/booking-types', bookingTypesRoutes);
 
+  // Support for SPA routes when hard refreshing a frontend page.
   app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../../build/index.html'));
   });

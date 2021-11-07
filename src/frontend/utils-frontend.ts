@@ -4,7 +4,7 @@ export function getQueryData(queryString: string) {
   const queryData = queryString
     .substr(1)
     .split('&')
-    .reduce<Record<string, string> | {}>((result, currentVal) => {
+    .reduce<Record<string, string> | Record<string, never>>((result, currentVal) => {
       const vals = currentVal.split('=');
       return {
         ...result,

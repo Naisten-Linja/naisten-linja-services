@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import styled from 'styled-components';
+// eslint-disable-next-line
 import SelectSearch from 'react-select-search';
 
 import { ApiLetterAdmin, ApiUserData, UserRole } from '../common/constants-common';
@@ -74,7 +75,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   }) => {
     const email = (users.find((u) => u.uuid === assigneeUuid) || {}).email;
     try {
-      const result = await postRequest(
+      const result = await postRequest<{ data: Array<ApiLetterAdmin> }>(
         '/api/letters/assign',
         { letterUuid, assigneeUuid },
         { useJwt: true },

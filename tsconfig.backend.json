@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
+  "files": ["src/backend/express.d.ts"],
   "compilerOptions": {
     "lib": ["es2017"],
     "module": "commonjs",

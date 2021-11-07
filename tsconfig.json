@@ -1,8 +1,4 @@
 {
-  "ts-node": {
-    "files": true
-  },
-  "files": ["src/backend/express.d.ts"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,

@@ -21,7 +21,8 @@
     "start:prod": "npm run db-migrate up && node build-backend/start-backend.js",
     "test": "echo \"Error: no test specified\" && exit 0",
     "build": "concurrently npm:backend:build npm:frontend:build",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "heroku-postbuild": "patch-package && npm run build"
   },
   "dependencies": {
     "async": "^3.2.0",

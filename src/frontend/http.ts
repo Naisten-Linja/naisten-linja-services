@@ -17,12 +17,12 @@ export function useRequest() {
   const { token, setToken } = useAuth();
 
   const getRequest = useCallback(
-    async function <T = any, R = AxiosResponse<T>>(
+    async function <T = unknown, R = AxiosResponse<T>>(
       apiPath: string,
-      reqConfig?: RequestConfig,
+      reqConfig: RequestConfig = {},
     ): Promise<R> {
       try {
-        const { useJwt = false, headers = {}, ...config } = reqConfig || {};
+        const { useJwt = false, headers = {}, ...config } = reqConfig;
         if (useJwt) {
           headers.Authorization = `Bearer ${token}`;
         }
@@ -35,7 +35,7 @@ export function useRequest() {
         });
         return result;
       } catch (err) {
-        if (err.response && err.response.data.error === 'invalid jwt token') {
+        if (isInvalidTokenError(err)) {
           setToken(null);
         }
         throw err;
@@ -45,9 +45,9 @@ export function useRequest() {
   );
 
   const putRequest = useCallback(
-    async function <T = any, R = AxiosResponse<T>>(
+    async function <T = unknown, R = AxiosResponse<T>>(
       apiPath: string,
-      data?: Record<string, any>,
+      data?: Record<string, unknown>,
       reqConfig?: RequestConfig,
     ): Promise<R> {
       try {
@@ -63,7 +63,7 @@ export function useRequest() {
           },
         });
       } catch (err) {
-        if (err.response && err.response.data.error === 'invalid jwt token') {
+        if (isInvalidTokenError(err)) {
           setToken(null);
         }
         throw err;
@@ -73,9 +73,9 @@ export function useRequest() {
   );
 
   const postRequest = useCallback(
-    async function <T = any, R = AxiosResponse<T>>(
+    async function <T = unknown, R = AxiosResponse<T>>(
       apiPath: string,
-      data?: any,
+      data?: unknown,
       reqConfig?: RequestConfig,
     ): Promise<R> {
       try {
@@ -92,7 +92,7 @@ export function useRequest() {
         });
         return result;
       } catch (err) {
-        if (err.response && err.response.data.error === 'invalid jwt token') {
+        if (isInvalidTokenError(err)) {
           setToken(null);
         }
         throw err;
@@ -102,4 +102,8 @@ export function useRequest() {
   );
 
   return { getRequest, putRequest, postRequest };
+}
+
+function isInvalidTokenError(err: unknown) {
+  return axios.isAxiosError(err) && err.response?.data?.error === 'invalid jwt token';
 }

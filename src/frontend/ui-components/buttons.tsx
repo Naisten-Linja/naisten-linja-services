@@ -1,9 +1,7 @@
 import React from 'react';
 
-interface ButtonProps {
+interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   buttonType?: 'primary' | 'secondary' | 'tertiary';
-  className?: string;
-  onClick?: (e?: any) => void;
 }
 
 export const Button: React.FunctionComponent<ButtonProps> = ({

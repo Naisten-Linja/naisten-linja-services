@@ -21,7 +21,8 @@ function getPool(): Pool {
   return pool;
 }
 
-function query<R extends QueryResultRow = any, I extends any[] = any[]>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function query<R extends QueryResultRow = any, I extends unknown[] = any[]>(
   queryText: string,
   values: I,
 ) {
