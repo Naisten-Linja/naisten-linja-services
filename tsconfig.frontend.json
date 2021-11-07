@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "noEmit": true
+  },
+  "include": [
+    "src/frontend",
+    "src/*.d.ts",
+    "src/index.tsx",
+    "src/common"
+  ]
+}
