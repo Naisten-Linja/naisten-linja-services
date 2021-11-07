@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -98,16 +98,7 @@ export function createApp() {
     }),
   );
 
-  // @ts-ignore
-  app.use((err, _, res, next) => {
-    if (err.name === 'UnauthorizedError') {
-      res.status(401).json({ error: 'unauthorized' });
-    }
-    next();
-  });
-  // @ts-ignore
-  app.use(async (req, res, next) => {
-    // @ts-ignore
+  app.use(async (req: Request, res: Response, next: NextFunction) => {
     const { user } = req;
     if (user && user.uuid) {
       const dbUser = await getUserByUuid(user.uuid);
