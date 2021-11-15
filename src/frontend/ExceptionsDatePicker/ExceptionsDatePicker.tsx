@@ -21,7 +21,11 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
     (exceptionDateString: string) => new Date(exceptionDateString),
   );
 
-  const handleDayClick = (day: Date, { selected }: any) => {
+  const handleDayClick = (day: Date, { selected, disabled }: any) => {
+    if (disabled) {
+      return;
+    }
+
     let newExceptions = [...exceptions] as Array<string>;
 
     if (selected) {

@@ -7,11 +7,14 @@ import userEvent from '@testing-library/user-event';
 
 describe('ExceptionsDatePicker', () => {
   const closeModalMock = jest.fn();
+
+  // A booking slot is chosen for Tuesday, so only Tuesdays can be selected
   const initialValues = {
     name: '',
-    rules: [0, 1, 2, 3, 4, 5, 6].map(() => ({
+    rules: [0, 1, 2, 3, 4, 5, 6].map((index) => ({
       enabled: true,
-      slots: [] as Array<BookingSlot>,
+      slots:
+        index === 2 ? [{ start: '13:00', end: '15:00', seats: 4 }] : ([] as Array<BookingSlot>),
     })) as BookingTypeDailyRules,
     exceptions: [] as Array<string>,
   };
@@ -37,7 +40,7 @@ describe('ExceptionsDatePicker', () => {
       </Formik>,
     );
 
-    //Choose tomorrow's date from the calendar, mocked date for today is 2019-04-22"
+    //Choose tomorrow's date (Tuesday) from the calendar, mocked date for today is Monday 2019-04-22"
     userEvent.click(screen.getByText('23'));
 
     //Close the modal
@@ -50,6 +53,35 @@ describe('ExceptionsDatePicker', () => {
       expect(onSubmitMock).toHaveBeenCalledWith(
         expect.objectContaining({
           exceptions: expect.arrayContaining(['2019-04-23']),
+        }),
+        expect.anything(),
+      ),
+    );
+  });
+
+  it('when a disabled date is clicked and form is submitted, does not submit disabled date', async () => {
+    render(
+      <Formik initialValues={initialValues} onSubmit={onSubmitMock}>
+        <Form>
+          <ExceptionsDatePicker showDatePicker={true} closeModal={closeModalMock} />
+          <button type="submit">Submit</button>
+        </Form>
+      </Formik>,
+    );
+
+    //Other days than Tuesdays are disabled, chosen date 2019-04-24 is Wednesday
+    userEvent.click(screen.getByText('24'));
+
+    //Close the modal
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    //Submit the form
+    userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    await waitFor(() =>
+      expect(onSubmitMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          exceptions: expect.arrayContaining([]),
         }),
         expect.anything(),
       ),
