@@ -104,22 +104,22 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </td>
                 </tr>
                 <tr>
-                  <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                    Exceptions
-                  </th>
-                  <td className="font-weight-semibold font-size-s">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setShowDatePicker(!showDatePicker);
-                      }}
-                      className="button-xxs success"
-                      disabled={filledRules.length === 0}
-                    >
-                      Add exceptions
-                    </button>
+                  <th className="font-weight-semibold font-size-s">Exceptions</th>
+                  <td className="flex flex-column font-weight-semibold font-size-s">
+                    <div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowDatePicker(!showDatePicker);
+                        }}
+                        className="button-xxs success"
+                        disabled={filledRules.length === 0}
+                      >
+                        Add exceptions
+                      </button>
+                    </div>
 
-                    {!showDatePicker && (
+                    {exceptions.length > 0 && (
                       <ul className="list-unstyled">
                         <FieldArray
                           name="exceptions"
