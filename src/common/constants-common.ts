@@ -122,12 +122,14 @@ export interface ApiBookingType {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  additionalInformation: string | null;
 }
 
 export interface ApiBookingTypeParamsAdmin {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  additionalInformation: string | null;
 }
 
 export interface ApiBooking {
@@ -137,4 +139,5 @@ export interface ApiBooking {
   phone: string;
   user: ApiUserData;
   uuid: string;
+  additionalInformation: string | null;
 }
