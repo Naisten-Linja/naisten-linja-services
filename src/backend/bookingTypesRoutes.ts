@@ -27,8 +27,8 @@ router.post('/', async (req, res) => {
     return;
   }
 
-  const { name, rules, exceptions } = req.body;
-  const bookingType = await addBookingType({ name, rules, exceptions });
+  const { name, rules, exceptions, additionalInformation } = req.body;
+  const bookingType = await addBookingType({ name, rules, exceptions, additionalInformation });
   if (!bookingType) {
     res.status(400).json({ error: 'unable to create new booking rule' });
     return;
