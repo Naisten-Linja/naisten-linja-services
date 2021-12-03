@@ -54,7 +54,7 @@ router.get('/sso/verify', async (req, res) => {
   }
   // Create/Update user information in the database
   const user = await upsertUser(userData);
-  if (!user) {
+  if (!user || !req.session) {
     res.redirect(
       `${serviceUrl}/login?error=${encodeURIComponent(
         JSON.stringify({ error: 'unable to login' }),
@@ -70,7 +70,7 @@ router.get('/sso/verify', async (req, res) => {
     uuid: user.uuid,
   });
   const tokenNonce = generateRandomString(16, 'base64');
-  req.session!.tokenData = {
+  req.session.tokenData = {
     token,
     nonce: tokenNonce,
   };

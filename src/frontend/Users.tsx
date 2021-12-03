@@ -38,7 +38,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
         });
         setUsers(result.data.data);
       } catch (err) {
-        console.log(err.response.status);
+        console.log(err);
         setUsers([]);
       }
     };

@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
+  "files": ["src/backend/express.d.ts"],
+  "compilerOptions": {
+    "lib": ["es2017"],
+    "module": "commonjs",
+    "noEmit": false,
+    "outDir": "build-backend",
+    "typeRoots": ["node_modules/@types"],
+    "types": ["node"]
+  },
+  "include": [
+    "src/start-backend.ts",
+    "src/backend"
+  ]
+}

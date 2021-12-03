@@ -1,29 +1,27 @@
 export ENVIRONMENT=development
-export PORT=3000
+export FRONTEND_PORT=3000
+# Backend port
+export PORT=9000
 
 # Ask around the team for these 2 values. Alternatively, if you have access to Discourse Admin,
 # the sso secret can be found or defined in
-# Admin > Settings > Login, and look for `sso provider secrets` field
+# Admin > Settings > Login, and look for `sso provider secrets` field, and copy the secret value for `localhost`
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
 
 # The list of allowed CORS origins requests to the backend API.
-# Currently, this is only needed for online letters.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.
 # For example: http://domain1.com,http://domain2.com
+# Currently, this is only needed for sending and reading online letters - due to the requests coming from
+# the public website, which uses a different domain. This variable is set in case you'd like to test the
+# public website locally - which will use port 8000 by default.
 export ALLOWED_ORIGINS=http://localhost:8000
 
-export DB_USERNAME=naistenlinja_dev
-export DB_PASSWORD=naistenlinja_dev
-export DB_NAME=naistenlinja_dev
+export DB_USERNAME=nl_dev
+export DB_PASSWORD=nl_dev
+export DB_NAME=nl_dev
 export DB_PORT=5433
 export DB_HOST=localhost
-
-# Only needed in production.
-# Uncomment this if you'd like to use Redis as session store when developing locally.
-# When used, make sure you have a redis instance running, and match the connection url accordingly
-# In our Heroku production, this variable is set in config vars
-# export REDIS_URL='redis://localhost:6379'
 
 export COOKIE_SECRET="1Kk9t6sICZxqIBdqSrvsk1SHJHQKJaqH^B&Eu1ebc%QwCQyDguW@9*&X1T5GyAHK"
 export JWT_SECRET="M61p@@Okk#RIAPdczSEe3WhVmhtK4MlnlgbRW5AUgPAQcl6%9BSvIYkat1EqvlG8"
@@ -34,10 +32,17 @@ export LETTER_ACCESS_KEY_SALT=d35d86248800d53ac5086eb9010f4b830de271acd06235a4a4
 # Hex value of the aes key used for encrypting and decrypting letter's title, content and its reply
 export LETTER_AES_KEY=3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de
 
-
 # We'll need this separate set of variables because
 # Create React App only exposes env variables with prefix `REACT_APP_` into process.env
 export REACT_APP_DISCOURSE_URL=${DISCOURSE_URL}
 
 # Inlucde node_modules binaries into the shell environment
 export PATH=$PATH:$(pwd)/node_modules/.bin
+
+# These variables are only required in production:
+
+# Uncomment this if you'd like to use Redis as session store when developing locally.
+# When used, make sure you have a redis instance running, and match the connection url accordingly
+# export REDIS_URL='redis://localhost:6379'
+
+# export APP_DOMAIN=

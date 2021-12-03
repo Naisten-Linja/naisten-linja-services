@@ -6,10 +6,8 @@ import { UserRole } from '../common/constants-common';
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-  // Only allow staff to edit user's role
-  // @ts-ignore
   const { user } = req;
-  if (user.role !== UserRole.staff) {
+  if (!user || user.role !== UserRole.staff) {
     res.status(401).json({ error: 'unauthorized' });
     return;
   }

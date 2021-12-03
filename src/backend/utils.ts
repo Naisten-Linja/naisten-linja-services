@@ -8,7 +8,7 @@ export function encodeString(s: string, encodingFrom: BufferEncoding, encodingTo
 }
 
 // Generate a random bytes string and return its specified encoded value
-export function generateRandomString(length: number = 10, encoding: BufferEncoding = 'utf8') {
+export function generateRandomString(length = 10, encoding: BufferEncoding = 'utf8') {
   return crypto.randomBytes(length).toString(encoding);
 }
 

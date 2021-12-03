@@ -1,37 +1,47 @@
-export function checkVariables() {
-  [
+export function checkVariables(
+  envVars: NodeJS.ProcessEnv,
+  requiredKeys: Array<keyof NodeJS.ProcessEnv>,
+) {
+  const missingKeys = requiredKeys.filter((key) => !envVars[key]);
+  if (missingKeys.length > 0) {
+    throw `Variable(s) ${missingKeys.join(', ')} are missing from your environment`;
+  }
+}
+
+export function getConfig() {
+  checkVariables(process.env, [
     'ENVIRONMENT',
     'PORT',
+    'DB_NAME',
+    'DB_USERNAME',
+    'DB_PASSWORD',
+    'DB_HOST',
+    'DB_PORT',
     'DISCOURSE_URL',
     'DISCOURSE_SSO_SECRET',
     'COOKIE_SECRET',
     'JWT_SECRET',
     'LETTER_ACCESS_KEY_SALT',
     'LETTER_AES_KEY',
-    'DB_NAME',
-    'DB_USERNAME',
-    'DB_PASSWORD',
-    'DB_HOST',
-    'DB_PORT',
-  ].forEach((key) => {
-    if (!(key in process.env)) {
-      throw `Missing variable ${key} from your environment`;
-    }
-  });
-}
+  ]);
 
-export function getConfig() {
-  checkVariables();
+  // `checkVariables` should ensure required variables are available here. Unfortunately typescript
+  // is not able to pick this up automatically. So disabling no-non-null-assertion eslint rule here.
+  /* eslint-disable @typescript-eslint/no-non-null-assertion */
+  const hostname = process.env.APP_DOMAIN || 'localhost';
+  const port = parseInt(process.env.PORT!, 10);
+  const serviceUrlProtocol = hostname === 'localhost' ? 'http' : 'https';
+  const serviceUrlPort = hostname === 'localhost' ? `:${port}` : '';
+  const serviceUrl = `${serviceUrlProtocol}://${hostname}${serviceUrlPort}`;
 
   return {
-    environment: process.env.ENVIRONMENT!,
-    hostname: process.env.HOSTNAME || 'localhost',
-    serviceUrl: `${
-      process.env.HOSTNAME === 'localhost' || !process.env.HOSTNAME ? 'http' : 'https'
-    }://${process.env.HOSTNAME || 'localhost:3000'}`,
-
-    allowedOrigins: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : null,
-    port: parseInt(process.env.PORT!, 10),
+    environment: process.env.ENVIRONMENT,
+    hostname,
+    serviceUrl,
+    port,
+    allowedOrigins: process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())
+      : null,
 
     discourseUrl: process.env.DISCOURSE_URL!,
     discourseSsoSecret: process.env.DISCOURSE_SSO_SECRET!,

@@ -16,7 +16,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
 
   const createLetter = async () => {
     try {
-      const result = await postRequest('/api/online-letter/start');
+      const result = await postRequest<{ data: ApiLetterCredentials }>('/api/online-letter/start');
       const credentials = {
         accessKey: result.data.data.accessKey,
         accessPassword: result.data.data.accessPassword,
@@ -34,7 +34,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
       const { title, content } = formRef.current;
       const { accessKey, accessPassword } = letterCredentials;
       try {
-        await postRequest('/api/online-letter/send', {
+        await postRequest<{ data: { success: boolean } }>('/api/online-letter/send', {
           accessKey,
           accessPassword,
           title: title.value,
