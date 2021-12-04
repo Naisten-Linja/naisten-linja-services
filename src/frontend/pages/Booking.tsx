@@ -50,7 +50,8 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
           fill={true}
           animate={false}
           bounds={[today.toISOString().slice(0, 10), upperBoundDate.toISOString().slice(0, 10)]}
-          children={({ date }) => (
+        >
+          {({ date }) => (
             <CalendarDateCell
               date={date}
               bookingType={bookingType}
@@ -58,7 +59,7 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
               setSelectedSlots={setSelectedSlots}
             />
           )}
-        />
+        </Calendar>
       </CalendarContainer>
       {JSON.stringify(selectedSlots)}
     </>

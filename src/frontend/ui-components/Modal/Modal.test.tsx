@@ -8,12 +8,9 @@ describe('Modal', () => {
 
   it('given the modal is closed, does not show content', () => {
     render(
-      <Modal
-        isOpen={false}
-        closeModal={closeModalMock}
-        label="some-label"
-        children={<div>some-content</div>}
-      />,
+      <Modal isOpen={false} closeModal={closeModalMock} label="some-label">
+        <div>some-content</div>
+      </Modal>,
     );
 
     expect(screen.queryByText('some-content')).not.toBeInTheDocument();
@@ -22,17 +19,12 @@ describe('Modal', () => {
   describe('given the modal is open', () => {
     beforeEach(() => {
       render(
-        <Modal
-          isOpen={true}
-          closeModal={closeModalMock}
-          label="some-label"
-          children={
-            <div>
-              <p>some-content</p>
-              <button onClick={closeModalMock}>close modal</button>
-            </div>
-          }
-        />,
+        <Modal isOpen={true} closeModal={closeModalMock} label="some-label">
+          <div>
+            <p>some-content</p>
+            <button onClick={closeModalMock}>close modal</button>
+          </div>
+        </Modal>,
       );
     });
 

@@ -15,22 +15,25 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
   showDatePicker,
   closeModal,
 }) => {
-  const [{ value: exceptions }, , { setValue }] = useField('exceptions');
+  const [{ value: exceptions }, , { setValue }] = useField<Array<string>>('exceptions');
   const [{ value: rules }] = useField('rules');
   const dateExceptions = exceptions.map(
     (exceptionDateString: string) => new Date(exceptionDateString),
   );
 
-  const handleDayClick = (day: Date, { selected, disabled }: any) => {
+  const handleDayClick = (
+    day: Date,
+    { selected, disabled }: { selected: boolean; disabled: boolean },
+  ) => {
     if (disabled) {
       return;
     }
 
-    let newExceptions = [...exceptions] as Array<string>;
+    const newExceptions = [...exceptions];
 
     if (selected) {
-      const selectedIndex = exceptions.findIndex((selectedItem: any) =>
-        DateUtils.isSameDay(new Date(selectedItem.date), day),
+      const selectedIndex = exceptions.findIndex((selectedItem) =>
+        DateUtils.isSameDay(new Date(selectedItem), day),
       );
       newExceptions.splice(selectedIndex, 1);
     } else {
