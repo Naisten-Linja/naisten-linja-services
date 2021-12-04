@@ -12,7 +12,7 @@ const currentDate = moment(new Date());
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   const [startDate, setStartDate] = useState(currentDate.startOf('week'));
-  const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>(
+  const [selectedBookingTypes, setSelectedBookingTypes] = useState(
     bookingTypes.map(({ uuid }) => uuid),
   );
 
@@ -33,7 +33,6 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
               className="no-margin-bottom"
               id={`filter-type-${uuid}`}
               type="checkbox"
-              value={uuid}
               checked={selectedBookingTypes.includes(uuid)}
               onChange={() => {
                 if (selectedBookingTypes.includes(uuid)) {
@@ -52,6 +51,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
       <div className="flex flex-wrap flex-1">
         <CalendarControl startDate={startDate} setStartDate={setStartDate} />
+
         <div
           className="flex width-100 sticky margin-top-s background-white border-bottom z-index-high"
           style={{ top: '3rem' }}
@@ -60,8 +60,14 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
           {weekDays.map((currentDate) => (
             <div
               key={currentDate.format('DD-MM-YYYY')}
-              className="flex-1 text-align-center padding-vertical-s"
+              className="flex-1 text-align-center padding-vertical-s position-relative"
             >
+              {currentDate.weekday() === 0 && (
+                <div
+                  className="position-absolute height-100 position-top position-left background-white border-bottom border-right"
+                  style={{ width: '3rem', transform: 'translateX(-100%)' }}
+                ></div>
+              )}
               <span className="font-size-s">{currentDate.format('ddd')}</span> <br />
               <span className="font-size-xxl">{currentDate.format('DD')}</span>
             </div>
@@ -139,9 +145,18 @@ const CalendarColumn: React.FC<{ bookingTypes: Array<ApiBookingType>; currentDat
         return (
           <div
             key={hourOffset}
-            className="padding-horizontal-s padding-vertical-m border-bottom border-right"
+            className="padding-horizontal-s padding-vertical-m border-bottom border-right position-relative"
             aria-hidden={true}
-          ></div>
+          >
+            {currentDate.weekday() === 0 && (
+              <div
+                className="flex align-items-center justify-content-center border-right position-absolute position-top position-left height-100 padding-right-xxs font-size-s"
+                style={{ transform: 'translateX(-100%)', width: '3rem' }}
+              >
+                {currentDate.clone().add(hourOffset, 'hours').format('HH:mm')}
+              </div>
+            )}
+          </div>
         );
       })}
     </section>
