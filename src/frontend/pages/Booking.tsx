@@ -4,6 +4,7 @@ import { RouteComponentProps } from '@reach/router';
 import { ApiBookingType } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import { BookingCalendar } from '../BookingCalendar/BookingCalendar';
 
 export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
@@ -29,8 +30,7 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <>
-      <h1>Booking</h1>
-      {JSON.stringify(bookingTypes)}
+      <BookingCalendar bookingTypes={bookingTypes} />
     </>
   );
 };
