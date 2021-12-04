@@ -19,12 +19,16 @@
     "lint:node": "check-node-version --package",
     "dev": "npm run start-dev-db && npm run db-migrate up && concurrently npm:backend:dev npm:frontend:dev npm:lint:watch",
     "start:prod": "npm run db-migrate up && node build-backend/start-backend.js",
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "react-scripts test",
     "build": "concurrently npm:backend:build npm:frontend:build",
     "postinstall": "patch-package",
     "heroku-postbuild": "patch-package && npm run build"
   },
   "dependencies": {
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.0",
+    "@types/react-datepicker": "^4.1.5",
+    "@types/react-modal": "^3.12.1",
     "async": "^3.2.0",
     "body-parser": "^1.19.0",
     "check-node-version": "^4.0.3",
@@ -37,15 +41,20 @@
     "express-session": "^1.17.1",
     "express-winston": "^4.0.3",
     "generate-password": "^1.5.1",
+    "grommet": "^2.15.2",
     "jsonwebtoken": "^8.5.1",
     "npm": "^7.16.0",
     "pg": "^8.2.1",
+    "react-day-picker": "^7.4.10",
+    "react-modal": "^3.14.3",
     "redis": "^3.1.2",
     "shortid": "^2.2.15",
     "winston": "^3.2.1"
   },
   "devDependencies": {
     "@reach/router": "^1.3.3",
+    "@testing-library/dom": "^8.9.1",
+    "@testing-library/user-event": "^13.4.1",
     "@types/axios": "^0.14.0",
     "@types/connect-redis": "0.0.16",
     "@types/cors": "^2.8.6",
@@ -57,8 +66,10 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.0.5",
     "@types/pg": "^7.14.3",
+    "@types/pikaday": "^1.7.4",
     "@types/reach__router": "^1.3.5",
     "@types/react": "^16.9.35",
+    "@types/react-calendar": "^3.1.2",
     "@types/react-dom": "^16.9.8",
     "@types/redis": "^2.8.29",
     "@types/shortid": "0.0.29",
@@ -66,6 +77,7 @@
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "axios": "^0.21.1",
+    "babel-jest": "26.6.3",
     "concurrently": "^5.3.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -73,15 +85,19 @@
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-watch": "^7.0.0",
+    "formik": "^2.2.9",
     "http-proxy-middleware": "^1.0.5",
     "nodemon": "^2.0.4",
     "normalize.css": "^8.0.1",
     "patch-package": "^6.4.7",
     "prettier": "^2.3.1",
+    "pikaday": "^1.8.2",
     "react": "^16.13.1",
+    "react-calendar": "^3.1.0",
     "react-dom": "^16.13.1",
     "react-scripts": "4.0.3",
     "react-select-search": "^2.0.3",
+    "rsuite": "^4.8.4",
     "styled-components": "^5.1.0",
     "ts-node": "^10.4.0",
     "turretcss": "^5.2.1",
@@ -101,5 +117,16 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!react-select-search)"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(css|sass|scss)$": "identity-obj-proxy"
+    }
   }
 }

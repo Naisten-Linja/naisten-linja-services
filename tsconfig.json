@@ -8,7 +8,6 @@
     "lib": ["dom", "dom.iterable", "es2017"],
     "moduleResolution": "node",
     "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

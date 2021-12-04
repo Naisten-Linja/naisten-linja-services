@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 
-import { ApiBookingType } from '../../common/constants-common';
+import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import { BookingTypeForm } from './BookingTypeForm';
+import { format } from 'date-fns';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
+  const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
+  const [editStates, setEditStates] = useState<Record<string, boolean>>({});
   const { getRequest } = useRequest();
   const { addNotification } = useNotifications();
 
@@ -16,7 +20,17 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
         '/api/booking-types',
         { useJwt: true },
       );
-      setBookingTypes(bookingTypesResult.data.data);
+      const result = bookingTypesResult.data.data;
+      setBookingTypes(result);
+      setEditStates(
+        result.reduce(
+          (acc, bookingType) => ({
+            ...acc,
+            [bookingType.uuid]: false,
+          }),
+          {},
+        ),
+      );
     } catch (err) {
       console.log(err);
       addNotification({ type: 'error', message: 'Unable to get all booking types' });
@@ -24,13 +38,112 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
   }, [addNotification, setBookingTypes, getRequest]);
 
   useEffect(() => {
-    fetchBookingTypes();
-  }, [fetchBookingTypes]);
+    if (!isCreatingNew) {
+      fetchBookingTypes();
+    }
+  }, [fetchBookingTypes, isCreatingNew]);
+
+  if (isCreatingNew) {
+    return (
+      <div className="container">
+        <h1>New booking type</h1>
+        <BookingTypeForm
+          onSubmitCallback={() => setIsCreatingNew(false)}
+          onCancelCallback={() => setIsCreatingNew(false)}
+        />
+      </div>
+    );
+  }
 
   return (
-    <>
+    <div className="container">
       <h1>Booking types</h1>
-      {JSON.stringify(bookingTypes)}
-    </>
+      <button
+        className="button button-info button-m margin-bottom-l"
+        onClick={() => setIsCreatingNew(true)}
+      >
+        Create a new booking type
+      </button>
+      {bookingTypes.map((bookingType) => {
+        const isEditing = editStates[bookingType.uuid];
+        const { rules, uuid, name, exceptions } = bookingType;
+        return (
+          <div className="margin-bottom-l" key={uuid}>
+            {isEditing ? (
+              <BookingTypeForm
+                bookingType={bookingType}
+                onSubmitCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
+                onCancelCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
+              />
+            ) : (
+              <table className="table-responsive ">
+                <thead>
+                  <tr>
+                    <td>
+                      <button
+                        className="button button-xxs button-info width-100"
+                        onClick={() =>
+                          setEditStates({
+                            ...editStates,
+                            [uuid]: !isEditing,
+                          })
+                        }
+                      >
+                        Edit
+                      </button>
+                    </td>
+                    <td className="font-weight-bold font-size-xl">{name}</td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                      Exceptions
+                    </th>
+                    <td className="font-weight-semibold font-size-s">
+                      <ul className="list-unstyled">
+                        {exceptions.map((exceptionDateString, idx) => (
+                          <li className="flex align-items-center" key={`exception.${idx}`}>
+                            <div
+                              key={`exception-${idx}`}
+                              className="display-inline-block border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+                            >
+                              {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold" style={{ width: '7rem' }}>
+                      Week day
+                    </th>
+                    <th className="font-weight-semibold">Slots</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rules.map(({ slots = [] }, idx) => (
+                    <tr key={idx}>
+                      <th> {weekDays[idx]}</th>
+                      <td key={idx}>
+                        {slots.length > 0
+                          ? slots.map((slot, idx) => (
+                              <div
+                                key={`slot-${idx}`}
+                                className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
+                              >
+                                {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                              </div>
+                            ))
+                          : ''}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 };
