@@ -1,5 +1,5 @@
 import React from 'react';
-import DayPicker, { DateUtils } from 'react-day-picker';
+import DayPicker, { DateUtils, DayModifiers } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 import { useField } from 'formik';
 import { SlotBookingRules } from '../../common/constants-common';
@@ -21,10 +21,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
     (exceptionDateString: string) => new Date(exceptionDateString),
   );
 
-  const handleDayClick = (
-    day: Date,
-    { selected, disabled }: { selected: boolean; disabled: boolean },
-  ) => {
+  const handleDayClick = (day: Date, { selected, disabled }: DayModifiers) => {
     if (disabled) {
       return;
     }
