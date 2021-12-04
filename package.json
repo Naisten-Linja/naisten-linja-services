@@ -37,7 +37,6 @@
     "express-session": "^1.17.1",
     "express-winston": "^4.0.3",
     "generate-password": "^1.5.1",
-    "grommet": "^2.15.2",
     "jsonwebtoken": "^8.5.1",
     "npm": "^7.16.0",
     "pg": "^8.2.1",
