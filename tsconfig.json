@@ -5,14 +5,22 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "lib": ["dom", "dom.iterable", "es2017"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2017"
+    ],
     "moduleResolution": "node",
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es2017",
-    "jsx": "react"
+    "jsx": "react",
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
