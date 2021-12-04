@@ -1,6 +1,5 @@
 import React from 'react';
 import { Router } from '@reach/router';
-import { Grommet } from 'grommet';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 
 import { NotFound } from './NotFound';
@@ -37,23 +36,21 @@ export const App = () => {
     <>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
-        <Grommet plain>
-          <AuthContextWrapper>
-            <NotificationsContextWrapper>
-              <Navigation />
-              <AppContainer className="container">
-                <Router>
-                  <NotFound default />
-                  <Admin path="admin/*" />
-                  <Volunteer path="volunteer/*" />
+        <AuthContextWrapper>
+          <NotificationsContextWrapper>
+            <Navigation />
+            <AppContainer className="container">
+              <Router>
+                <NotFound default />
+                <Admin path="admin/*" />
+                <Volunteer path="volunteer/*" />
                 <FrontPage path="/" />
-                  <ReadLetter path="read" />
-                  <FetchToken path="login/:nonce" />
-                </Router>
-              </AppContainer>
-            </NotificationsContextWrapper>
-          </AuthContextWrapper>
-        </Grommet>
+                <ReadLetter path="read" />
+                <FetchToken path="login/:nonce" />
+              </Router>
+            </AppContainer>
+          </NotificationsContextWrapper>
+        </AuthContextWrapper>
       </ThemeProvider>
     </>
   );
