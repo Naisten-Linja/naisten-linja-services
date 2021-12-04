@@ -12,6 +12,7 @@ export function getConfig() {
   checkVariables(process.env, [
     'ENVIRONMENT',
     'PORT',
+    'PORT',
     'DB_NAME',
     'DB_USERNAME',
     'DB_PASSWORD',
@@ -25,13 +26,17 @@ export function getConfig() {
     'LETTER_AES_KEY',
   ]);
 
+  if (process.env.ENVIRONMENT !== 'production' && !process.env.FRONTEND_PORT) {
+    throw 'Variable FRONTEND_PORT is missing from your environment';
+  }
+
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
   // is not able to pick this up automatically. So disabling no-non-null-assertion eslint rule here.
   /* eslint-disable @typescript-eslint/no-non-null-assertion */
   const hostname = process.env.APP_DOMAIN || 'localhost';
   const port = parseInt(process.env.PORT!, 10);
   const serviceUrlProtocol = hostname === 'localhost' ? 'http' : 'https';
-  const serviceUrlPort = hostname === 'localhost' ? `:${port}` : '';
+  const serviceUrlPort = hostname === 'localhost' ? `:${process.env.FRONTEND_PORT}` : '';
   const serviceUrl = `${serviceUrlProtocol}://${hostname}${serviceUrlPort}`;
 
   return {
