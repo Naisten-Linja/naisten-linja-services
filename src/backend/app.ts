@@ -83,7 +83,7 @@ export function createApp() {
   app.use('/', express.static(path.join(__dirname, '../../build')));
 
   app.use(
-    jwt({ secret: jwtSecret }).unless({
+    jwt({ secret: jwtSecret, algorithms: ['HS256'] }).unless({
       path: [
         '/api/auth',
         '/api/auth/sso',
