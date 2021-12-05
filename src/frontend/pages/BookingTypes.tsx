@@ -43,6 +43,14 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
     }
   }, [fetchBookingTypes, isCreatingNew]);
 
+  const editCallback = useCallback(
+    (bookingType: ApiBookingType) => async () => {
+      await fetchBookingTypes();
+      setEditStates({ ...editStates, [bookingType.uuid]: false });
+    },
+    [fetchBookingTypes, setEditStates, editStates],
+  );
+
   if (isCreatingNew) {
     return (
       <div className="container">
@@ -72,8 +80,8 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
             {isEditing ? (
               <BookingTypeForm
                 bookingType={bookingType}
-                onSubmitCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
-                onCancelCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
+                onSubmitCallback={editCallback(bookingType)}
+                onCancelCallback={editCallback(bookingType)}
               />
             ) : (
               <table className="table-responsive ">

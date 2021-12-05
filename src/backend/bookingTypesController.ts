@@ -1,8 +1,4 @@
-import {
-  createBookingType,
-  getAllBookingTypes,
-  CreateBookingTypeParams,
-} from './models/bookingTypes';
+import * as model from './models/bookingTypes';
 
 import { ApiBookingType } from '../common/constants-common';
 
@@ -11,8 +7,8 @@ export async function addBookingType({
   rules,
   exceptions,
   additionalInformation,
-}: CreateBookingTypeParams): Promise<ApiBookingType | null> {
-  const bookingType = await createBookingType({
+}: model.CreateBookingTypeParams): Promise<ApiBookingType | null> {
+  const bookingType = await model.createBookingType({
     name,
     rules,
     exceptions,
@@ -30,7 +26,7 @@ export async function addBookingType({
 }
 
 export async function getBookingTypes(): Promise<Array<ApiBookingType> | null> {
-  const allBookingTypes = await getAllBookingTypes();
+  const allBookingTypes = await model.getAllBookingTypes();
   return allBookingTypes !== null
     ? allBookingTypes.map((b) => ({
         uuid: b.uuid,
@@ -39,5 +35,27 @@ export async function getBookingTypes(): Promise<Array<ApiBookingType> | null> {
         exceptions: b.exceptions,
         additionalInformation: b.additionalInformation,
       }))
+    : null;
+}
+
+export async function updateBookingType({
+  uuid,
+  name,
+  rules,
+  exceptions,
+}: model.UpdateBookingTypeParams): Promise<ApiBookingType | null> {
+  const bookingType = await model.updateBookingType({
+    uuid,
+    name,
+    rules,
+    exceptions,
+  });
+  return bookingType !== null
+    ? {
+        uuid: bookingType.uuid,
+        name: bookingType.name,
+        rules: bookingType.rules,
+        exceptions: bookingType.exceptions,
+      }
     : null;
 }

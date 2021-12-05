@@ -9,6 +9,13 @@ export interface CreateBookingTypeParams {
   additionalInformation: string;
 }
 
+export interface UpdateBookingTypeParams {
+  uuid: string;
+  name: string;
+  rules: BookingTypeDailyRules;
+  exceptions: Array<string>;
+}
+
 export interface BookingType {
   id: number;
   uuid: string;
@@ -61,6 +68,32 @@ export async function createBookingType({
     return queryResultToBookingType(result.rows[0]);
   } catch (err) {
     console.error(`Failed to create a new booking type with name ${name}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateBookingType({
+  name,
+  rules,
+  exceptions,
+  uuid,
+}: UpdateBookingTypeParams): Promise<BookingType | null> {
+  try {
+    const queryText = `
+        UPDATE booking_types
+        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::json
+        WHERE uuid = $4::text
+        RETURNING *;
+    `;
+    const queryValues = [name, rules, JSON.stringify(exceptions), uuid];
+    const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToBookingType(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed to update booking type with name ${name}`);
     console.error(err);
     return null;
   }

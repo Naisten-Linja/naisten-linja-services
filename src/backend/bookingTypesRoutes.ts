@@ -1,48 +1,71 @@
 import express from 'express';
 
-import { addBookingType, getBookingTypes } from './bookingTypesController';
-import { UserRole } from '../common/constants-common';
+import { addBookingType, getBookingTypes, updateBookingType } from './bookingTypesController';
+import { UserRole, BookingTypeDailyRules, ApiBookingType } from '../common/constants-common';
+import { isAuthenticated } from './middlewares';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  // Only allow admin to see users list
-  // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
-    res.status(403).json({ error: 'unauthorized' });
-    return;
-  }
-  const allBookingTypes = await getBookingTypes();
-  if (allBookingTypes === null) {
-    res.status(400).json({ error: 'unable to get all booking types' });
-    return;
-  }
-  res.status(200).json({ data: allBookingTypes });
-});
+router.get<
+  Record<string, never>,
+  { data: Array<ApiBookingType> } | { error: string },
+  Record<string, never>
+>(
+  '/',
+  // Only allow staff and volunteer members to fetch booking type list
+  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  async (_, res) => {
+    const allBookingTypes = await getBookingTypes();
+    if (allBookingTypes === null) {
+      res.status(400).json({ error: 'unable to get all booking types' });
+      return;
+    }
+    res.status(200).json({ data: allBookingTypes });
+  },
+);
 
-router.post('/', async (req, res) => {
-  const { user } = req;
-  if (!user || user.role !== UserRole.staff) {
-    res.status(401).json({ error: 'unauthorized' });
-    return;
-  }
+router.post<
+  Record<string, never>,
+  { data: ApiBookingType } | { error: string },
+  { name: string; rules: BookingTypeDailyRules; exceptions: Array<string> }
+>(
+  '/',
+  // Only allow staff members to create new booking types
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { name, rules, exceptions, additionalInformation } = req.body;
+    const bookingType = await addBookingType({ name, rules, exceptions, additionalInformation });
+    if (!bookingType) {
+      res.status(400).json({ error: 'unable to create new booking rule' });
+      return;
+    }
+    res.status(201).json({ data: bookingType });
+  },
+);
 
-  const { name, rules, exceptions, additionalInformation } = req.body;
-  const bookingType = await addBookingType({ name, rules, exceptions, additionalInformation });
-  if (!bookingType) {
-    res.status(400).json({ error: 'unable to create new booking rule' });
-    return;
-  }
-  res.status(201).json({ data: bookingType });
-});
-
-router.post('/:uuid', (req, res) => {
-  // Only allow admin to see users list
-  // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
-    res.status(403).json({ error: 'unauthorized' });
-    return;
-  }
-});
+router.put<
+  { uuid: string },
+  { data: ApiBookingType } | { error: string },
+  { name: string; rules: BookingTypeDailyRules; exceptions: Array<string> }
+>(
+  '/:uuid',
+  // Only allow staff members to modify booking types
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { name, rules, exceptions } = req.body;
+    const { uuid } = req.params;
+    const allBookingTypes = await getBookingTypes();
+    if (allBookingTypes === null || !allBookingTypes.map(({ uuid }) => uuid).includes(uuid)) {
+      res.status(404).json({ error: 'booking type not found' });
+      return;
+    }
+    const bookingType = await updateBookingType({ uuid, name, rules, exceptions });
+    if (!bookingType) {
+      res.status(400).json({ error: 'unable to update booking type' });
+      return;
+    }
+    res.status(200).json({ data: bookingType });
+  },
+);
 
 export default router;
