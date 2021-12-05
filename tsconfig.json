@@ -17,10 +17,6 @@
     "strict": true,
     "target": "es2017",
     "jsx": "react",
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext"
-  },
-  "include": [
-    "src"
-  ]
+    "noFallthroughCasesInSwitch": true
+  }
 }
