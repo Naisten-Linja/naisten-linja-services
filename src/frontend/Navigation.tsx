@@ -77,7 +77,6 @@ const MainMenu = () => {
 
 const NavigationWrapper = styled.div`
   width: 100%;
-  position: -webkit-sticky; /* Safari */
   position: sticky;
   padding: 0.5rem 0;
   z-index: 10;

@@ -17,7 +17,11 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
         '/api/booking-types',
         { useJwt: true },
       );
-      setBookingTypes(bookingTypesResult.data.data);
+      setBookingTypes(
+        bookingTypesResult.data.data.sort((a, b) =>
+          a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+        ),
+      );
     } catch (err) {
       console.log(err);
       addNotification({ type: 'error', message: 'Unable to get all booking types' });
