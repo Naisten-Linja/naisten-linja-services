@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import moment, { Moment } from 'moment';
 
 import { ApiBookingType } from '../../common/constants-common';
@@ -12,9 +11,11 @@ const currentDate = moment(new Date());
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   const [startDate, setStartDate] = useState(currentDate.startOf('week'));
-  const [selectedBookingTypes, setSelectedBookingTypes] = useState(
-    bookingTypes.map(({ uuid }) => uuid),
-  );
+  const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>([]);
+
+  useEffect(() => {
+    setSelectedBookingTypes(bookingTypes.map(({ uuid }) => uuid));
+  }, [bookingTypes, setSelectedBookingTypes]);
 
   const weekDays = Array.from(new Array(7).keys()).map((dayOffset) =>
     startDate.clone().add(dayOffset, 'days'),
