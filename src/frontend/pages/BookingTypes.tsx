@@ -66,7 +66,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
-        const { rules, uuid, name, exceptions } = bookingType;
+        const { rules, uuid, name, exceptions, additionalInformation } = bookingType;
         return (
           <div className="margin-bottom-l" key={uuid}>
             {isEditing ? (
@@ -94,6 +94,21 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                     </td>
                     <td className="font-weight-bold font-size-xl">{name}</td>
                   </tr>
+                  {additionalInformation && (
+                    <tr>
+                      <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                        Additional information
+                      </th>
+                      <td className="font-weight-semibold font-size-s">
+                        <div
+                          key="additional-information"
+                          className="display-inline-block border-radius background-success-100 padding-xxs font-size-xs font-weight-semibold"
+                        >
+                          {additionalInformation}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                   <tr>
                     <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
                       Exceptions
