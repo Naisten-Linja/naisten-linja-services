@@ -59,3 +59,7 @@ export async function updateBookingType({
       }
     : null;
 }
+
+export async function deleteBookingType(uuid: string) {
+  return await model.deleteBookingType(uuid);
+}

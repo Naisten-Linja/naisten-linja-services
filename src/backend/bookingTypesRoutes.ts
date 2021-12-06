@@ -1,6 +1,11 @@
 import express from 'express';
 
-import { addBookingType, getBookingTypes, updateBookingType } from './bookingTypesController';
+import {
+  addBookingType,
+  getBookingTypes,
+  updateBookingType,
+  deleteBookingType,
+} from './bookingTypesController';
 import { UserRole, BookingTypeDailyRules, ApiBookingType } from '../common/constants-common';
 import { isAuthenticated } from './middlewares';
 
@@ -65,6 +70,22 @@ router.put<
       return;
     }
     res.status(200).json({ data: bookingType });
+  },
+);
+
+router.delete<{ uuid: string }>(
+  '/:uuid',
+  // Only allow staff members to modify booking types
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { uuid } = req.params;
+    const allBookingTypes = await getBookingTypes();
+    if (allBookingTypes === null || !allBookingTypes.map(({ uuid }) => uuid).includes(uuid)) {
+      res.status(404).json({ error: 'booking type not found' });
+      return;
+    }
+    await deleteBookingType;
+    res.status(204).json({ message: 'success' });
   },
 );
 

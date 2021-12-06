@@ -73,6 +73,21 @@ export async function createBookingType({
   }
 }
 
+export async function getAllBookingTypes(): Promise<Array<BookingType> | null> {
+  try {
+    const queryText = `SELECT * from booking_types ORDER BY created DESC;`;
+    const result = await db.query<BookingTypeQueryResult>(queryText, []);
+    if (result.rows.length < 1) {
+      return [];
+    }
+    return result.rows.map((r) => queryResultToBookingType(r));
+  } catch (err) {
+    console.error('Unable to fetch all booking types');
+    console.error(err);
+    return null;
+  }
+}
+
 export async function updateBookingType({
   name,
   rules,
@@ -99,17 +114,18 @@ export async function updateBookingType({
   }
 }
 
-export async function getAllBookingTypes(): Promise<Array<BookingType> | null> {
+export async function deleteBookingType(uuid: string): Promise<boolean> {
   try {
-    const queryText = `SELECT * from booking_types ORDER BY created DESC;`;
-    const result = await db.query<BookingTypeQueryResult>(queryText, []);
-    if (result.rows.length < 1) {
-      return [];
-    }
-    return result.rows.map((r) => queryResultToBookingType(r));
+    const queryText = `
+        DELETE booking_types
+        WHERE uuid = $1::text
+        RETURNING *;
+    `;
+    await db.query<BookingTypeQueryResult>(queryText, [uuid]);
+    return true;
   } catch (err) {
-    console.error('Unable to fetch all booking types');
+    console.error(`Failed to delete booking type with uuid ${uuid}`);
     console.error(err);
-    return null;
+    return false;
   }
 }
