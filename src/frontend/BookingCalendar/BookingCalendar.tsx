@@ -1,8 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import moment, { Moment } from 'moment';
 import styled, { css } from 'styled-components';
+import { Formik, Form, Field } from 'formik';
+import {
+  DialogContent as ReachDialogContent,
+  DialogOverlay as ReachDialogOverlay,
+} from '@reach/dialog';
+import '@reach/dialog/styles.css';
 
 import { ApiBookingType } from '../../common/constants-common';
+import { useAuth } from '../AuthContext';
+
+const DialogOverlay = styled(ReachDialogOverlay)`
+  z-index: 99999;
+`;
+
+const DialogContent = styled(ReachDialogContent)`
+  width: 25rem;
+  max-width: 100%;
+  margin: 0;
+  height: 100vh;
+`;
 
 type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
@@ -20,9 +38,21 @@ const bookingTypeColors = [
   'rgba(81, 84, 10, 0.9)',
 ];
 
+type BookingSlotDetails = {
+  bookingTypeName: string;
+  bookingTypeUuid: string;
+  // The start and end time will be stored separately so past booking items are not affected, in case the bookingType is
+  // deleted or modified in the future.
+  // TODO: `start` and `end` time should still be validated to match the bookingType slot specification from the backend
+  // in the unlikely case a volunteer sends a custom request for a random booking time.
+  start: moment.Moment;
+  end: moment.Moment;
+};
+
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   const [startDate, setStartDate] = useState(currentDate.startOf('week'));
   const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>([]);
+  const [bookingDetails, setBookingDetails] = useState<BookingSlotDetails | null>(null);
 
   useEffect(() => {
     setSelectedBookingTypes(bookingTypes.map(({ uuid }) => uuid));
@@ -50,9 +80,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
     [bookingTypes],
   );
 
+  const openBookingForm = (details: BookingSlotDetails) => {
+    setBookingDetails(details);
+  };
+
   return (
     <div className="flex width-100 align-items-flex-start">
-      <div
+      <section
         className="flex flex-wrap sticky padding-right-s"
         style={{ width: '12rem', top: '4rem', marginRight: '3rem' }}
       >
@@ -95,12 +129,12 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
             </label>
           </div>
         ))}
-      </div>
+      </section>
 
       <div className="flex flex-wrap flex-1">
         <CalendarHeader startDate={startDate} setStartDate={setStartDate} />
 
-        <div className="flex width-100">
+        <section className="flex width-100">
           {weekDays.map((currentDate) => {
             const bookingTypesInCurrentDay = bookingTypes.filter(({ rules, uuid }) => {
               const ruleOnCurrentDay = rules[currentDate.weekday()];
@@ -112,10 +146,11 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
             });
 
             const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(({ rules, uuid, name }) =>
-              rules[currentDate.weekday()].slots.map(({ start, end }) => {
+              rules[currentDate.weekday()].slots.map(({ start, end, seats }) => {
                 const [startHour, startMinute] = start.split(':');
                 const [endHour, endMinute] = end.split(':');
                 return {
+                  seats,
                   bookingTypeUuid: uuid,
                   bookingTypeName: name,
                   bookingTypeColor: getBookingTypeColor(uuid),
@@ -137,11 +172,19 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                 key={currentDate.format('DD-MM-YYYY')}
                 currentDate={currentDate}
                 dailySlots={slotsInCurrentDay}
+                openBookingForm={openBookingForm}
               />
             );
           })}
-        </div>
+        </section>
       </div>
+      {bookingDetails && (
+        <DialogOverlay onDismiss={() => setBookingDetails(null)}>
+          <DialogContent>
+            <BookingForm onCancel={() => setBookingDetails(null)} {...bookingDetails} />
+          </DialogContent>
+        </DialogOverlay>
+      )}
     </div>
   );
 };
@@ -157,7 +200,7 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
 
   return (
     <div
-      className="width-100 sticky background-white z-index-high padding-top-xxs"
+      className="width-100 sticky background-white padding-top-xxs z-index-medium"
       style={{ top: '2.85rem' }}
     >
       <section className="flex width-100 align-items-center margin-bottom-xxs">
@@ -227,11 +270,17 @@ type CalendarColumnProps = {
     bookingTypeColor: string;
     start: Moment;
     end: Moment;
+    seats: number;
   }>;
   currentDate: Moment;
+  openBookingForm: (details: BookingSlotDetails) => void;
 };
 
-const CalendarColumn: React.FC<CalendarColumnProps> = ({ currentDate, dailySlots }) => {
+const CalendarColumn: React.FC<CalendarColumnProps> = ({
+  currentDate,
+  dailySlots,
+  openBookingForm,
+}) => {
   const sortedDailySlots = dailySlots.sort((a, b) => a.start.diff(b.start, 'seconds'));
   return (
     <section
@@ -277,7 +326,7 @@ const CalendarColumn: React.FC<CalendarColumnProps> = ({ currentDate, dailySlots
       })}
       {sortedDailySlots
         .sort((a, b) => a.start.seconds() - b.start.seconds())
-        .map(({ bookingTypeUuid, bookingTypeName, bookingTypeColor, start, end }) => {
+        .map(({ bookingTypeUuid, bookingTypeName, bookingTypeColor, start, end, seats }) => {
           const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
           const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
           const slotsInOverlappingZone = dailySlots.filter(
@@ -293,10 +342,16 @@ const CalendarColumn: React.FC<CalendarColumnProps> = ({ currentDate, dailySlots
               height={height}
               leftOffset={leftOffset}
               backgroundColor={bookingTypeColor}
+              onClick={() => openBookingForm({ bookingTypeName, bookingTypeUuid, start, end })}
+              aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
+                'DD MMM YYYY',
+              )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
             >
               {bookingTypeName}
               <br />
               {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
+              <br />
+              Seats: {seats}
             </SlotButton>
           );
         })}
@@ -310,16 +365,17 @@ const SlotButton = styled.button<{
   top: string;
   height: string;
 }>`
-  font-weight: normal;
-  line-height: 1.5;
-  position: absolute;
-  display: flex;
   color: white;
-  padding: 0.25rem;
+  display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: flex-start;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  white-space: normal;
+  word-wrap: break-word;
   overflow: hidden;
-  whitespace: nowrap;
+  padding: 0.5rem;
+  position: absolute;
   text-align: left;
   ${({ backgroundColor, leftOffset, top, height }) => css`
     top: ${top};
@@ -334,5 +390,53 @@ const SlotButton = styled.button<{
       z-index: 10;
       background-color: ${backgroundColor};
     }
+    &:focus {
+      outline: 0.125rem solid #08c;
+      outline-offset: 0.125rem;
+    }
   `}
 `;
+
+type BookingFormProps = BookingSlotDetails & {
+  onCancel: () => void;
+};
+
+const BookingForm: React.FC<BookingFormProps> = ({ onCancel, bookingTypeName, start, end }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return null;
+  }
+  const { fullName, email } = user;
+  const initialFormValues = {
+    fullName,
+    email,
+    phone: '',
+  };
+  return (
+    <>
+      <h2>Reserve a slot</h2>
+      <h3>{bookingTypeName}</h3>
+      <p>
+        <b>Date:</b> {start.format('dddd MMMM YYYY')}
+      </p>
+      <p>
+        <b>Time:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
+      </p>
+
+      <Formik onSubmit={(values) => console.log(values)} initialValues={initialFormValues}>
+        <Form>
+          <label htmlFor="booking-details-full-name">Full name</label>
+          <Field type="text" name="fullName" id="booking-details-full-name" required />
+          <label htmlFor="booking-details-email">Email</label>
+          <Field type="text" name="email" id="booking-details-email" required />
+          <label htmlFor="booking-details-phone">Phone</label>
+          <Field type="text" name="phone" id="booking-details-phone" required />
+          <input className="button button-primary" type="submit" value="Book the slot" />
+          <button className="button width-100" type="button" onClick={onCancel}>
+            Cancel
+          </button>
+        </Form>
+      </Formik>
+    </>
+  );
+};

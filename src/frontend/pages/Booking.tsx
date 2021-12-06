@@ -32,11 +32,7 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
     fetchBookingTypes();
   }, [fetchBookingTypes]);
 
-  return (
-    <>
-      <BookingCalendar bookingTypes={bookingTypes} />
-    </>
-  );
+  return <BookingCalendar bookingTypes={bookingTypes} />;
 };
 
 export function isBookableDay(date: Date, bookingType: ApiBookingType): boolean {
