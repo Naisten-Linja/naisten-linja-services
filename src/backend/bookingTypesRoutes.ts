@@ -32,7 +32,12 @@ router.get<
 router.post<
   Record<string, never>,
   { data: ApiBookingType } | { error: string },
-  { name: string; rules: BookingTypeDailyRules; exceptions: Array<string> }
+  {
+    name: string;
+    rules: BookingTypeDailyRules;
+    exceptions: Array<string>;
+    additionalInformation: string;
+  }
 >(
   '/',
   // Only allow staff members to create new booking types
@@ -51,20 +56,31 @@ router.post<
 router.put<
   { uuid: string },
   { data: ApiBookingType } | { error: string },
-  { name: string; rules: BookingTypeDailyRules; exceptions: Array<string> }
+  {
+    name: string;
+    rules: BookingTypeDailyRules;
+    exceptions: Array<string>;
+    additionalInformation: string;
+  }
 >(
   '/:uuid',
   // Only allow staff members to modify booking types
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
-    const { name, rules, exceptions } = req.body;
+    const { name, rules, exceptions, additionalInformation } = req.body;
     const { uuid } = req.params;
     const allBookingTypes = await getBookingTypes();
     if (allBookingTypes === null || !allBookingTypes.map(({ uuid }) => uuid).includes(uuid)) {
       res.status(404).json({ error: 'booking type not found' });
       return;
     }
-    const bookingType = await updateBookingType({ uuid, name, rules, exceptions });
+    const bookingType = await updateBookingType({
+      uuid,
+      name,
+      rules,
+      exceptions,
+      additionalInformation,
+    });
     if (!bookingType) {
       res.status(400).json({ error: 'unable to update booking type' });
       return;

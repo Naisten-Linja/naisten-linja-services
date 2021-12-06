@@ -64,14 +64,20 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   };
 
   const updateBookingType = useCallback(
-    async ({ uuid, name, rules, exceptions }: ApiBookingTypeParamsAdmin & { uuid: string }) => {
+    async ({
+      uuid,
+      name,
+      rules,
+      exceptions,
+      additionalInformation,
+    }: ApiBookingTypeParamsAdmin & { uuid: string }) => {
       if (!uuid) {
         return;
       }
       try {
         await putRequest(
           `/api/booking-types/${uuid}`,
-          { name, rules, exceptions },
+          { name, rules, exceptions, additionalInformation },
           {
             useJwt: true,
           },

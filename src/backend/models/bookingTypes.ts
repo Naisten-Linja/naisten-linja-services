@@ -14,6 +14,7 @@ export interface UpdateBookingTypeParams {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  additionalInformation: string;
 }
 
 export interface BookingType {
@@ -93,15 +94,16 @@ export async function updateBookingType({
   rules,
   exceptions,
   uuid,
+  additionalInformation,
 }: UpdateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
         UPDATE booking_types
-        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::json
-        WHERE uuid = $4::text
+        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::json, additional_information = $4::text
+        WHERE uuid = $5::text
         RETURNING *;
     `;
-    const queryValues = [name, rules, JSON.stringify(exceptions), uuid];
+    const queryValues = [name, rules, JSON.stringify(exceptions), additionalInformation, uuid];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

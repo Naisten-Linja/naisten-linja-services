@@ -43,12 +43,14 @@ export async function updateBookingType({
   name,
   rules,
   exceptions,
+  additionalInformation,
 }: model.UpdateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.updateBookingType({
     uuid,
     name,
     rules,
     exceptions,
+    additionalInformation,
   });
   return bookingType !== null
     ? {
@@ -56,6 +58,7 @@ export async function updateBookingType({
         name: bookingType.name,
         rules: bookingType.rules,
         exceptions: bookingType.exceptions,
+        additionalInformation: bookingType.additionalInformation,
       }
     : null;
 }
