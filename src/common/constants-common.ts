@@ -132,12 +132,25 @@ export interface ApiBookingTypeParamsAdmin {
   additionalInformation: string | null;
 }
 
-export interface ApiBooking {
-  bookingType: ApiBookingType;
+export interface ApiCreateBookingParams {
   email: string;
-  name: string;
   phone: string;
-  user: ApiUserData;
+  fullName: string;
+  bookingTypeUuid: string;
+  userUuid: string;
+  start: string;
+  end: string;
+}
+
+export interface ApiBooking {
   uuid: string;
-  additionalInformation: string | null;
+  email: string;
+  phone: string;
+  fullName: string;
+  user: ApiUserData;
+  bookingType: ApiBookingType;
+  // These are stored separatedly in order to retain past booking information in cased the bookingType is deleted,
+  // or slot timing changed.
+  start: string;
+  end: string;
 }

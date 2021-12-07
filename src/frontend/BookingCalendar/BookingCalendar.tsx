@@ -8,11 +8,13 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookingType } from '../../common/constants-common';
+import { ApiBookingType, ApiCreateBookingParams, ApiBooking } from '../../common/constants-common';
 import { useAuth } from '../AuthContext';
+import { useRequest } from '../http';
+import { useNotifications } from '../NotificationsContext';
 
 const DialogOverlay = styled(ReachDialogOverlay)`
-  z-index: 99999;
+  z-index: 99;
 `;
 
 const DialogContent = styled(ReachDialogContent)`
@@ -180,8 +182,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
       </div>
       {bookingDetails && (
         <DialogOverlay onDismiss={() => setBookingDetails(null)}>
-          <DialogContent>
-            <BookingForm onCancel={() => setBookingDetails(null)} {...bookingDetails} />
+          <DialogContent aria-label="Make a new booking">
+            <BookingForm
+              dismissModal={() => {
+                setBookingDetails(null);
+              }}
+              {...bookingDetails}
+            />
           </DialogContent>
         </DialogOverlay>
       )}
@@ -337,7 +344,7 @@ const CalendarColumn: React.FC<CalendarColumnProps> = ({
             2;
           return (
             <SlotButton
-              key={`${bookingTypeUuid}-${start.format('HH')}`}
+              key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
               top={top}
               height={height}
               leftOffset={leftOffset}
@@ -398,20 +405,72 @@ const SlotButton = styled.button<{
 `;
 
 type BookingFormProps = BookingSlotDetails & {
-  onCancel: () => void;
+  dismissModal: () => void;
 };
 
-const BookingForm: React.FC<BookingFormProps> = ({ onCancel, bookingTypeName, start, end }) => {
+const BookingForm: React.FC<BookingFormProps> = ({
+  dismissModal,
+  start,
+  end,
+  bookingTypeUuid,
+  bookingTypeName,
+}) => {
   const { user } = useAuth();
+  const { postRequest } = useRequest();
+  const { addNotification } = useNotifications();
+
+  const createNewBooking = useCallback(
+    async ({
+      fullName,
+      phone,
+      email,
+      userUuid,
+      bookingTypeUuid,
+      start,
+      end,
+    }: ApiCreateBookingParams) => {
+      try {
+        await postRequest<{ data: ApiBooking }>(
+          '/api/bookings',
+          {
+            fullName,
+            phone,
+            email,
+            userUuid,
+            bookingTypeUuid,
+            start,
+            end,
+          },
+          {
+            useJwt: true,
+          },
+        );
+        console.log('SENDING NOTIFICATIONS AND DISMISSING MODAL');
+        addNotification({ type: 'success', message: 'New booking made' });
+        dismissModal();
+      } catch (err) {
+        console.log(err);
+        addNotification({ type: 'error', message: 'Unable to make new booking' });
+        dismissModal();
+      }
+    },
+    [addNotification, dismissModal, postRequest],
+  );
+
   if (!user) {
     return null;
   }
   const { fullName, email } = user;
-  const initialFormValues = {
-    fullName,
+  const initialFormValues: ApiCreateBookingParams = {
+    bookingTypeUuid,
     email,
+    fullName: fullName || '',
+    start: start.toString(),
+    end: end.toString(),
+    userUuid: user.uuid,
     phone: '',
   };
+
   return (
     <>
       <h2>Reserve a slot</h2>
@@ -423,19 +482,26 @@ const BookingForm: React.FC<BookingFormProps> = ({ onCancel, bookingTypeName, st
         <b>Time:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
       </p>
 
-      <Formik onSubmit={(values) => console.log(values)} initialValues={initialFormValues}>
-        <Form>
-          <label htmlFor="booking-details-full-name">Full name</label>
-          <Field type="text" name="fullName" id="booking-details-full-name" required />
-          <label htmlFor="booking-details-email">Email</label>
-          <Field type="text" name="email" id="booking-details-email" required />
-          <label htmlFor="booking-details-phone">Phone</label>
-          <Field type="text" name="phone" id="booking-details-phone" required />
-          <input className="button button-primary" type="submit" value="Book the slot" />
-          <button className="button width-100" type="button" onClick={onCancel}>
-            Cancel
-          </button>
-        </Form>
+      <Formik
+        onSubmit={async (values) => {
+          await createNewBooking(values);
+        }}
+        initialValues={initialFormValues}
+      >
+        {() => (
+          <Form>
+            <label htmlFor="booking-details-full-name">Full name</label>
+            <Field type="text" name="fullName" id="booking-details-full-name" required />
+            <label htmlFor="booking-details-email">Email</label>
+            <Field type="text" name="email" id="booking-details-email" required />
+            <label htmlFor="booking-details-phone">Phone</label>
+            <Field type="text" name="phone" id="booking-details-phone" required />
+            <input className="button button-primary" type="submit" value="Book the slot" />
+            <button className="button width-100" type="button" onClick={dismissModal}>
+              Cancel
+            </button>
+          </Form>
+        )}
       </Formik>
     </>
   );
