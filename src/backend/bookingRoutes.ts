@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { createBooking, getAllBookings } from './bookingController';
+import { createBooking, getAllBookings, getUserBookings } from './bookingController';
 import {
   UserRole,
   ApiBooking,
@@ -49,23 +49,39 @@ router.post<
   res.status(201).json({ data: newBooking });
 });
 
+router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
+  '/',
+  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  async (req, res) => {
+    const user = req.user as Express.User;
+    const bookings = (await getUserBookings(user.uuid)) || [];
+
+    res.status(200).json({ data: bookings });
+  },
+);
+
+router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
+  '/all',
+  // Only allow staff to view all detailed booking information
+  isAuthenticated([UserRole.staff]),
+  async (_, res) => {
+    const bookings = (await getAllBookings()) || [];
+    res.status(200).json({ data: bookings });
+  },
+);
+
 router.get<
   Record<string, never>,
   { data: Array<ApiBookedSlot> } | { error: string },
   Record<string, never>,
   { startDate: string; endDate: string }
->('/', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
-  const allBookings = await getAllBookings();
-  if (allBookings === null) {
-    res.status(400).json({ error: 'unable to get booking data' });
-    return;
-  }
-
+>('/calendar', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
   if (!req.query?.startDate || !req.query?.endDate) {
     res.status(400).json({ error: 'Missing startDate or endDate in request body' });
     return;
   }
 
+  const allBookings = (await getAllBookings()) || [];
   const startDate = new Date(req.query.startDate);
   const endDate = new Date(req.query.endDate);
 
