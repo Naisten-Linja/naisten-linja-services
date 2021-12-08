@@ -4,11 +4,13 @@ import moment from 'moment';
 
 import { ApiBooking } from '../../common/constants-common';
 import { useRequest } from '../http';
+import { useNotifications } from '../NotificationsContext';
 
 export const AllBookings: React.FC<RouteComponentProps> = () => {
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
-  const [refetchBookings, setRefetchBookings] = useState(true);
   const { getRequest, deleteRequest } = useRequest();
+
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     let updateStateAfterFetch = true;
@@ -32,13 +34,19 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
 
   const handleDeleteBooking = (bookingUuid: string) => async () => {
     if (window.confirm('Are you sure to delete this booking slot?')) {
-      await deleteRequest(`/api/bookings/booking/${bookingUuid}`, { useJwt: true });
-      const result = await getRequest<{ data: Array<ApiBooking> }>('/api/bookings/all', {
-        useJwt: true,
-      });
-      setBookings(
-        result.data.data.sort((a, b) => (new Date(a.start) > new Date(b.start) ? -1 : 1)),
+      const deleteResult = await deleteRequest<{ data: { success: boolean } }>(
+        `/api/bookings/booking/${bookingUuid}`,
+        { useJwt: true },
       );
+      if (deleteResult.data.data.success) {
+        addNotification({ type: 'success', message: 'Booking was successefully deleted' });
+        const result = await getRequest<{ data: Array<ApiBooking> }>('/api/bookings/all', {
+          useJwt: true,
+        });
+        setBookings(
+          result.data.data.sort((a, b) => (new Date(a.start) > new Date(b.start) ? -1 : 1)),
+        );
+      }
     }
   };
 

@@ -59,7 +59,7 @@ const MainMenu = () => {
               <Link to="admin/booking-types">Booking Types</Link>
             </li>
             <li>
-              <Link to="admin/booking">Booking</Link>
+              <Link to="admin/booking">Booking calendar</Link>
             </li>
             <li>
               <Link to="admin/all-bookings">All bookings</Link>
@@ -75,7 +75,7 @@ const MainMenu = () => {
               <Link to="volunteer/letters">Your assigned letters</Link>
             </li>
             <li>
-              <Link to="volunteer/booking">Booking</Link>
+              <Link to="volunteer/booking">Booking calendar</Link>
             </li>
             <li>
               <Link to="volunteer/my-bookings">My bookings</Link>

@@ -42,6 +42,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       moment(booking.end),
   );
 
+  const reservedUserUuids = slotBookings.map(({ user }) => user.uuid);
+
   useEffect(() => {
     let updateStateAfterFetch = true;
     const fetchUsers = async () => {
@@ -183,12 +185,14 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                           field.onChange(e);
                         }}
                       >
-                        {users.map((u) => (
-                          <option value={u.uuid} key={u.uuid}>
-                            {u.email}
-                            {u.fullName ? ` - ${u.fullName}` : ''}
-                          </option>
-                        ))}
+                        {users
+                          .filter((u) => !reservedUserUuids.includes(u.uuid))
+                          .map((u) => (
+                            <option value={u.uuid} key={u.uuid}>
+                              {u.email}
+                              {u.fullName ? ` - ${u.fullName}` : ''}
+                            </option>
+                          ))}
                       </select>
                     )}
                   ></Field>
