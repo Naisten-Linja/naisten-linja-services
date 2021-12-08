@@ -91,7 +91,7 @@ export async function getUserBookings(userUuid: string): Promise<Array<Booking> 
   try {
     const queryText = `
       SELECT * from bookings
-      WHERE user_id = $1::text;
+      WHERE user_uuid = $1::text;
     `;
     const queryValues = [userUuid];
     const result = await db.query<BookingQueryResult>(queryText, queryValues);
