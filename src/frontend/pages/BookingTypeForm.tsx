@@ -8,10 +8,11 @@ import {
   BookingTypeDailyRules,
   BookingSlot,
 } from '../../common/constants-common';
-import { useRequest } from '../http';
+
 import { useNotifications } from '../NotificationsContext';
 import { format } from 'date-fns';
 import ExceptionsDatePicker from '../ExceptionsDatePicker/ExceptionsDatePicker';
+import { useRequest } from '../http';
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -29,7 +30,12 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   const { addNotification } = useNotifications();
 
   const initialFormValue: ApiBookingTypeParamsAdmin = bookingType
-    ? { name: bookingType.name, rules: bookingType.rules, exceptions: bookingType.exceptions }
+    ? {
+        name: bookingType.name,
+        rules: bookingType.rules,
+        exceptions: bookingType.exceptions,
+        additionalInformation: bookingType.additionalInformation || '',
+      }
     : {
         name: '',
         rules: [0, 1, 2, 3, 4, 5, 6].map(() => ({
@@ -37,13 +43,18 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
           slots: [] as Array<BookingSlot>,
         })) as BookingTypeDailyRules,
         exceptions: [] as Array<string>,
+        additionalInformation: '',
       };
 
   const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
     try {
-      await postRequest('/api/booking-types', bookingType, {
-        useJwt: true,
-      });
+      await postRequest(
+        '/api/booking-types',
+        { ...bookingType, additionalInformation: bookingType.additionalInformation || null },
+        {
+          useJwt: true,
+        },
+      );
     } catch (err) {
       console.log(err);
       addNotification({ type: 'error', message: 'Unable to create booking type' });
@@ -95,6 +106,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </td>
                   <td>
                     <Field
+                      aria-label="booking type name"
                       className="input-s font-weight-bold"
                       placeholder="Booking type name"
                       type="text"
@@ -146,6 +158,20 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                     )}
                   </td>
                 </tr>
+
+                <tr>
+                  <th className="font-weight-semibold font-size-s">Additional information</th>
+                  <td className="flex flex-column font-weight-semibold font-size-s">
+                    <Field
+                      aria-label="additional information"
+                      placeholder="Additional information"
+                      className="input-s"
+                      name="additionalInformation"
+                      type="text"
+                    />
+                  </td>
+                </tr>
+
                 <tr>
                   <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
                     Week day
