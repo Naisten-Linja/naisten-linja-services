@@ -16,12 +16,13 @@ export async function getUserBookings(userUuid: string): Promise<Array<ApiBookin
   }
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
   return bookings
-    .map(({ email, phone, fullName, bookingTypeUuid, start, end, uuid }) => ({
+    .map(({ email, phone, fullName, bookingTypeUuid, start, end, uuid, bookingNote }) => ({
       uuid,
       email,
       phone,
       fullName,
       user,
+      bookingNote,
       start: start.toString(),
       end: end.toString(),
       bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
@@ -37,16 +38,19 @@ export async function getAllBookings(): Promise<Array<ApiBooking> | null> {
   }
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
   return bookings
-    .map(({ uuid, email, phone, fullName, bookingTypeUuid, userUuid, start, end }) => ({
-      uuid,
-      email,
-      phone,
-      fullName,
-      user: users.find(({ uuid }) => uuid === userUuid),
-      start: start.toString(),
-      end: end.toString(),
-      bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
-    }))
+    .map(
+      ({ uuid, email, phone, fullName, bookingTypeUuid, bookingNote, userUuid, start, end }) => ({
+        uuid,
+        email,
+        phone,
+        fullName,
+        bookingNote,
+        user: users.find(({ uuid }) => uuid === userUuid),
+        start: start.toString(),
+        end: end.toString(),
+        bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
+      }),
+    )
     .filter(({ user }) => !!user) as Array<ApiBooking>;
 }
 
@@ -62,9 +66,8 @@ export async function createBooking(
   if (!newBooking) {
     return null;
   }
-  const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
-  const { uuid, email, phone, fullName, bookingTypeUuid, start, end } = newBooking;
-  const bookingType = bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid);
+  const { uuid, email, phone, fullName, bookingTypeUuid, start, end, bookingNote } = newBooking;
+  const bookingType = await bookingTypesController.getBookingTypeByUuid(bookingTypeUuid);
   if (!bookingType) {
     return null;
   }
@@ -75,6 +78,7 @@ export async function createBooking(
     fullName,
     user,
     bookingType,
+    bookingNote,
     start: start.toString(),
     end: end.toString(),
   };
@@ -82,4 +86,34 @@ export async function createBooking(
 
 export async function deleteBooking(uuid: string): Promise<boolean> {
   return await bookingsModel.deleteBooking(uuid);
+}
+
+export async function updateBooking(
+  params: bookingsModel.UpdateBookingParams,
+): Promise<ApiBooking | null> {
+  const updatedBooking = await bookingsModel.updateBooking(params);
+  if (updatedBooking === null) {
+    return null;
+  }
+  const { uuid, email, phone, fullName, bookingTypeUuid, bookingNote, userUuid, start, end } =
+    updatedBooking;
+  const bookingType = await bookingTypesController.getBookingTypeByUuid(bookingTypeUuid);
+  if (!bookingType) {
+    return null;
+  }
+  const user = await usersModel.getUserByUuid(userUuid);
+  if (user === null) {
+    return null;
+  }
+  return {
+    uuid,
+    email,
+    phone,
+    fullName,
+    bookingType,
+    bookingNote,
+    user,
+    start: start.toString(),
+    end: end.toString(),
+  };
 }

@@ -140,6 +140,7 @@ export interface ApiCreateBookingParams {
   userUuid: string;
   start: string;
   end: string;
+  bookingNote: string;
 }
 
 export interface ApiBooking {
@@ -149,10 +150,18 @@ export interface ApiBooking {
   fullName: string;
   user: ApiUserData;
   bookingType: ApiBookingType;
+  bookingNote: string;
   // These are stored separatedly in order to retain past booking information in cased the bookingType is deleted,
   // or slot timing changed.
   start: string;
   end: string;
+}
+
+export interface ApiUpdateBookingParams {
+  email: string;
+  fullName: string;
+  phone: string;
+  bookingNote: string;
 }
 
 export interface ApiBookedSlot {

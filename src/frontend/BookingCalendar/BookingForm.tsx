@@ -98,6 +98,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       email,
       userUuid,
       bookingTypeUuid,
+      bookingNote,
       start,
       end,
     }: ApiCreateBookingParams) => {
@@ -110,6 +111,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             email,
             userUuid,
             bookingTypeUuid,
+            bookingNote,
             start,
             end,
           },
@@ -139,6 +141,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     start: start.toString(),
     end: end.toString(),
     userUuid: user.uuid,
+    bookingNote: '',
     phone: '',
   };
   const isPastSlot = moment().isAfter(end);
@@ -221,6 +224,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               <Field type="text" name="email" id="booking-details-email" required />
               <label htmlFor="booking-details-phone">Phone</label>
               <Field type="text" name="phone" id="booking-details-phone" required />
+              <label htmlFor="booking-details-booking-note">Note</label>
+              <Field
+                type="text"
+                name="bookingNote"
+                id="booking-details-booking-note"
+                as="textarea"
+              />
               <input className="button button-primary" type="submit" value="Book the slot" />
               <button className="button width-100" type="button" onClick={dismissModal}>
                 Cancel

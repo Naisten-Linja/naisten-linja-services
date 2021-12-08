@@ -89,6 +89,21 @@ export async function getAllBookingTypes(): Promise<Array<BookingType> | null> {
   }
 }
 
+export async function getBookingTypeByUuid(uuid: string): Promise<BookingType | null> {
+  try {
+    const queryText = 'SELECT * from booking_types WHERE uuid = $1::text;';
+    const result = await db.query<BookingTypeQueryResult>(queryText, [uuid]);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToBookingType(result.rows[0]);
+  } catch (err) {
+    console.error(`Unable to fetch booking type ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
 export async function updateBookingType({
   name,
   rules,

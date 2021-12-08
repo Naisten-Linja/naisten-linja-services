@@ -1,12 +1,20 @@
 import express from 'express';
 
-import { createBooking, getAllBookings, getUserBookings, deleteBooking } from './bookingController';
+import {
+  createBooking,
+  getAllBookings,
+  getUserBookings,
+  deleteBooking,
+  updateBooking,
+} from './bookingController';
 import {
   UserRole,
   ApiBooking,
   ApiCreateBookingParams,
+  ApiUpdateBookingParams,
   ApiBookedSlot,
 } from '../common/constants-common';
+
 import { isAuthenticated } from './middlewares';
 
 const router = express.Router();
@@ -20,7 +28,7 @@ router.post<
 
   // TODO: add strict validation for each request body param
   if (!req.body) {
-    res.status(400).json({ error: 'inavlid payload' });
+    res.status(400).json({ error: 'invalid payload' });
     return;
   }
 
@@ -29,7 +37,7 @@ router.post<
     res.status(401).json({ error: 'unauthorized' });
     return;
   }
-  const { email, phone, fullName, bookingTypeUuid, start, end, userUuid } = req.body;
+  const { email, phone, fullName, bookingTypeUuid, bookingNote, start, end, userUuid } = req.body;
 
   const newBooking = await createBooking({
     email,
@@ -37,6 +45,7 @@ router.post<
     fullName,
     userUuid,
     bookingTypeUuid,
+    bookingNote,
     start: new Date(start),
     end: new Date(end),
   });
@@ -111,6 +120,38 @@ router.delete<{ bookingUuid: string }, { data: { success: boolean } }>(
     const { bookingUuid } = req.params;
     const success = await deleteBooking(bookingUuid);
     res.status(202).json({ data: { success } });
+  },
+);
+
+router.put<
+  { bookingUuid: string },
+  { data: ApiBooking } | { error: string },
+  ApiUpdateBookingParams
+>(
+  '/booking/:bookingUuid',
+  // Only allow staff to modify existing booking notes
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { bookingUuid } = req.params;
+    if (!req.body) {
+      res.status(400).json({ error: 'missing required data in request body' });
+      return;
+    }
+    const { phone, fullName, email, bookingNote } = req.body;
+    const updatedBooking = await updateBooking({
+      uuid: bookingUuid,
+      phone,
+      fullName,
+      email,
+      bookingNote,
+    });
+
+    if (updatedBooking === null) {
+      res.status(400).json({ error: 'failed to update booking' });
+      return;
+    }
+
+    res.status(200).json({ data: updatedBooking });
   },
 );
 

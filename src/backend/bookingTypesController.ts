@@ -38,6 +38,17 @@ export async function getBookingTypes(): Promise<Array<ApiBookingType> | null> {
     : null;
 }
 
+export async function getBookingTypeByUuid(
+  bookingTypeUuid: string,
+): Promise<ApiBookingType | null> {
+  const bookingType = await model.getBookingTypeByUuid(bookingTypeUuid);
+  if (bookingType === null) {
+    return null;
+  }
+  const { uuid, name, rules, exceptions, additionalInformation } = bookingType;
+  return { uuid, name, rules, exceptions, additionalInformation };
+}
+
 export async function updateBookingType({
   uuid,
   name,

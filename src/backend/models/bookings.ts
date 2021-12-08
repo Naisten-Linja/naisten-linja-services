@@ -10,6 +10,7 @@ interface Booking {
   start: Date;
   end: Date;
   created: string;
+  bookingNote: string;
 }
 
 interface BookingQueryResult {
@@ -19,6 +20,7 @@ interface BookingQueryResult {
   full_name: string;
   email: string;
   booking_type_uuid: string;
+  booking_note: string;
   start_time: Date;
   end_time: Date;
   created: string;
@@ -29,6 +31,7 @@ function queryResultToBooking(row: BookingQueryResult): Booking {
     uuid,
     user_uuid,
     booking_type_uuid,
+    booking_note,
     full_name,
     email,
     phone,
@@ -46,6 +49,7 @@ function queryResultToBooking(row: BookingQueryResult): Booking {
     userUuid: user_uuid,
     fullName: full_name,
     bookingTypeUuid: booking_type_uuid,
+    bookingNote: booking_note,
   };
 }
 
@@ -55,6 +59,7 @@ export type CreateBookingParams = {
   fullName: string;
   email: string;
   bookingTypeUuid: string;
+  bookingNote: string;
   start: Date;
   end: Date;
 };
@@ -67,14 +72,24 @@ export async function createBooking({
   bookingTypeUuid,
   start,
   end,
+  bookingNote,
 }: CreateBookingParams): Promise<Booking | null> {
   try {
     const queryText = `
-        INSERT INTO bookings (user_uuid, booking_type_uuid, full_name, email, phone, start_time, end_time)
-        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::timestamp)
+        INSERT INTO bookings (user_uuid, booking_type_uuid, full_name, email, phone, start_time, end_time, booking_note)
+        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::timestamp, $8::text)
         RETURNING *;
     `;
-    const queryValues = [userUuid, bookingTypeUuid, fullName, email, phone, start, end];
+    const queryValues = [
+      userUuid,
+      bookingTypeUuid,
+      fullName,
+      email,
+      phone,
+      start,
+      end,
+      bookingNote,
+    ];
     const result = await db.query<BookingQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
@@ -130,5 +145,40 @@ export async function deleteBooking(uuid: string): Promise<boolean> {
     console.error(`Failed to delete booking ${uuid}`);
     console.error(err);
     return false;
+  }
+}
+
+export type UpdateBookingParams = {
+  uuid: string;
+  phone: string;
+  fullName: string;
+  email: string;
+  bookingNote: string;
+};
+
+export async function updateBooking({
+  uuid,
+  phone,
+  fullName,
+  email,
+  bookingNote,
+}: UpdateBookingParams): Promise<Booking | null> {
+  try {
+    const queryText = `
+      UPDATE bookings
+      SET phone = $1::text, full_name = $2::text, email = $3::text, booking_note = $4::text
+      WHERE uuid = $5::text
+      RETURNING *;
+    `;
+    const queryValues = [phone, fullName, email, bookingNote, uuid];
+    const result = await db.query<BookingQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToBooking(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed to update booking ${uuid}`);
+    console.error(err);
+    return null;
   }
 }

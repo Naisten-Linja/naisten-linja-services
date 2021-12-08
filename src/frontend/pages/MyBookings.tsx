@@ -34,7 +34,7 @@ export const MyBookings: React.FC<RouteComponentProps> = () => {
       {bookings.length < 1 && <p>You have not booked any slot yet</p>}
       {upcomingBookings.length > 0 && (
         <>
-          <h1>Upcomping bookings</h1>
+          <h1>Upcoming bookings</h1>
           <BookingList bookings={upcomingBookings} />
         </>
       )}
@@ -50,16 +50,39 @@ export const MyBookings: React.FC<RouteComponentProps> = () => {
 
 const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) => {
   return (
-    <div className="width-100">
-      {bookings.map(({ uuid, bookingType, start, end }) => (
-        <p key={uuid}>
-          <b>{bookingType.name}</b>
-          <br />
-          Date: {moment(start).format('DD MMMM YYYY')}
-          <br />
-          Time: {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-        </p>
-      ))}
-    </div>
+    <table className="table-responsive">
+      <thead>
+        <tr>
+          <th>Booking details</th>
+          <th>Personal details</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {bookings.map(({ uuid, bookingType, bookingNote, start, end, fullName, email, phone }) => (
+          <tr key={uuid}>
+            <td>
+              <b>{bookingType.name}</b>
+              <br />
+              {moment(start).format('ddd Do MMM YYYY')}
+              <br />
+              {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
+            </td>
+            <td>
+              {fullName}
+              <br />
+              {email}
+              <br />
+              {phone}
+            </td>
+            <td>
+              {!!bookingNote && (
+                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{bookingNote}</pre>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };
