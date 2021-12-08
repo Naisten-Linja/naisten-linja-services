@@ -173,27 +173,29 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
               );
             });
 
-            const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(({ rules, uuid, name }) =>
-              rules[currentDate.weekday()].slots.map(({ start, end, seats }) => {
-                const [startHour, startMinute] = start.split(':');
-                const [endHour, endMinute] = end.split(':');
-                return {
-                  seats,
-                  bookingTypeUuid: uuid,
-                  bookingTypeName: name,
-                  bookingTypeColor: getBookingTypeColor(uuid),
-                  start: currentDate
-                    .clone()
-                    .add(parseInt(startHour), 'hours')
-                    .add(parseInt(startMinute), 'minutes')
-                    .startOf('minute'),
-                  end: currentDate
-                    .clone()
-                    .add(parseInt(endHour), 'hours')
-                    .add(parseInt(endMinute), 'minutes')
-                    .startOf('minute'),
-                };
-              }),
+            const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(
+              ({ rules, uuid, name, additionalInformation }) =>
+                rules[currentDate.weekday()].slots.map(({ start, end, seats }) => {
+                  const [startHour, startMinute] = start.split(':');
+                  const [endHour, endMinute] = end.split(':');
+                  return {
+                    seats,
+                    bookingTypeUuid: uuid,
+                    bookingTypeName: name,
+                    bookingTypeColor: getBookingTypeColor(uuid),
+                    bookingTypeAdditionalInformation: additionalInformation || '',
+                    start: currentDate
+                      .clone()
+                      .add(parseInt(startHour), 'hours')
+                      .add(parseInt(startMinute), 'minutes')
+                      .startOf('minute'),
+                    end: currentDate
+                      .clone()
+                      .add(parseInt(endHour), 'hours')
+                      .add(parseInt(endMinute), 'minutes')
+                      .startOf('minute'),
+                  };
+                }),
             );
 
             return (

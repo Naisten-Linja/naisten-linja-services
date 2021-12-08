@@ -10,6 +10,7 @@ type CalendarColumnProps = {
   dailySlots: Array<{
     bookingTypeUuid: string;
     bookingTypeName: string;
+    bookingTypeAdditionalInformation: string;
     bookingTypeColor: string;
     start: Moment;
     end: Moment;
@@ -71,53 +72,64 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
       })}
       {sortedDailySlots
         .sort((a, b) => a.start.seconds() - b.start.seconds())
-        .map(({ bookingTypeUuid, bookingTypeName, bookingTypeColor, start, end, seats }) => {
-          const bookedSlotCount =
-            bookedSlots.find(
-              (slot) =>
-                slot.bookingTypeUuid === bookingTypeUuid &&
-                moment(slot.start).isSame(start) &&
-                moment(slot.end).isSame(end),
-            )?.count || 0;
-          const availableSeats = seats - bookedSlotCount;
+        .map(
+          ({
+            bookingTypeUuid,
+            bookingTypeName,
+            bookingTypeColor,
+            bookingTypeAdditionalInformation,
+            start,
+            end,
+            seats,
+          }) => {
+            const bookedSlotCount =
+              bookedSlots.find(
+                (slot) =>
+                  slot.bookingTypeUuid === bookingTypeUuid &&
+                  moment(slot.start).isSame(start) &&
+                  moment(slot.end).isSame(end),
+              )?.count || 0;
+            const availableSeats = seats - bookedSlotCount;
 
-          const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
-          const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
-          const slotsInOverlappingZone = dailySlots.filter(
-            (slot) => slot.start.diff(start, 'minutes') === 0,
-          );
-          const leftOffset =
-            slotsInOverlappingZone.findIndex((slot) => slot.bookingTypeUuid === bookingTypeUuid) *
-            2;
-          return (
-            <SlotButton
-              key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
-              top={top}
-              height={height}
-              leftOffset={leftOffset}
-              backgroundColor={bookingTypeColor}
-              onClick={() =>
-                openBookingForm({
-                  bookingTypeName,
-                  bookingTypeUuid,
-                  start,
-                  end,
-                  seats,
-                  availableSeats,
-                })
-              }
-              aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
-                'DD MMM YYYY',
-              )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
-            >
-              {bookingTypeName}
-              <br />
-              {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
-              <br />
-              Seats: {availableSeats}/{seats}
-            </SlotButton>
-          );
-        })}
+            const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
+            const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
+            const slotsInOverlappingZone = dailySlots.filter(
+              (slot) => slot.start.diff(start, 'minutes') === 0,
+            );
+            const leftOffset =
+              slotsInOverlappingZone.findIndex((slot) => slot.bookingTypeUuid === bookingTypeUuid) *
+              2;
+            return (
+              <SlotButton
+                key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
+                top={top}
+                height={height}
+                leftOffset={leftOffset}
+                backgroundColor={bookingTypeColor}
+                onClick={() =>
+                  openBookingForm({
+                    bookingTypeName,
+                    bookingTypeUuid,
+                    bookingTypeAdditionalInformation,
+                    start,
+                    end,
+                    seats,
+                    availableSeats,
+                  })
+                }
+                aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
+                  'DD MMM YYYY',
+                )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
+              >
+                {bookingTypeName}
+                <br />
+                {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
+                <br />
+                Seats: {availableSeats}/{seats}
+              </SlotButton>
+            );
+          },
+        )}
     </section>
   );
 };

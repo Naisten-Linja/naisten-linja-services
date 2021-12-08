@@ -27,6 +27,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   bookingTypeUuid,
   bookingTypeName,
   availableSeats,
+  bookingTypeAdditionalInformation,
   seats,
 }) => {
   const { user } = useAuth();
@@ -137,6 +138,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     <>
       <h2>Reserve a slot</h2>
       <h3>{bookingTypeName}</h3>
+      {!!bookingTypeAdditionalInformation && <p>{bookingTypeAdditionalInformation}</p>}
       <p>
         <b>Date:</b> {start.format('dddd MMMM YYYY')}
       </p>
@@ -146,6 +148,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       <p>
         <b>Seats:</b> {availableSeats} / {seats}
       </p>
+
       {availableSeats < 1 && <p>This slot is fully booked</p>}
 
       {isPastSlot && <p>This slot has ended.</p>}
