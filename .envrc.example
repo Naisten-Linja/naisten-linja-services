@@ -32,10 +32,6 @@ export LETTER_ACCESS_KEY_SALT=d35d86248800d53ac5086eb9010f4b830de271acd06235a4a4
 # Hex value of the aes key used for encrypting and decrypting letter's title, content and its reply
 export LETTER_AES_KEY=3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de
 
-# We'll need this separate set of variables because
-# Create React App only exposes env variables with prefix `REACT_APP_` into process.env
-export REACT_APP_DISCOURSE_URL=${DISCOURSE_URL}
-
 # Inlucde node_modules binaries into the shell environment
 export PATH=$PATH:$(pwd)/node_modules/.bin
 
