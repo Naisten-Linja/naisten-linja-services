@@ -149,7 +149,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       <h3>{bookingTypeName}</h3>
       {!!bookingTypeAdditionalInformation && <p>{bookingTypeAdditionalInformation}</p>}
       <p>
-        <b>Date:</b> {start.format('dddd MMMM YYYY')}
+        <b>Date:</b> {start.format('dddd Do MMMM YYYY')}
       </p>
       <p>
         <b>Time:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
