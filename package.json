@@ -11,7 +11,7 @@
     "start-production": "npm run db-migrate up && node build-backend/start-backend.js",
     "start-dev-db": "./start-dev-db",
     "db-migrate": "db-migrate",
-    "frontend:build": "REACT_APP_DISCOURSE_URL=\"https://ryhmat.naistenlinja.fi\" react-scripts build",
+    "frontend:build": "react-scripts build",
     "frontend:dev": "PORT={$FRONTEND_PORT} BROWSER=none DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "frontend:typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ./src",

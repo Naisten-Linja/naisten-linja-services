@@ -101,4 +101,9 @@ router.get('/token/:nonce', (req, res) => {
   });
 });
 
+router.get('/logout', (_, res) => {
+  const { discourseUrl } = getConfig();
+  res.redirect(discourseUrl);
+});
+
 export default router;

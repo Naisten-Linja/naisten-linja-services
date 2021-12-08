@@ -88,6 +88,7 @@ export function createApp() {
       path: [
         '/api/auth',
         '/api/auth/sso',
+        '/api/auth/logout',
         '/api/auth/sso/verify',
         /^\/api\/auth\/token\/.*/,
         '/api/online-letter/start',

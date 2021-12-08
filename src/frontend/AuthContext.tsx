@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
-import { DISCOURSE_URL } from './constants-frontend';
 
 interface IAuthContext {
   token: string | null;
@@ -72,8 +71,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     setToken(null);
     setUser(null);
     addNotification({ type: 'success', message: 'Logged out' });
-    // @ts-ignore
-    window.location.replace(`${DISCOURSE_URL}`);
+    window.location.replace('api/auth/logout');
   }
 
   useEffect(() => {
