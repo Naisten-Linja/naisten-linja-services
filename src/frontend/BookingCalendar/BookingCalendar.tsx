@@ -22,7 +22,7 @@ const DialogContent = styled(ReachDialogContent)`
   width: 25rem;
   max-width: 100%;
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
 `;
 
 type BookingCalendarProps = {

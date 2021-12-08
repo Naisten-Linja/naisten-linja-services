@@ -101,7 +101,35 @@ export function useRequest() {
     [token, setToken],
   );
 
-  return { getRequest, putRequest, postRequest };
+  const deleteRequest = useCallback(
+    async function <T = unknown, R = AxiosResponse<T>>(
+      apiPath: string,
+      reqConfig?: RequestConfig,
+    ): Promise<R> {
+      try {
+        const { useJwt = false, headers = {}, ...config } = reqConfig || {};
+        if (useJwt) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        const result = await axios.delete<T, R>(apiPath, {
+          ...config,
+          headers: {
+            ...defaultHeaders,
+            ...headers,
+          },
+        });
+        return result;
+      } catch (err) {
+        if (isInvalidTokenError(err)) {
+          setToken(null);
+        }
+        throw err;
+      }
+    },
+    [token, setToken],
+  );
+
+  return { getRequest, putRequest, postRequest, deleteRequest };
 }
 
 function isInvalidTokenError(err: unknown) {

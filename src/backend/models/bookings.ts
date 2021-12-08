@@ -120,3 +120,15 @@ export async function getAllBookings(): Promise<Array<Booking> | null> {
     return null;
   }
 }
+
+export async function deleteBooking(uuid: string): Promise<boolean> {
+  try {
+    const queryText = 'DELETE from bookings WHERE uuid = $1::text;';
+    const result = await db.query(queryText, [uuid]);
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error(`Failed to delete booking ${uuid}`);
+    console.error(err);
+    return false;
+  }
+}

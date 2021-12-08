@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { createBooking, getAllBookings, getUserBookings } from './bookingController';
+import { createBooking, getAllBookings, getUserBookings, deleteBooking } from './bookingController';
 import {
   UserRole,
   ApiBooking,
@@ -103,5 +103,15 @@ router.get<
     }, [] as Array<ApiBookedSlot>);
   res.status(200).json({ data: bookedSlotsCount });
 });
+
+router.delete<{ bookingUuid: string }, { data: { success: boolean } }>(
+  '/booking/:bookingUuid',
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { bookingUuid } = req.params;
+    const success = await deleteBooking(bookingUuid);
+    res.status(202).json({ data: { success } });
+  },
+);
 
 export default router;

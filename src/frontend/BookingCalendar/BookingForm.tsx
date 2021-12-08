@@ -33,6 +33,14 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   const { postRequest, getRequest } = useRequest();
   const { addNotification } = useNotifications();
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
+  const [allBookings, setAllBookings] = useState<Array<ApiBooking>>([]);
+
+  const slotBookings = allBookings.filter(
+    (booking) =>
+      booking.bookingType.uuid === bookingTypeUuid &&
+      moment(booking.start).isSame(start) &&
+      moment(booking.end),
+  );
 
   useEffect(() => {
     let updateStateAfterFetch = true;
@@ -48,13 +56,28 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         addNotification({ type: 'error', message: 'Unable to fetch users' });
       }
     };
+    const fetchAllBookings = async () => {
+      try {
+        const result = await getRequest<{ data: Array<ApiBooking> }>('/api/bookings/all', {
+          useJwt: true,
+        });
+        if (result.data.data && updateStateAfterFetch) {
+          setAllBookings(result.data.data);
+        }
+      } catch (err) {
+        addNotification({ type: 'error', message: 'Unable to fetch all bookings' });
+      }
+    };
+
     if (user?.role === UserRole.staff) {
       fetchUsers();
+      fetchAllBookings();
     }
+
     return () => {
       updateStateAfterFetch = false;
     };
-  }, [user?.role, addNotification, setUsers, getRequest]);
+  }, [user?.role, addNotification, setUsers, setAllBookings, getRequest]);
 
   const createNewBooking = useCallback(
     async ({
@@ -184,6 +207,25 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             </Form>
           )}
         </Formik>
+      )}
+
+      {user?.role === UserRole.staff && slotBookings.length > 0 && (
+        <>
+          <h2>Reserved by:</h2>
+          {slotBookings.map(({ uuid, user, fullName, email, phone }) => (
+            <p key={uuid}>
+              <b>User:</b> {user.email}
+              <br />
+              <b>Booking details:</b>
+              <br />
+              {fullName}
+              <br />
+              {email}
+              <br />
+              {phone}
+            </p>
+          ))}
+        </>
       )}
     </>
   );

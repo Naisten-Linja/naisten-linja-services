@@ -79,3 +79,7 @@ export async function createBooking(
     end: end.toString(),
   };
 }
+
+export async function deleteBooking(uuid: string): Promise<boolean> {
+  return await bookingsModel.deleteBooking(uuid);
+}
