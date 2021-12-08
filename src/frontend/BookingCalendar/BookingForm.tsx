@@ -17,6 +17,7 @@ import { BookingSlotDetails } from './shared-constants';
 type BookingFormProps = BookingSlotDetails & {
   dismissModal: () => void;
   afterSubmit: () => void;
+  ownBookings: Array<ApiBooking>;
 };
 
 export const BookingForm: React.FC<BookingFormProps> = ({
@@ -28,21 +29,29 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   bookingTypeName,
   availableSeats,
   bookingTypeAdditionalInformation,
+  ownBookings,
   seats,
 }) => {
   const { user } = useAuth();
   const { postRequest, getRequest } = useRequest();
   const { addNotification } = useNotifications();
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
-  const [allBookings, setAllBookings] = useState<Array<ApiBooking>>([]);
 
+  const isReserved = !!ownBookings.find(
+    ({ bookingType, ...booking }) =>
+      bookingType.uuid === bookingTypeUuid &&
+      moment(booking.start).isSame(moment(start)) &&
+      moment(booking.end).isSame(moment(end)),
+  );
+
+  // These variables are only relevant if the user is a staff member
+  const [allBookings, setAllBookings] = useState<Array<ApiBooking>>([]);
   const slotBookings = allBookings.filter(
     (booking) =>
       booking.bookingType.uuid === bookingTypeUuid &&
       moment(booking.start).isSame(start) &&
       moment(booking.end),
   );
-
   const reservedUserUuids = slotBookings.map(({ user }) => user.uuid);
 
   useEffect(() => {
@@ -150,10 +159,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       </p>
 
       {availableSeats < 1 && <p>This slot is fully booked</p>}
+      {isReserved && (
+        <p>
+          <b>You already booked this slot!</b>
+        </p>
+      )}
 
       {isPastSlot && <p>This slot has ended.</p>}
 
-      {availableSeats > 0 && !isPastSlot && (
+      {availableSeats > 0 && !(isReserved && user.role === UserRole.volunteer) && !isPastSlot && (
         <Formik
           onSubmit={async (values) => {
             await createNewBooking(values);

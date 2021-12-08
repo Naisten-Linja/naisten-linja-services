@@ -7,7 +7,7 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookingType, ApiBookedSlot } from '../../common/constants-common';
+import { ApiBookingType, ApiBookedSlot, ApiBooking } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { CalendarColumn } from './CalendarColumn';
@@ -45,6 +45,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
   const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>([]);
   const [bookingDetails, setBookingDetails] = useState<BookingSlotDetails | null>(null);
   const [bookedSlots, setBookedSlots] = useState<Array<ApiBookedSlot>>([]);
+  const [ownBookings, setOwnBookings] = useState<Array<ApiBooking>>([]);
   const { getRequest } = useRequest();
   const { addNotification } = useNotifications();
 
@@ -66,6 +67,18 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
     [startDate, getRequest, addNotification],
   );
 
+  const fetchOwnBookings = useCallback(
+    async (callback: (data: Array<ApiBooking>) => void) => {
+      const result = await getRequest<{ data: Array<ApiBooking> }>('/api/bookings', {
+        useJwt: true,
+      });
+      if (result.data.data) {
+        callback(result.data.data.sort((a, b) => (new Date(a.start) > new Date(b.start) ? 1 : -1)));
+      }
+    },
+    [getRequest],
+  );
+
   useEffect(() => {
     let updateStateAfterFetch = true;
     const delayedFetch = setTimeout(() => {
@@ -74,12 +87,17 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
           setBookedSlots(bookedSlots);
         }
       });
+      fetchOwnBookings((bookings) => {
+        if (updateStateAfterFetch) {
+          setOwnBookings(bookings);
+        }
+      });
     }, 300);
     return () => {
       clearTimeout(delayedFetch);
       updateStateAfterFetch = false;
     };
-  }, [setBookedSlots, fetchBookedSlots]);
+  }, [setBookedSlots, fetchBookedSlots, fetchOwnBookings, setOwnBookings]);
 
   useEffect(() => {
     setSelectedBookingTypes(bookingTypes.map(({ uuid }) => uuid));
@@ -217,9 +235,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
               dismissModal={() => {
                 setBookingDetails(null);
               }}
+              ownBookings={ownBookings}
               afterSubmit={() => {
                 fetchBookedSlots((bookedSlots) => {
                   setBookedSlots(bookedSlots);
+                });
+                fetchOwnBookings((bookings) => {
+                  setOwnBookings(bookings);
                 });
               }}
               {...bookingDetails}
