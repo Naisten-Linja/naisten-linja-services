@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import moment from 'moment';
 import { Formik, Form, Field } from 'formik';
 import '@reach/dialog/styles.css';
 
@@ -105,6 +106,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     userUuid: user.uuid,
     phone: '',
   };
+  const isPastSlot = moment().isAfter(end);
 
   return (
     <>
@@ -121,7 +123,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       </p>
       {availableSeats < 1 && <p>This slot is fully booked</p>}
 
-      {availableSeats > 0 && (
+      {isPastSlot && <p>This slot has ended.</p>}
+
+      {availableSeats > 0 && !isPastSlot && (
         <Formik
           onSubmit={async (values) => {
             await createNewBooking(values);

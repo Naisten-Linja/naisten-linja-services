@@ -10,7 +10,6 @@ import '@reach/dialog/styles.css';
 import { ApiBookingType, ApiBookedSlot } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
-import { useAuth } from '../AuthContext';
 import { CalendarColumn } from './CalendarColumn';
 import { BookingForm } from './BookingForm';
 import { HOUR_CELL_HEIGHT, BookingSlotDetails } from './shared-constants';
@@ -164,9 +163,10 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
         <section className="flex width-100">
           {weekDays.map((currentDate) => {
-            const bookingTypesInCurrentDay = bookingTypes.filter(({ rules, uuid }) => {
+            const bookingTypesInCurrentDay = bookingTypes.filter(({ rules, uuid, exceptions }) => {
               const ruleOnCurrentDay = rules[currentDate.weekday()];
               return (
+                !exceptions.find((exceptionDate) => moment(exceptionDate).isSame(currentDate)) &&
                 ruleOnCurrentDay.enabled &&
                 ruleOnCurrentDay.slots.length > 0 &&
                 selectedBookingTypes.includes(uuid)
