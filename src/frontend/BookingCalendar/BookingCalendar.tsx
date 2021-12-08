@@ -10,6 +10,7 @@ import '@reach/dialog/styles.css';
 import { ApiBookingType, ApiBookedSlot } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import { useAuth } from '../AuthContext';
 import { CalendarColumn } from './CalendarColumn';
 import { BookingForm } from './BookingForm';
 import { HOUR_CELL_HEIGHT, BookingSlotDetails } from './shared-constants';

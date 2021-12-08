@@ -1,8 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import '@reach/dialog/styles.css';
 
-import { ApiCreateBookingParams, ApiBooking } from '../../common/constants-common';
+import {
+  ApiCreateBookingParams,
+  ApiBooking,
+  UserRole,
+  ApiUserData,
+} from '../../common/constants-common';
 import { useAuth } from '../AuthContext';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
@@ -24,8 +29,31 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   seats,
 }) => {
   const { user } = useAuth();
-  const { postRequest } = useRequest();
+  const { postRequest, getRequest } = useRequest();
   const { addNotification } = useNotifications();
+  const [users, setUsers] = useState<Array<ApiUserData>>([]);
+
+  useEffect(() => {
+    let updateStateAfterFetch = true;
+    const fetchUsers = async () => {
+      try {
+        const result = await getRequest<{ data: Array<ApiUserData> }>('/api/users', {
+          useJwt: true,
+        });
+        if (result.data.data && updateStateAfterFetch) {
+          setUsers(result.data.data);
+        }
+      } catch (err) {
+        addNotification({ type: 'error', message: 'Unable to fetch users' });
+      }
+    };
+    if (user?.role === UserRole.staff) {
+      fetchUsers();
+    }
+    return () => {
+      updateStateAfterFetch = false;
+    };
+  }, [user?.role, addNotification, setUsers, getRequest]);
 
   const createNewBooking = useCallback(
     async ({
@@ -101,8 +129,44 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           }}
           initialValues={initialFormValues}
         >
-          {() => (
+          {({ setFieldValue }) => (
             <Form>
+              {user.role === UserRole.staff && (
+                <>
+                  <label htmlFor="booking-details-user-uuid">
+                    Create a booking for another user
+                  </label>
+                  <Field
+                    type="text"
+                    name="userUuid"
+                    id="booking-details-user-uuid"
+                    defaultValue={user.uuid}
+                    required
+                    as="select"
+                    // @ts-ignore
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          const selectedUser = users.find((u) => u.uuid === e.target.value);
+                          if (selectedUser) {
+                            setFieldValue('email', selectedUser.email);
+                            setFieldValue('fullName', selectedUser.fullName || '');
+                          }
+                          field.onChange(e);
+                        }}
+                      >
+                        {users.map((u) => (
+                          <option value={u.uuid} key={u.uuid}>
+                            {u.email}
+                            {u.fullName ? ` - ${u.fullName}` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  ></Field>
+                </>
+              )}
               <label htmlFor="booking-details-full-name">Full name</label>
               <Field type="text" name="fullName" id="booking-details-full-name" required />
               <label htmlFor="booking-details-email">Email</label>
