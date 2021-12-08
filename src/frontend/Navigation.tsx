@@ -68,6 +68,9 @@ const MainMenu = () => {
             <li>
               <Link to="volunteer/letters">Your assigned letters</Link>
             </li>
+            <li>
+              <Link to="volunteer/booking">Booking</Link>
+            </li>
           </>
         )}
       </ul>

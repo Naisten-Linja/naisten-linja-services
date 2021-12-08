@@ -71,7 +71,7 @@ export async function createBooking({
   try {
     const queryText = `
         INSERT INTO bookings (user_uuid, booking_type_uuid, full_name, email, phone, start_time, end_time)
-        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::date, $7::date)
+        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::timestamp)
         RETURNING *;
     `;
     const queryValues = [userUuid, bookingTypeUuid, fullName, email, phone, start, end];
@@ -91,8 +91,7 @@ export async function getUserBookings(userUuid: string): Promise<Array<Booking> 
   try {
     const queryText = `
       SELECT * from bookings
-      WHERE user_id = $1::text
-      RETURNING *;
+      WHERE user_id = $1::text;
     `;
     const queryValues = [userUuid];
     const result = await db.query<BookingQueryResult>(queryText, queryValues);
@@ -109,17 +108,14 @@ export async function getUserBookings(userUuid: string): Promise<Array<Booking> 
 
 export async function getAllBookings(): Promise<Array<Booking> | null> {
   try {
-    const queryText = `
-      SELECT * from bookings
-      RETURNING *;
-    `;
+    const queryText = 'SELECT * from bookings;';
     const result = await db.query<BookingQueryResult>(queryText, []);
     if (result.rows.length < 1) {
       return null;
     }
     return result.rows.map((r) => queryResultToBooking(r));
   } catch (err) {
-    console.error('Failed to create a new booking');
+    console.error('Failed to query all bookings');
     console.error(err);
     return null;
   }

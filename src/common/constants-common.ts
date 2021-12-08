@@ -154,3 +154,10 @@ export interface ApiBooking {
   start: string;
   end: string;
 }
+
+export interface ApiBookedSlot {
+  bookingTypeUuid: string;
+  start: string;
+  end: string;
+  count: number;
+}

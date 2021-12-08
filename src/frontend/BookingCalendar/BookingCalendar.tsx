@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import moment, { Moment } from 'moment';
-import styled, { css } from 'styled-components';
-import { Formik, Form, Field } from 'formik';
+import styled from 'styled-components';
 import {
   DialogContent as ReachDialogContent,
   DialogOverlay as ReachDialogOverlay,
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookingType, ApiCreateBookingParams, ApiBooking } from '../../common/constants-common';
-import { useAuth } from '../AuthContext';
+import { ApiBookingType, ApiBookedSlot } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import { CalendarColumn } from './CalendarColumn';
+import { BookingForm } from './BookingForm';
+import { HOUR_CELL_HEIGHT, BookingSlotDetails } from './shared-constants';
 
 const DialogOverlay = styled(ReachDialogOverlay)`
   z-index: 99;
@@ -28,7 +29,6 @@ type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
 };
 
-const HOUR_CELL_HEIGHT = 3;
 const currentDate = moment(new Date());
 
 const bookingTypeColors = [
@@ -40,21 +40,46 @@ const bookingTypeColors = [
   'rgba(81, 84, 10, 0.9)',
 ];
 
-type BookingSlotDetails = {
-  bookingTypeName: string;
-  bookingTypeUuid: string;
-  // The start and end time will be stored separately so past booking items are not affected, in case the bookingType is
-  // deleted or modified in the future.
-  // TODO: `start` and `end` time should still be validated to match the bookingType slot specification from the backend
-  // in the unlikely case a volunteer sends a custom request for a random booking time.
-  start: moment.Moment;
-  end: moment.Moment;
-};
-
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   const [startDate, setStartDate] = useState(currentDate.startOf('week'));
   const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>([]);
   const [bookingDetails, setBookingDetails] = useState<BookingSlotDetails | null>(null);
+  const [bookedSlots, setBookedSlots] = useState<Array<ApiBookedSlot>>([]);
+  const { getRequest } = useRequest();
+  const { addNotification } = useNotifications();
+
+  const fetchBookedSlots = useCallback(
+    async (callback: (data: Array<ApiBookedSlot>) => void) => {
+      try {
+        const endDate = startDate.clone().endOf('week');
+        const result = await getRequest<{ data: Array<ApiBookedSlot> }>(
+          `/api/bookings?startDate=${encodeURIComponent(
+            startDate.toString(),
+          )}&endDate=${encodeURIComponent(endDate.toString())}`,
+          { useJwt: true },
+        );
+        callback(result.data.data);
+      } catch (err) {
+        addNotification({ type: 'error', message: 'Unable to fetch booked slots' });
+      }
+    },
+    [startDate, getRequest, addNotification],
+  );
+
+  useEffect(() => {
+    let updateStateAfterFetch = true;
+    const delayedFetch = setTimeout(() => {
+      fetchBookedSlots((bookedSlots) => {
+        if (updateStateAfterFetch) {
+          setBookedSlots(bookedSlots);
+        }
+      });
+    }, 300);
+    return () => {
+      clearTimeout(delayedFetch);
+      updateStateAfterFetch = false;
+    };
+  }, [setBookedSlots, fetchBookedSlots]);
 
   useEffect(() => {
     setSelectedBookingTypes(bookingTypes.map(({ uuid }) => uuid));
@@ -159,12 +184,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                   start: currentDate
                     .clone()
                     .add(parseInt(startHour), 'hours')
-                    .add(parseInt(startMinute), 'minutes'),
+                    .add(parseInt(startMinute), 'minutes')
+                    .startOf('minute'),
                   end: currentDate
                     .clone()
                     .add(parseInt(endHour), 'hours')
                     .add(parseInt(endMinute), 'minutes')
-                    .endOf('minute'),
+                    .startOf('minute'),
                 };
               }),
             );
@@ -175,6 +201,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                 currentDate={currentDate}
                 dailySlots={slotsInCurrentDay}
                 openBookingForm={openBookingForm}
+                bookedSlots={bookedSlots}
               />
             );
           })}
@@ -186,6 +213,11 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
             <BookingForm
               dismissModal={() => {
                 setBookingDetails(null);
+              }}
+              afterSubmit={() => {
+                fetchBookedSlots((bookedSlots) => {
+                  setBookedSlots(bookedSlots);
+                });
               }}
               {...bookingDetails}
             />
@@ -267,242 +299,5 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
         ))}
       </div>
     </div>
-  );
-};
-
-type CalendarColumnProps = {
-  dailySlots: Array<{
-    bookingTypeUuid: string;
-    bookingTypeName: string;
-    bookingTypeColor: string;
-    start: Moment;
-    end: Moment;
-    seats: number;
-  }>;
-  currentDate: Moment;
-  openBookingForm: (details: BookingSlotDetails) => void;
-};
-
-const CalendarColumn: React.FC<CalendarColumnProps> = ({
-  currentDate,
-  dailySlots,
-  openBookingForm,
-}) => {
-  const sortedDailySlots = dailySlots.sort((a, b) => a.start.diff(b.start, 'seconds'));
-  return (
-    <section
-      className="flex flex-1 flex-column position-relative"
-      aria-label={currentDate.format('ddd DD')}
-    >
-      {Array.from(new Array(24).keys()).map((hourOffset) => {
-        return (
-          <div
-            aria-hidden={true}
-            key={hourOffset}
-            className={`
-              border-bottom
-              border-right
-              position-relative
-              ${currentDate.weekday() === 0 ? 'border-left' : ''}
-            `}
-            style={{
-              height: `${HOUR_CELL_HEIGHT}rem`,
-            }}
-          >
-            {currentDate.weekday() === 0 && hourOffset > 0 && (
-              <div
-                className={`
-                  flex
-                  align-items-flex-start
-                  justify-content-center
-                  position-absolute
-                  position-top
-                  position-left
-                  height-100
-                  padding-right-xxs
-                  font-size-s
-                `}
-                id={`hour-marker-${hourOffset}`}
-                style={{ transform: 'translateX(-100%) translateY(-0.75rem)', width: '3rem' }}
-              >
-                {currentDate.clone().add(hourOffset, 'hours').format('HH:mm')}
-              </div>
-            )}
-          </div>
-        );
-      })}
-      {sortedDailySlots
-        .sort((a, b) => a.start.seconds() - b.start.seconds())
-        .map(({ bookingTypeUuid, bookingTypeName, bookingTypeColor, start, end, seats }) => {
-          const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
-          const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
-          const slotsInOverlappingZone = dailySlots.filter(
-            (slot) => slot.start.diff(start, 'minutes') === 0,
-          );
-          const leftOffset =
-            slotsInOverlappingZone.findIndex((slot) => slot.bookingTypeUuid === bookingTypeUuid) *
-            2;
-          return (
-            <SlotButton
-              key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
-              top={top}
-              height={height}
-              leftOffset={leftOffset}
-              backgroundColor={bookingTypeColor}
-              onClick={() => openBookingForm({ bookingTypeName, bookingTypeUuid, start, end })}
-              aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
-                'DD MMM YYYY',
-              )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
-            >
-              {bookingTypeName}
-              <br />
-              {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
-              <br />
-              Seats: {seats}
-            </SlotButton>
-          );
-        })}
-    </section>
-  );
-};
-
-const SlotButton = styled.button<{
-  leftOffset: number;
-  backgroundColor: string;
-  top: string;
-  height: string;
-}>`
-  color: white;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  line-height: 1.2;
-  overflow-wrap: break-word;
-  white-space: normal;
-  word-wrap: break-word;
-  overflow: hidden;
-  padding: 0.5rem;
-  position: absolute;
-  text-align: left;
-  ${({ backgroundColor, leftOffset, top, height }) => css`
-    top: ${top};
-    height: ${height};
-    background-color: ${backgroundColor};
-    left: calc(${leftOffset}rem + 1px);
-    width: calc(100% - ${leftOffset}rem - 3px);
-    &:hover,
-    &:active,
-    &:focus {
-      color: white;
-      z-index: 10;
-      background-color: ${backgroundColor};
-    }
-    &:focus {
-      outline: 0.125rem solid #08c;
-      outline-offset: 0.125rem;
-    }
-  `}
-`;
-
-type BookingFormProps = BookingSlotDetails & {
-  dismissModal: () => void;
-};
-
-const BookingForm: React.FC<BookingFormProps> = ({
-  dismissModal,
-  start,
-  end,
-  bookingTypeUuid,
-  bookingTypeName,
-}) => {
-  const { user } = useAuth();
-  const { postRequest } = useRequest();
-  const { addNotification } = useNotifications();
-
-  const createNewBooking = useCallback(
-    async ({
-      fullName,
-      phone,
-      email,
-      userUuid,
-      bookingTypeUuid,
-      start,
-      end,
-    }: ApiCreateBookingParams) => {
-      try {
-        await postRequest<{ data: ApiBooking }>(
-          '/api/bookings',
-          {
-            fullName,
-            phone,
-            email,
-            userUuid,
-            bookingTypeUuid,
-            start,
-            end,
-          },
-          {
-            useJwt: true,
-          },
-        );
-        console.log('SENDING NOTIFICATIONS AND DISMISSING MODAL');
-        addNotification({ type: 'success', message: 'New booking made' });
-        dismissModal();
-      } catch (err) {
-        console.log(err);
-        addNotification({ type: 'error', message: 'Unable to make new booking' });
-        dismissModal();
-      }
-    },
-    [addNotification, dismissModal, postRequest],
-  );
-
-  if (!user) {
-    return null;
-  }
-  const { fullName, email } = user;
-  const initialFormValues: ApiCreateBookingParams = {
-    bookingTypeUuid,
-    email,
-    fullName: fullName || '',
-    start: start.toString(),
-    end: end.toString(),
-    userUuid: user.uuid,
-    phone: '',
-  };
-
-  return (
-    <>
-      <h2>Reserve a slot</h2>
-      <h3>{bookingTypeName}</h3>
-      <p>
-        <b>Date:</b> {start.format('dddd MMMM YYYY')}
-      </p>
-      <p>
-        <b>Time:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
-      </p>
-
-      <Formik
-        onSubmit={async (values) => {
-          await createNewBooking(values);
-        }}
-        initialValues={initialFormValues}
-      >
-        {() => (
-          <Form>
-            <label htmlFor="booking-details-full-name">Full name</label>
-            <Field type="text" name="fullName" id="booking-details-full-name" required />
-            <label htmlFor="booking-details-email">Email</label>
-            <Field type="text" name="email" id="booking-details-email" required />
-            <label htmlFor="booking-details-phone">Phone</label>
-            <Field type="text" name="phone" id="booking-details-phone" required />
-            <input className="button button-primary" type="submit" value="Book the slot" />
-            <button className="button width-100" type="button" onClick={dismissModal}>
-              Cancel
-            </button>
-          </Form>
-        )}
-      </Formik>
-    </>
   );
 };
