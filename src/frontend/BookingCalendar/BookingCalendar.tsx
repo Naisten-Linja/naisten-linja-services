@@ -53,7 +53,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
       try {
         const endDate = startDate.clone().endOf('week');
         const result = await getRequest<{ data: Array<ApiBookedSlot> }>(
-          `/api/bookings?startDate=${encodeURIComponent(
+          `/api/bookings/calendar?startDate=${encodeURIComponent(
             startDate.toString(),
           )}&endDate=${encodeURIComponent(endDate.toString())}`,
           { useJwt: true },

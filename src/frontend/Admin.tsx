@@ -8,6 +8,8 @@ import { Letters } from './Letters';
 import { Reply } from './Reply';
 import { BookingTypes } from './pages/BookingTypes';
 import { Booking } from './pages/Booking';
+import { MyBookings } from './pages/MyBookings';
+import { AllBookings } from './pages/AllBookings';
 
 export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -21,6 +23,8 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
       <Reply path="letters/:letterUuid" />
       <BookingTypes path="booking-types" />
       <Booking path="booking" />
+      <MyBookings path="my-bookings" />
+      <AllBookings path="all-bookings" />
     </Router>
   );
 };

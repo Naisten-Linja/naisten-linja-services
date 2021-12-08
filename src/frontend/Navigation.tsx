@@ -61,6 +61,12 @@ const MainMenu = () => {
             <li>
               <Link to="admin/booking">Booking</Link>
             </li>
+            <li>
+              <Link to="admin/all-bookings">All bookings</Link>
+            </li>
+            <li>
+              <Link to="admin/my-bookings">My bookings</Link>
+            </li>
           </>
         )}
         {user && user.role === UserRole.volunteer && (
@@ -70,6 +76,9 @@ const MainMenu = () => {
             </li>
             <li>
               <Link to="volunteer/booking">Booking</Link>
+            </li>
+            <li>
+              <Link to="volunteer/my-bookings">My bookings</Link>
             </li>
           </>
         )}
