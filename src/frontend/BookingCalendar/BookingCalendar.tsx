@@ -263,28 +263,31 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
   );
 
   return (
-    <div
-      className="width-100 sticky background-white padding-top-xxs z-index-medium"
-      style={{ top: '2.85rem' }}
-    >
-      <section className="flex width-100 align-items-center margin-bottom-xxs">
-        <div className="button-group">
-          <button
-            className="button"
-            onClick={() => {
-              setStartDate(startDate.clone().subtract(7, 'days'));
-            }}
-            aria-label="Previous week"
-          >{`<`}</button>
-          <button
-            className="button"
-            onClick={() => setStartDate(startDate.clone().add(7, 'days'))}
-            aria-label="Next week"
-          >{`>`}</button>
-        </div>
-        <h2 className="no-margin">
-          <span
-            className={`
+    <div className="width-100 sticky background-white z-index-medium" style={{ top: '2.85rem' }}>
+      <div className="position-relative width-100 padding-top-xxs ">
+        {/* Workaround to hide the hour marker when scrolling down the page */}
+        <div
+          className="position-absolute position-top-left height-100 background-white"
+          style={{ width: '3rem', transform: 'translateX(-100%)' }}
+        />
+        <section className="flex width-100 align-items-center margin-bottom-xxs">
+          <div className="button-group">
+            <button
+              className="button"
+              onClick={() => {
+                setStartDate(startDate.clone().subtract(7, 'days'));
+              }}
+              aria-label="Previous week"
+            >{`<`}</button>
+            <button
+              className="button"
+              onClick={() => setStartDate(startDate.clone().add(7, 'days'))}
+              aria-label="Next week"
+            >{`>`}</button>
+          </div>
+          <h2 className="no-margin">
+            <span
+              className={`
               background-light-200
               border-radius
               font-size-m
@@ -292,21 +295,21 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
               margin-xs
               padding-horizontal-xs
           `}
-          >
-            {`Week ${startDate.format('w')}`}
-          </span>
-          {startDate.year() !== endDate.year()
-            ? `${startDate.format('MMMM YYYY')} - ${endDate.format('MMMM YYYY')}`
-            : startDate.month() !== endDate.month()
-            ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
-            : startDate.format('MMMM YYYY')}
-        </h2>
-      </section>
-      <div className="flex width-100 border-bottom position-top" aria-hidden={true}>
-        {weekDays.map((currentDate) => (
-          <div
-            key={currentDate.format('DD-MM-YYYY')}
-            className={`
+            >
+              {`Week ${startDate.format('w')}`}
+            </span>
+            {startDate.year() !== endDate.year()
+              ? `${startDate.format('MMMM YYYY')} - ${endDate.format('MMMM YYYY')}`
+              : startDate.month() !== endDate.month()
+              ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
+              : startDate.format('MMMM YYYY')}
+          </h2>
+        </section>
+        <div className="flex width-100 border-bottom position-top" aria-hidden={true}>
+          {weekDays.map((currentDate) => (
+            <div
+              key={currentDate.format('DD-MM-YYYY')}
+              className={`
                 flex-1
                 text-align-center
                 padding-vertical-xxs
@@ -317,11 +320,12 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
                     : 'background-white'
                 }
               `}
-          >
-            <span className="font-size-s">{currentDate.format('ddd')}</span> <br />
-            <span className="font-size-xxl">{currentDate.format('DD')}</span>
-          </div>
-        ))}
+            >
+              <span className="font-size-s">{currentDate.format('ddd')}</span> <br />
+              <span className="font-size-xxl">{currentDate.format('DD')}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

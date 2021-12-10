@@ -172,7 +172,7 @@ const SlotButton = styled.button<{
     &:active,
     &:focus {
       color: white;
-      z-index: 10;
+      z-index: 2;
       background-color: ${backgroundColor};
     }
     &:focus {
