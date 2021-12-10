@@ -168,7 +168,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                           name="exceptions"
                           render={(arrayHelpers) =>
                             exceptions.map((exceptionDateString, idx) => (
-                              <li className="flex align-items-center" key={`exception.${idx}`}>
+                              <li
+                                className="display-inline-block margin-right-xxs"
+                                key={`exception.${idx}`}
+                              >
                                 <p className="font-size-xs no-margin padding-right-s">
                                   {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
                                 </p>
