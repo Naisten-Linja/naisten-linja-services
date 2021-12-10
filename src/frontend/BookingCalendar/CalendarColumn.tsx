@@ -113,7 +113,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
               top={top}
               height={height}
               leftOffset={leftOffset}
-              backgroundColor={bookingTypeColor}
+              backgroundColor={end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor}
               width={slotsInOverlappingZone.length > 1 ? '50%' : '100%'}
               onClick={() =>
                 openBookingForm({

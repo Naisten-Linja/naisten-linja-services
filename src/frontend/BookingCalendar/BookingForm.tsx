@@ -150,6 +150,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     <>
       <h2>Reserve a slot</h2>
       <h3>{bookingTypeName}</h3>
+      {isPastSlot && (
+        <p>
+          <b>This slot has ended.</b>
+        </p>
+      )}
       {!!bookingTypeAdditionalInformation && <p>{bookingTypeAdditionalInformation}</p>}
       <p>
         <b>Date:</b> {start.format('dddd Do MMMM YYYY')}
@@ -167,8 +172,6 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           <b>You already booked this slot!</b>
         </p>
       )}
-
-      {isPastSlot && <p>This slot has ended.</p>}
 
       {availableSeats > 0 && !(isReserved && user.role === UserRole.volunteer) && !isPastSlot && (
         <Formik
