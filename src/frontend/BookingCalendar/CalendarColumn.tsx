@@ -157,7 +157,7 @@ const SlotButton = styled.button<{
   line-height: 1.2;
   overflow-wrap: break-word;
   white-space: normal;
-  word-wrap: break-word;
+  word-break: break-all;
   overflow: hidden;
   padding: 0.5rem;
   position: absolute;
