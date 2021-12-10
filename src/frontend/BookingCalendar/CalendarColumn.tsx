@@ -27,7 +27,11 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
   openBookingForm,
   bookedSlots,
 }) => {
-  const sortedDailySlots = dailySlots.sort((a, b) => a.start.diff(b.start, 'seconds'));
+  const sortedDailySlots = dailySlots.sort(
+    (a, b) =>
+      a.start.diff(b.start, 'minutes') ||
+      a.end.diff(a.start, 'minutes') - b.end.diff(b.start, 'minutes'),
+  );
   return (
     <section
       className="flex flex-1 flex-column position-relative"
@@ -70,75 +74,81 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
           </div>
         );
       })}
-      {sortedDailySlots
-        .sort((a, b) => a.start.seconds() - b.start.seconds())
-        .map(
-          ({
-            bookingTypeUuid,
-            bookingTypeName,
-            bookingTypeColor,
-            bookingTypeAdditionalInformation,
-            start,
-            end,
-            seats,
-          }) => {
-            const bookedSlotCount =
-              bookedSlots.find(
-                (slot) =>
-                  slot.bookingTypeUuid === bookingTypeUuid &&
-                  moment(slot.start).isSame(start) &&
-                  moment(slot.end).isSame(end),
-              )?.count || 0;
-            const availableSeats = seats - bookedSlotCount;
+      {sortedDailySlots.map(
+        ({
+          bookingTypeUuid,
+          bookingTypeName,
+          bookingTypeColor,
+          bookingTypeAdditionalInformation,
+          start,
+          end,
+          seats,
+        }) => {
+          const bookedSlotCount =
+            bookedSlots.find(
+              (slot) =>
+                slot.bookingTypeUuid === bookingTypeUuid &&
+                moment(slot.start).isSame(start) &&
+                moment(slot.end).isSame(end),
+            )?.count || 0;
+          const availableSeats = seats - bookedSlotCount;
 
-            const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
-            const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
-            const slotsInOverlappingZone = dailySlots.filter(
-              (slot) => slot.start.diff(start, 'minutes') === 0,
-            );
-            const leftOffset =
-              slotsInOverlappingZone.findIndex((slot) => slot.bookingTypeUuid === bookingTypeUuid) *
-              2;
-            return (
-              <SlotButton
-                key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
-                top={top}
-                height={height}
-                leftOffset={leftOffset}
-                backgroundColor={bookingTypeColor}
-                onClick={() =>
-                  openBookingForm({
-                    bookingTypeName,
-                    bookingTypeUuid,
-                    bookingTypeAdditionalInformation,
-                    start,
-                    end,
-                    seats,
-                    availableSeats,
-                  })
-                }
-                aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
-                  'DD MMM YYYY',
-                )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
-              >
-                {bookingTypeName}
-                <br />
-                {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
-                <br />
-                Seats: {availableSeats}/{seats}
-              </SlotButton>
-            );
-          },
-        )}
+          const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
+          const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
+          // Get overlapping slots
+          // The result also includes the current slot, so there there only actual overlapping if slotsInOverlappingZone.length === 2
+          const slotsInOverlappingZone = sortedDailySlots.filter(
+            (slot) =>
+              (slot.start.isSame(start) && slot.end.isSame(end)) ||
+              start.isBetween(slot.start, slot.end) ||
+              slot.start.isBetween(start, end),
+          );
+          const leftOffset =
+            slotsInOverlappingZone.findIndex((slot) => slot.bookingTypeUuid === bookingTypeUuid) > 0
+              ? '50%'
+              : '0';
+          return (
+            <SlotButton
+              key={`${bookingTypeUuid}-${start.format('HH-mm')}-${end.format('HH-mm')}`}
+              top={top}
+              height={height}
+              leftOffset={leftOffset}
+              backgroundColor={bookingTypeColor}
+              width={slotsInOverlappingZone.length > 1 ? '50%' : '100%'}
+              onClick={() =>
+                openBookingForm({
+                  bookingTypeName,
+                  bookingTypeUuid,
+                  bookingTypeAdditionalInformation,
+                  start,
+                  end,
+                  seats,
+                  availableSeats,
+                })
+              }
+              aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
+                'DD MMM YYYY',
+              )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
+            >
+              {bookingTypeName}
+              <br />
+              {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
+              <br />
+              Seats: {availableSeats}/{seats}
+            </SlotButton>
+          );
+        },
+      )}
     </section>
   );
 };
 
 const SlotButton = styled.button<{
-  leftOffset: number;
+  leftOffset: string;
   backgroundColor: string;
   top: string;
   height: string;
+  width: string;
 }>`
   color: white;
   display: flex;
@@ -152,12 +162,12 @@ const SlotButton = styled.button<{
   padding: 0.5rem;
   position: absolute;
   text-align: left;
-  ${({ backgroundColor, leftOffset, top, height }) => css`
+  ${({ backgroundColor, leftOffset, top, height, width }) => css`
     top: ${top};
     height: ${height};
     background-color: ${backgroundColor};
-    left: calc(${leftOffset}rem + 1px);
-    width: calc(100% - ${leftOffset}rem - 3px);
+    left: ${leftOffset};
+    width: ${width};
     &:hover,
     &:active,
     &:focus {
