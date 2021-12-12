@@ -7,8 +7,7 @@ import { FetchToken } from './FetchToken';
 import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
-import { FrontPage } from './FrontPage';
-import { ReadLetter } from './ReadLetter';
+import { FrontPage } from './pages/FrontPage';
 import { Admin } from './Admin';
 import { Volunteer } from './Volunteer';
 
@@ -45,7 +44,6 @@ export const App = () => {
                 <Admin path="admin/*" />
                 <Volunteer path="volunteer/*" />
                 <FrontPage path="/" />
-                <ReadLetter path="read" />
                 <FetchToken path="login/:nonce" />
               </Router>
             </AppContainer>

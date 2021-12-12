@@ -172,3 +172,12 @@ export interface ApiBookedSlot {
   end: string;
   count: number;
 }
+
+export interface ApiPage {
+  uuid: string;
+  slug: string;
+  title: string;
+  content: string;
+}
+
+export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;

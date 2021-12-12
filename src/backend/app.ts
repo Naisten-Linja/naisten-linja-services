@@ -15,6 +15,7 @@ import onlineLetterRoutes from './onlineLetterRoutes';
 import letterRoutes from './letterRoutes';
 import bookingTypesRoutes from './bookingTypesRoutes';
 import bookingRoutes from './bookingRoutes';
+import pageRoutes from './pageRoutes';
 import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
@@ -141,6 +142,7 @@ export function createApp() {
   app.use('/api/letters', letterRoutes);
   app.use('/api/booking-types', bookingTypesRoutes);
   app.use('/api/bookings', bookingRoutes);
+  app.use('/api/pages', pageRoutes);
 
   // Support for SPA routes when hard refreshing a frontend page.
   app.get('*', (_, res) => {
