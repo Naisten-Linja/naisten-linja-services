@@ -26,7 +26,12 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
       <>
         <ContentPage slug="/" />
         {user.role === UserRole.staff && (
-          <button onClick={() => setIsEditing(true)}>Edit page</button>
+          <button
+            className="button margin-top-xs button-primary"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit page
+          </button>
         )}
       </>
     );
