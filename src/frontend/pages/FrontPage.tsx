@@ -24,10 +24,10 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
   if (!isEditing) {
     return (
       <>
+        <ContentPage slug="/" />
         {user.role === UserRole.staff && (
           <button onClick={() => setIsEditing(true)}>Edit page</button>
         )}
-        <ContentPage slug="/" />
       </>
     );
   }
