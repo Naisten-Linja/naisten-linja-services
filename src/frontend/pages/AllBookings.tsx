@@ -77,7 +77,18 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
         </thead>
         <tbody>
           {bookings.map(
-            ({ uuid, end, start, fullName, phone, email, bookingType, bookingNote, user }) => (
+            ({
+              uuid,
+              end,
+              start,
+              fullName,
+              phone,
+              email,
+              bookingType,
+              bookingNote,
+              user,
+              workingRemotely,
+            }) => (
               <tr key={uuid}>
                 <td>{bookingType.name}</td>
                 <td>{moment(start).format('ddd Do MMM YYYY')}</td>
@@ -90,6 +101,8 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
                   {email}
                   <br />
                   {phone}
+                  <br />
+                  Work location: {workingRemotely ? 'Remote' : 'Office'}
                 </td>
                 <td>
                   <UpdateBookingNoteForm
@@ -105,6 +118,7 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
                       bookingType,
                       bookingNote,
                       user,
+                      workingRemotely,
                     }}
                   />
                 </td>

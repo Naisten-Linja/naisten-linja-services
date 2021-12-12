@@ -1,4 +1,4 @@
-import { ApiBooking } from '../common/constants-common';
+import { ApiBooking, ApiBookingType } from '../common/constants-common';
 
 import * as bookingTypesController from './bookingTypesController';
 import * as bookingsModel from './models/bookings';
@@ -16,17 +16,30 @@ export async function getUserBookings(userUuid: string): Promise<Array<ApiBookin
   }
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
   return bookings
-    .map(({ email, phone, fullName, bookingTypeUuid, start, end, uuid, bookingNote }) => ({
-      uuid,
-      email,
-      phone,
-      fullName,
-      user,
-      bookingNote,
-      start: start.toString(),
-      end: end.toString(),
-      bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
-    }))
+    .map(
+      ({
+        email,
+        phone,
+        fullName,
+        bookingTypeUuid,
+        start,
+        end,
+        uuid,
+        bookingNote,
+        workingRemotely,
+      }) => ({
+        uuid,
+        email,
+        phone,
+        fullName,
+        user,
+        bookingNote,
+        workingRemotely,
+        start: start.toString(),
+        end: end.toString(),
+        bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
+      }),
+    )
     .filter(({ bookingType }) => !!bookingType) as Array<ApiBooking>;
 }
 
@@ -39,12 +52,24 @@ export async function getAllBookings(): Promise<Array<ApiBooking> | null> {
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
   return bookings
     .map(
-      ({ uuid, email, phone, fullName, bookingTypeUuid, bookingNote, userUuid, start, end }) => ({
+      ({
+        uuid,
+        email,
+        phone,
+        fullName,
+        bookingTypeUuid,
+        bookingNote,
+        userUuid,
+        start,
+        end,
+        workingRemotely,
+      }) => ({
         uuid,
         email,
         phone,
         fullName,
         bookingNote,
+        workingRemotely,
         user: users.find(({ uuid }) => uuid === userUuid),
         start: start.toString(),
         end: end.toString(),
@@ -57,31 +82,11 @@ export async function getAllBookings(): Promise<Array<ApiBooking> | null> {
 export async function createBooking(
   params: bookingsModel.CreateBookingParams,
 ): Promise<ApiBooking | null> {
-  const user = await usersModel.getUserByUuid(params.userUuid);
-  if (!user) {
-    console.log(`User ${params.userUuid} not found`);
-    return null;
-  }
   const newBooking = await bookingsModel.createBooking(params);
   if (!newBooking) {
     return null;
   }
-  const { uuid, email, phone, fullName, bookingTypeUuid, start, end, bookingNote } = newBooking;
-  const bookingType = await bookingTypesController.getBookingTypeByUuid(bookingTypeUuid);
-  if (!bookingType) {
-    return null;
-  }
-  return {
-    uuid,
-    email,
-    phone,
-    fullName,
-    user,
-    bookingType,
-    bookingNote,
-    start: start.toString(),
-    end: end.toString(),
-  };
+  return await bookingModelToApiBooking(newBooking);
 }
 
 export async function deleteBooking(uuid: string): Promise<boolean> {
@@ -95,16 +100,24 @@ export async function updateBooking(
   if (updatedBooking === null) {
     return null;
   }
-  const { uuid, email, phone, fullName, bookingTypeUuid, bookingNote, userUuid, start, end } =
-    updatedBooking;
-  const bookingType = await bookingTypesController.getBookingTypeByUuid(bookingTypeUuid);
+  return await bookingModelToApiBooking(updatedBooking);
+}
+
+async function bookingModelToApiBooking(
+  booking: bookingsModel.Booking,
+  user?: usersModel.User | null,
+  bookingType?: ApiBookingType | null,
+): Promise<ApiBooking | null> {
+  user = user ?? (await usersModel.getUserByUuid(booking.userUuid));
+  if (!user) {
+    return null;
+  }
+  bookingType =
+    bookingType ?? (await bookingTypesController.getBookingTypeByUuid(booking.bookingTypeUuid));
   if (!bookingType) {
     return null;
   }
-  const user = await usersModel.getUserByUuid(userUuid);
-  if (user === null) {
-    return null;
-  }
+  const { uuid, email, phone, fullName, bookingNote, start, end, workingRemotely } = booking;
   return {
     uuid,
     email,
@@ -112,6 +125,7 @@ export async function updateBooking(
     fullName,
     bookingType,
     bookingNote,
+    workingRemotely,
     user,
     start: start.toString(),
     end: end.toString(),

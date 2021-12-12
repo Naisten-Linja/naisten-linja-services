@@ -37,7 +37,17 @@ router.post<
     res.status(401).json({ error: 'unauthorized' });
     return;
   }
-  const { email, phone, fullName, bookingTypeUuid, bookingNote, start, end, userUuid } = req.body;
+  const {
+    email,
+    phone,
+    fullName,
+    bookingTypeUuid,
+    bookingNote,
+    start,
+    end,
+    userUuid,
+    workingRemotely,
+  } = req.body;
 
   const newBooking = await createBooking({
     email,
@@ -46,6 +56,7 @@ router.post<
     userUuid,
     bookingTypeUuid,
     bookingNote,
+    workingRemotely,
     start: new Date(start),
     end: new Date(end),
   });

@@ -101,6 +101,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       bookingNote,
       start,
       end,
+      workingRemotely,
     }: ApiCreateBookingParams) => {
       try {
         await postRequest<{ data: ApiBooking }>(
@@ -114,6 +115,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             bookingNote,
             start,
             end,
+            workingRemotely,
           },
           {
             useJwt: true,
@@ -134,7 +136,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     return null;
   }
   const { fullName, email } = user;
-  const initialFormValues: ApiCreateBookingParams = {
+  const initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
+    workingRemotely: 'true' | 'false';
+  } = {
     bookingTypeUuid,
     email,
     fullName: fullName || '',
@@ -143,6 +147,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     userUuid: user.uuid,
     bookingNote: '',
     phone: '',
+    workingRemotely: 'false',
   };
   const isPastSlot = moment().isAfter(end);
 
@@ -176,7 +181,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       {availableSeats > 0 && !(isReserved && user.role === UserRole.volunteer) && !isPastSlot && (
         <Formik
           onSubmit={async (values) => {
-            await createNewBooking(values);
+            await createNewBooking({
+              ...values,
+              workingRemotely: values.workingRemotely === 'true',
+            });
             afterSubmit();
           }}
           initialValues={initialFormValues}
@@ -227,6 +235,19 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               <Field type="text" name="email" id="booking-details-email" required />
               <label htmlFor="booking-details-phone">Phone</label>
               <Field type="text" name="phone" id="booking-details-phone" required />
+              <label id="booking-details-preferred-working-location-label">
+                Preferred working location
+              </label>
+              <div role="group" aria-labelledby="booking-details-preferred-working-location-label">
+                <label>
+                  <Field type="radio" name="workingRemotely" value="false" />
+                  From the office
+                </label>
+                <label>
+                  <Field type="radio" name="workingRemotely" value="true" />
+                  Remotely
+                </label>
+              </div>
               <label htmlFor="booking-details-booking-note">Note</label>
               <Field
                 type="text"

@@ -141,6 +141,7 @@ export interface ApiCreateBookingParams {
   start: string;
   end: string;
   bookingNote: string;
+  workingRemotely: boolean;
 }
 
 export interface ApiBooking {
@@ -151,6 +152,7 @@ export interface ApiBooking {
   user: ApiUserData;
   bookingType: ApiBookingType;
   bookingNote: string;
+  workingRemotely: boolean;
   // These are stored separatedly in order to retain past booking information in cased the bookingType is deleted,
   // or slot timing changed.
   start: string;

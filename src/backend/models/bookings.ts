@@ -1,6 +1,6 @@
 import db from '../db';
 
-interface Booking {
+export interface Booking {
   uuid: string;
   userUuid: string;
   phone: string;
@@ -11,6 +11,7 @@ interface Booking {
   end: Date;
   created: string;
   bookingNote: string;
+  workingRemotely: boolean;
 }
 
 interface BookingQueryResult {
@@ -24,6 +25,7 @@ interface BookingQueryResult {
   start_time: Date;
   end_time: Date;
   created: string;
+  working_remotely: boolean;
 }
 
 function queryResultToBooking(row: BookingQueryResult): Booking {
@@ -38,6 +40,7 @@ function queryResultToBooking(row: BookingQueryResult): Booking {
     created,
     start_time,
     end_time,
+    working_remotely,
   } = row;
   return {
     uuid,
@@ -50,6 +53,7 @@ function queryResultToBooking(row: BookingQueryResult): Booking {
     fullName: full_name,
     bookingTypeUuid: booking_type_uuid,
     bookingNote: booking_note,
+    workingRemotely: working_remotely,
   };
 }
 
@@ -62,6 +66,7 @@ export type CreateBookingParams = {
   bookingNote: string;
   start: Date;
   end: Date;
+  workingRemotely: boolean;
 };
 
 export async function createBooking({
@@ -73,11 +78,12 @@ export async function createBooking({
   start,
   end,
   bookingNote,
+  workingRemotely,
 }: CreateBookingParams): Promise<Booking | null> {
   try {
     const queryText = `
-        INSERT INTO bookings (user_uuid, booking_type_uuid, full_name, email, phone, start_time, end_time, booking_note)
-        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::timestamp, $8::text)
+        INSERT INTO bookings (user_uuid, booking_type_uuid, full_name, email, phone, start_time, end_time, booking_note, working_remotely)
+        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::timestamp, $8::text, $9::boolean)
         RETURNING *;
     `;
     const queryValues = [
@@ -89,6 +95,7 @@ export async function createBooking({
       start,
       end,
       bookingNote,
+      workingRemotely,
     ];
     const result = await db.query<BookingQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {

@@ -59,29 +59,45 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
         </tr>
       </thead>
       <tbody>
-        {bookings.map(({ uuid, bookingType, bookingNote, start, end, fullName, email, phone }) => (
-          <tr key={uuid}>
-            <td>
-              <b>{bookingType.name}</b>
-              <br />
-              {moment(start).format('ddd Do MMM YYYY')}
-              <br />
-              {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-            </td>
-            <td>
-              {fullName}
-              <br />
-              {email}
-              <br />
-              {phone}
-            </td>
-            <td>
-              {!!bookingNote && (
-                <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{bookingNote}</pre>
-              )}
-            </td>
-          </tr>
-        ))}
+        {bookings.map(
+          ({
+            uuid,
+            bookingType,
+            bookingNote,
+            start,
+            end,
+            fullName,
+            email,
+            phone,
+            workingRemotely,
+          }) => (
+            <tr key={uuid}>
+              <td>
+                <b>{bookingType.name}</b>
+                <br />
+                {moment(start).format('ddd Do MMM YYYY')}
+                <br />
+                {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
+              </td>
+              <td>
+                {fullName}
+                <br />
+                {email}
+                <br />
+                {phone}
+                <br />
+                Work location: {workingRemotely ? 'Remote' : 'Office'}
+              </td>
+              <td>
+                {!!bookingNote && (
+                  <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                    {bookingNote}
+                  </pre>
+                )}
+              </td>
+            </tr>
+          ),
+        )}
       </tbody>
     </table>
   );
