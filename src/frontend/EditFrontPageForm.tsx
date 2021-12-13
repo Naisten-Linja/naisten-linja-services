@@ -80,7 +80,7 @@ export const EditFrontPageForm: React.FC<{ afterSubmit: () => void; afterCancel:
       }}
       initialValues={initialFormValue}
     >
-      {({ setValues, setFieldValue, values }) => {
+      {({ setFieldValue, values }) => {
         const hasPendingChanges = title !== values.title.trim() || content !== values.content;
         return (
           <Form>
