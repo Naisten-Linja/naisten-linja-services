@@ -9,13 +9,13 @@ import path from 'path';
 import redis from 'redis';
 import connectRedis, { RedisStore } from 'connect-redis';
 
-import authRoutes from './authRoutes';
-import userRoutes from './userRoutes';
-import onlineLetterRoutes from './onlineLetterRoutes';
-import letterRoutes from './letterRoutes';
-import bookingTypesRoutes from './bookingTypesRoutes';
-import bookingRoutes from './bookingRoutes';
-import pageRoutes from './pageRoutes';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import onlineLetterRoutes from './routes/onlineLetterRoutes';
+import letterRoutes from './routes/letterRoutes';
+import bookingTypesRoutes from './routes/bookingTypesRoutes';
+import bookingRoutes from './routes/bookingRoutes';
+import pageRoutes from './routes/pageRoutes';
 import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 

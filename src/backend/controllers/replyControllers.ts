@@ -1,6 +1,6 @@
-import { createReply, getReply, updateReply } from './models/replies';
-import { getLetterByUuid } from './models/letters';
-import { ApiReplyAdmin, ReplyStatus, ResponderType } from '../common/constants-common';
+import { createReply, getReply, updateReply } from '../models/replies';
+import { getLetterByUuid } from '../models/letters';
+import { ApiReplyAdmin, ReplyStatus, ResponderType } from '../../common/constants-common';
 
 // Check if a letter is assigned a user
 export async function isUserAssignedToLetter(

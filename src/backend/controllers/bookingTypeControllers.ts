@@ -1,6 +1,6 @@
-import * as model from './models/bookingTypes';
+import * as model from '../models/bookingTypes';
 
-import { ApiBookingType } from '../common/constants-common';
+import { ApiBookingType } from '../../common/constants-common';
 
 export async function addBookingType({
   name,

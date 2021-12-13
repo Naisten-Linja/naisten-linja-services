@@ -6,16 +6,16 @@ import {
   getUserBookings,
   deleteBooking,
   updateBooking,
-} from './bookingController';
+} from '../controllers/bookingControllers';
 import {
   UserRole,
   ApiBooking,
   ApiCreateBookingParams,
   ApiUpdateBookingParams,
   ApiBookedSlot,
-} from '../common/constants-common';
+} from '../../common/constants-common';
 
-import { isAuthenticated } from './middlewares';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 

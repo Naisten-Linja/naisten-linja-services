@@ -3,7 +3,7 @@ import {
   ApiSendLetterParams,
   ApiLetterAdmin,
   ReplyStatus,
-} from '../common/constants-common';
+} from '../../common/constants-common';
 import {
   Letter,
   createLetterCredentials,
@@ -13,10 +13,10 @@ import {
   updateLetterAssignee,
   getLetterByUuid,
   getAssignedLetters,
-} from './models/letters';
-import { saltHash } from './utils';
-import { getConfig } from './config';
-import { getReply, Reply } from './models/replies';
+} from '../models/letters';
+import { saltHash } from '../utils';
+import { getConfig } from '../config';
+import { getReply, Reply } from '../models/replies';
 
 export async function initiateLetter(): Promise<ApiLetterCredentials | null> {
   const credentials = await createLetterCredentials();

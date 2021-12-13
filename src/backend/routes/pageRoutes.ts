@@ -1,8 +1,8 @@
 import express from 'express';
 
-import { getPageBySlug, updatePage } from './pageControllers';
-import { ApiPage, ApiUpdatePageParams, UserRole } from '../common/constants-common';
-import { isAuthenticated } from './middlewares';
+import { getPageBySlug, updatePage } from '../controllers/pageControllers';
+import { ApiPage, ApiUpdatePageParams, UserRole } from '../../common/constants-common';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 

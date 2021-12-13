@@ -1,6 +1,6 @@
-import * as pageModel from './models/pages';
+import * as pageModel from '../models/pages';
 
-import { ApiPage } from '../common/constants-common';
+import { ApiPage } from '../../common/constants-common';
 
 export async function getAllPages(): Promise<Array<ApiPage> | null> {
   const pages = await pageModel.getAllPages();

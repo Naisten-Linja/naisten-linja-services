@@ -1,8 +1,8 @@
-import { ApiBooking, ApiBookingType } from '../common/constants-common';
+import { ApiBooking, ApiBookingType } from '../../common/constants-common';
 
-import * as bookingTypesController from './bookingTypesController';
-import * as bookingsModel from './models/bookings';
-import * as usersModel from './models/users';
+import * as bookingTypesController from './bookingTypeControllers';
+import * as bookingsModel from '../models/bookings';
+import * as usersModel from '../models/users';
 
 export async function getUserBookings(userUuid: string): Promise<Array<ApiBooking> | null> {
   const user = await usersModel.getUserByUuid(userUuid);

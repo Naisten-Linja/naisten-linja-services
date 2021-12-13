@@ -5,9 +5,9 @@ import {
   getBookingTypes,
   updateBookingType,
   deleteBookingType,
-} from './bookingTypesController';
-import { UserRole, BookingTypeDailyRules, ApiBookingType } from '../common/constants-common';
-import { isAuthenticated } from './middlewares';
+} from '../controllers/bookingTypeControllers';
+import { UserRole, BookingTypeDailyRules, ApiBookingType } from '../../common/constants-common';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 
