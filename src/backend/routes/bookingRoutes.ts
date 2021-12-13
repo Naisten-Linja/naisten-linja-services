@@ -14,6 +14,7 @@ import {
   ApiUpdateBookingParams,
   ApiBookedSlot,
 } from '../../common/constants-common';
+import { sendBookingConfirmationEmail } from '../email';
 
 import { isAuthenticated } from '../middlewares';
 
@@ -37,6 +38,7 @@ router.post<
     res.status(401).json({ error: 'unauthorized' });
     return;
   }
+
   const {
     email,
     phone,
@@ -65,6 +67,12 @@ router.post<
     res.status(400).json({ error: 'unable to create new booking' });
     return;
   }
+
+  sendBookingConfirmationEmail(newBooking).then((isSent) => {
+    if (!isSent) {
+      console.log(`Unable to send confirmation email for booking ${newBooking.uuid}`);
+    }
+  });
 
   res.status(201).json({ data: newBooking });
 });

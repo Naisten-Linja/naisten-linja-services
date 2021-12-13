@@ -30,6 +30,13 @@ export function getConfig() {
     throw 'Variable FRONTEND_PORT is missing from your environment';
   }
 
+  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_API_KEY) {
+    throw 'Variable SENDGRID_API_KEY is missing from your environment';
+  }
+  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
+    throw 'Variable SENDGRID_FROM_EMAIL_ADRESS is missing from your environment';
+  }
+
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
   // is not able to pick this up automatically. So disabling no-non-null-assertion eslint rule here.
   /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -63,5 +70,8 @@ export function getConfig() {
     dbPort: parseInt(process.env.DB_PORT!, 10),
 
     redisUrl: process.env.REDIS_URL || null,
+
+    sendGridApiKey: process.env.SENDGRID_API_KEY || null,
+    sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
   };
 }
