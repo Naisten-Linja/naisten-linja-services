@@ -14,7 +14,7 @@ import {
   ApiUpdateBookingParams,
   ApiBookedSlot,
 } from '../../common/constants-common';
-import { sendBookingConfirmationEmail } from '../email';
+import { sendBookingConfirmationEmail } from '../controllers/emailControllers';
 
 import { isAuthenticated } from '../middlewares';
 

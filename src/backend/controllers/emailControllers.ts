@@ -1,7 +1,7 @@
 import sgMail from '@sendgrid/mail';
 
-import { ApiBooking } from '../common/constants-common';
-import { getConfig } from './config';
+import { ApiBooking } from '../../common/constants-common';
+import { getConfig } from '../config';
 
 export type SendEmailParams = {
   to: string;
@@ -37,7 +37,6 @@ Time: ${startTime} - ${endTime}
 Email: ${booking.email}
 Phone: ${booking.phone}
 Working location: ${booking.workingRemotely ? 'Remotely' : 'From the office'}
-
 ${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
   `;
   return sendEmail({
@@ -57,7 +56,10 @@ export async function sendEmail(messageData: SendEmailParams): Promise<boolean> 
     try {
       const result = await sgMail.send({
         ...messageData,
-        from: sendGridFromEmailAddress,
+        from: {
+          name: 'Naisten Linja Volunteer Service',
+          email: sendGridFromEmailAddress,
+        },
       });
       if (result[0].statusCode === 202) {
         return true;
