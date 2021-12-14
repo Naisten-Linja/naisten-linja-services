@@ -57,7 +57,7 @@ export async function sendEmail(messageData: SendEmailParams): Promise<boolean> 
       const result = await sgMail.send({
         ...messageData,
         from: {
-          name: 'Naisten Linja Volunteer Service',
+          name: 'Naisten Linja Volunteer Booking',
           email: sendGridFromEmailAddress,
         },
       });
