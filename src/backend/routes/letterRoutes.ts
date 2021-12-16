@@ -1,14 +1,24 @@
 import express from 'express';
 
-import { getAllLetters, getAllAssignedLetters, assignLetter, getLetter } from './letterControllers';
+import {
+  getAllLetters,
+  getAllAssignedLetters,
+  assignLetter,
+  getLetter,
+} from '../controllers/letterControllers';
 import {
   replyToLetter,
   isUserAssignedToLetter,
   getLettersReply,
   updateLettersReply,
-} from './replyController';
-import { ApiLetterAdmin, UserRole, ResponderType, ReplyStatus } from '../common/constants-common';
-import { isAuthenticated } from './middlewares';
+} from '../controllers/replyControllers';
+import {
+  ApiLetterAdmin,
+  UserRole,
+  ResponderType,
+  ReplyStatus,
+} from '../../common/constants-common';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 

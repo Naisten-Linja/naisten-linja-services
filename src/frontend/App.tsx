@@ -1,6 +1,5 @@
 import React from 'react';
 import { Router } from '@reach/router';
-import { Grommet } from 'grommet';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 
 import { NotFound } from './NotFound';
@@ -8,8 +7,7 @@ import { FetchToken } from './FetchToken';
 import { AuthContextWrapper } from './AuthContext';
 import { NotificationsContextWrapper } from './NotificationsContext';
 import { Navigation } from './Navigation';
-import { FrontPage } from './FrontPage';
-import { ReadLetter } from './ReadLetter';
+import { FrontPage } from './pages/FrontPage';
 import { Admin } from './Admin';
 import { Volunteer } from './Volunteer';
 
@@ -37,23 +35,20 @@ export const App = () => {
     <>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
-        <Grommet plain>
-          <AuthContextWrapper>
-            <NotificationsContextWrapper>
-              <Navigation />
-              <AppContainer className="container">
-                <Router>
-                  <NotFound default />
-                  <Admin path="admin/*" />
-                  <Volunteer path="volunteer/*" />
+        <AuthContextWrapper>
+          <NotificationsContextWrapper>
+            <Navigation />
+            <AppContainer className="container">
+              <Router>
+                <NotFound default />
+                <Admin path="admin/*" />
+                <Volunteer path="volunteer/*" />
                 <FrontPage path="/" />
-                  <ReadLetter path="read" />
-                  <FetchToken path="login/:nonce" />
-                </Router>
-              </AppContainer>
-            </NotificationsContextWrapper>
-          </AuthContextWrapper>
-        </Grommet>
+                <FetchToken path="login/:nonce" />
+              </Router>
+            </AppContainer>
+          </NotificationsContextWrapper>
+        </AuthContextWrapper>
       </ThemeProvider>
     </>
   );

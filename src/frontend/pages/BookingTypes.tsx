@@ -43,6 +43,14 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
     }
   }, [fetchBookingTypes, isCreatingNew]);
 
+  const editCallback = useCallback(
+    (bookingType: ApiBookingType) => async () => {
+      await fetchBookingTypes();
+      setEditStates({ ...editStates, [bookingType.uuid]: false });
+    },
+    [fetchBookingTypes, setEditStates, editStates],
+  );
+
   if (isCreatingNew) {
     return (
       <div className="container">
@@ -72,8 +80,8 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
             {isEditing ? (
               <BookingTypeForm
                 bookingType={bookingType}
-                onSubmitCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
-                onCancelCallback={() => setEditStates({ ...editStates, [bookingType.uuid]: false })}
+                onSubmitCallback={editCallback(bookingType)}
+                onCancelCallback={editCallback(bookingType)}
               />
             ) : (
               <table className="table-responsive ">
@@ -116,10 +124,13 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                     <td className="font-weight-semibold font-size-s">
                       <ul className="list-unstyled">
                         {exceptions.map((exceptionDateString, idx) => (
-                          <li className="flex align-items-center" key={`exception.${idx}`}>
+                          <li
+                            className="display-inline-block margin-right-xxs"
+                            key={`exception.${idx}`}
+                          >
                             <div
                               key={`exception-${idx}`}
-                              className="display-inline-block border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+                              className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
                             >
                               {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
                             </div>

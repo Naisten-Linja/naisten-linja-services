@@ -59,7 +59,13 @@ const MainMenu = () => {
               <Link to="admin/booking-types">Booking Types</Link>
             </li>
             <li>
-              <Link to="admin/booking">Booking</Link>
+              <Link to="admin/booking">Booking calendar</Link>
+            </li>
+            <li>
+              <Link to="admin/all-bookings">All bookings</Link>
+            </li>
+            <li>
+              <Link to="admin/my-bookings">My bookings</Link>
             </li>
           </>
         )}
@@ -67,6 +73,12 @@ const MainMenu = () => {
           <>
             <li>
               <Link to="volunteer/letters">Your assigned letters</Link>
+            </li>
+            <li>
+              <Link to="volunteer/booking">Booking calendar</Link>
+            </li>
+            <li>
+              <Link to="volunteer/my-bookings">My bookings</Link>
             </li>
           </>
         )}
@@ -77,7 +89,6 @@ const MainMenu = () => {
 
 const NavigationWrapper = styled.div`
   width: 100%;
-  position: -webkit-sticky; /* Safari */
   position: sticky;
   padding: 0.5rem 0;
   z-index: 10;

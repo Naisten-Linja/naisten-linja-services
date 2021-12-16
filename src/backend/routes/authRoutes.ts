@@ -1,9 +1,14 @@
 import express from 'express';
 
-import { generateRandomString } from './utils';
-import { createSso, validateSsoRequest, createToken, generateUserDataFromSsoRequest } from './auth';
-import { upsertUser } from './models/users';
-import { getConfig } from './config';
+import { generateRandomString } from '../utils';
+import {
+  createSso,
+  validateSsoRequest,
+  createToken,
+  generateUserDataFromSsoRequest,
+} from '../auth';
+import { upsertUser } from '../models/users';
+import { getConfig } from '../config';
 
 const router = express.Router();
 
@@ -99,6 +104,11 @@ router.get('/token/:nonce', (req, res) => {
       token,
     },
   });
+});
+
+router.get('/logout', (_, res) => {
+  const { discourseUrl } = getConfig();
+  res.redirect(discourseUrl);
 });
 
 export default router;

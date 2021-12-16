@@ -132,12 +132,52 @@ export interface ApiBookingTypeParamsAdmin {
   additionalInformation: string | null;
 }
 
-export interface ApiBooking {
-  bookingType: ApiBookingType;
+export interface ApiCreateBookingParams {
   email: string;
-  name: string;
   phone: string;
-  user: ApiUserData;
-  uuid: string;
-  additionalInformation: string | null;
+  fullName: string;
+  bookingTypeUuid: string;
+  userUuid: string;
+  start: string;
+  end: string;
+  bookingNote: string;
+  workingRemotely: boolean;
 }
+
+export interface ApiBooking {
+  uuid: string;
+  email: string;
+  phone: string;
+  fullName: string;
+  user: ApiUserData;
+  bookingType: ApiBookingType;
+  bookingNote: string;
+  workingRemotely: boolean;
+  // These are stored separatedly in order to retain past booking information in cased the bookingType is deleted,
+  // or slot timing changed.
+  start: string;
+  end: string;
+}
+
+export interface ApiUpdateBookingParams {
+  email: string;
+  fullName: string;
+  phone: string;
+  bookingNote: string;
+}
+
+export interface ApiBookedSlot {
+  bookingTypeUuid: string;
+  start: string;
+  end: string;
+  count: number;
+}
+
+export interface ApiPage {
+  uuid: string;
+  slug: string;
+  title: string;
+  content: string;
+}
+
+export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Formik, Form, Field, FieldArray } from 'formik';
 
 import {
   ApiBookingType,
+  // TODO: move ApiBookingTYpeParamsAdmin from constant-common to this be used internally in this file.
+  // Also renaming to BookingTypeFormValue would make more sense
   ApiBookingTypeParamsAdmin,
   weekDays,
   BookingTypeDailyRules,
@@ -26,7 +28,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   onCancelCallback,
 }) => {
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const { postRequest } = useRequest();
+  const { postRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
 
   const initialFormValue: ApiBookingTypeParamsAdmin = bookingType
@@ -61,12 +63,41 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
     }
   };
 
+  const updateBookingType = useCallback(
+    async ({
+      uuid,
+      name,
+      rules,
+      exceptions,
+      additionalInformation,
+    }: ApiBookingTypeParamsAdmin & { uuid: string }) => {
+      if (!uuid) {
+        return;
+      }
+      try {
+        await putRequest(
+          `/api/booking-types/${uuid}`,
+          { name, rules, exceptions, additionalInformation },
+          {
+            useJwt: true,
+          },
+        );
+      } catch (err) {
+        console.log(err);
+        addNotification({ type: 'error', message: 'Unable to update booking type' });
+      }
+    },
+    [addNotification, putRequest],
+  );
+
   return (
     <Formik
       initialValues={initialFormValue}
       onSubmit={async (values) => {
         if (!bookingType) {
           await createNewBookingType(values);
+        } else {
+          await updateBookingType({ uuid: bookingType.uuid, ...values });
         }
         if (onSubmitCallback) {
           onSubmitCallback();
@@ -137,7 +168,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                           name="exceptions"
                           render={(arrayHelpers) =>
                             exceptions.map((exceptionDateString, idx) => (
-                              <li className="flex align-items-center" key={`exception.${idx}`}>
+                              <li
+                                className="display-inline-block margin-right-xxs"
+                                key={`exception.${idx}`}
+                              >
                                 <p className="font-size-xs no-margin padding-right-s">
                                   {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
                                 </p>

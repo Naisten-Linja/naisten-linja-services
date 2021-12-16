@@ -9,11 +9,13 @@ import path from 'path';
 import redis from 'redis';
 import connectRedis, { RedisStore } from 'connect-redis';
 
-import authRoutes from './authRoutes';
-import userRoutes from './userRoutes';
-import onlineLetterRoutes from './onlineLetterRoutes';
-import letterRoutes from './letterRoutes';
-import bookingTypesRoutes from './bookingTypesRoutes';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import onlineLetterRoutes from './routes/onlineLetterRoutes';
+import letterRoutes from './routes/letterRoutes';
+import bookingTypesRoutes from './routes/bookingTypesRoutes';
+import bookingRoutes from './routes/bookingRoutes';
+import pageRoutes from './routes/pageRoutes';
 import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 
@@ -87,6 +89,7 @@ export function createApp() {
       path: [
         '/api/auth',
         '/api/auth/sso',
+        '/api/auth/logout',
         '/api/auth/sso/verify',
         /^\/api\/auth\/token\/.*/,
         '/api/online-letter/start',
@@ -138,6 +141,8 @@ export function createApp() {
   app.use('/api/online-letter', onlineLetterRoutes);
   app.use('/api/letters', letterRoutes);
   app.use('/api/booking-types', bookingTypesRoutes);
+  app.use('/api/bookings', bookingRoutes);
+  app.use('/api/pages', pageRoutes);
 
   // Support for SPA routes when hard refreshing a frontend page.
   app.get('*', (_, res) => {
