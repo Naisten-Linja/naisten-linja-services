@@ -44,7 +44,7 @@ function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
     name: row.name,
     created: row.created,
     rules: row.rules,
-    exceptions: row.exceptions,
+    exceptions: JSON.parse(row.exceptions),
     additionalInformation: row.additional_information || null,
   };
 }
