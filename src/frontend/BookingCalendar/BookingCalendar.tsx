@@ -29,8 +29,8 @@ type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
 };
 
-const currentDate = moment.tz('Europe/Helsinki');
-// const currentDate = moment(new Date());
+// Give current date in Finnish (since default timezone was already set in App.tsx)
+const currentDate = moment.tz();
 
 const bookingTypeColors = [
   'rgba(192, 46, 29, 0.9)',
