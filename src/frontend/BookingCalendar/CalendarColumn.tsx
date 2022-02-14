@@ -1,5 +1,5 @@
 import React from 'react';
-import moment, { Moment } from 'moment';
+import moment, { Moment } from 'moment-timezone';
 import styled, { css } from 'styled-components';
 
 import { ApiBookedSlot } from '../../common/constants-common';

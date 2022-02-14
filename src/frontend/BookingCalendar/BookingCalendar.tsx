@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import moment, { Moment } from 'moment';
+import moment, { Moment } from 'moment-timezone';
 import styled from 'styled-components';
 import {
   DialogContent as ReachDialogContent,
@@ -29,7 +29,8 @@ type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
 };
 
-const currentDate = moment(new Date());
+const currentDate = moment.tz('Europe/Helsinki');
+// const currentDate = moment(new Date());
 
 const bookingTypeColors = [
   'rgba(192, 46, 29, 0.9)',
@@ -305,6 +306,9 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
               : startDate.format('MMMM YYYY')}
           </h2>
         </section>
+        <p>
+          <b>Please note booking times are in Europe/Helsinki timezone</b>
+        </p>
         <div className="flex width-100 border-bottom position-top" aria-hidden={true}>
           {weekDays.map((currentDate) => (
             <div

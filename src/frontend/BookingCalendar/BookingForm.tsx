@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { Formik, Form, Field } from 'formik';
 import '@reach/dialog/styles.css';
 

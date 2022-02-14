@@ -1,6 +1,7 @@
 import React from 'react';
 import { Router } from '@reach/router';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
+import moment from 'moment-timezone';
 
 import { NotFound } from './NotFound';
 import { FetchToken } from './FetchToken';
@@ -13,6 +14,9 @@ import { Volunteer } from './Volunteer';
 
 import 'turretcss/turret/_color.css';
 import './assets/turret.css';
+
+// Set default timezone
+moment.tz.setDefault('Europe/Helsinki');
 
 // Theme placeholder in case there is a need for theme variables.
 // For colors or orther turret-specific variables,

@@ -87,6 +87,7 @@
     "formik": "^2.2.9",
     "http-proxy-middleware": "^1.0.5",
     "moment": "^2.29.1",
+    "moment-timezone": "^0.5.34",
     "nodemon": "^2.0.4",
     "normalize.css": "^8.0.1",
     "patch-package": "^6.4.7",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import { ApiBooking } from '../../common/constants-common';
 import { useRequest } from '../http';
@@ -35,6 +35,9 @@ export const MyBookings: React.FC<RouteComponentProps> = () => {
       {upcomingBookings.length > 0 && (
         <>
           <h1>Upcoming bookings</h1>
+          <p>
+            <b>Please note booking times are in Europe/Helsinki timezone</b>
+          </p>
           <BookingList bookings={upcomingBookings} />
         </>
       )}

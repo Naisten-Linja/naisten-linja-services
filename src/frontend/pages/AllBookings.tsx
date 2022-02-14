@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 import { ApiBooking } from '../../common/constants-common';
 import { useRequest } from '../http';
@@ -63,6 +63,9 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
   return (
     <div className="width-100">
       <h1>Manage bookings</h1>
+      <p>
+        <b>Please note booking times are in Europe/Helsinki timezone</b>
+      </p>
       <table className="table-responsive">
         <thead>
           <tr>
