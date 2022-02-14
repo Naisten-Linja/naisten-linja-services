@@ -33,22 +33,18 @@ export interface BookingTypeQueryResult {
   name: string;
   created: number;
   rules: BookingTypeDailyRules;
-  exceptions: Record<string, never> | Array<string>;
+  exceptions: Array<string>;
   additional_information?: string | null;
 }
 
 function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
-  const exceptions =
-    !row.exceptions || Object.keys(row.exceptions).length < 1
-      ? []
-      : (row.exceptions as Array<string>);
   return {
     id: row.id,
     uuid: row.uuid,
     name: row.name,
     created: row.created,
     rules: row.rules,
-    exceptions,
+    exceptions: row.exceptions,
     additionalInformation: row.additional_information || null,
   };
 }
@@ -62,7 +58,7 @@ export async function createBookingType({
   try {
     const queryText = `
         INSERT INTO booking_types (name, rules, exceptions, additional_information)
-        VALUES ($1::text, $2::jsonb[], $3::json, $4::text)
+        VALUES ($1::text, $2::jsonb[], $3::text[], $4::text)
         RETURNING *;
     `;
     const queryValues = [name, rules, exceptions, additionalInformation];
@@ -122,7 +118,13 @@ export async function updateBookingType({
         WHERE uuid = $5::text
         RETURNING *;
     `;
-    const queryValues = [name, rules, JSON.stringify(exceptions), additionalInformation, uuid];
+    const queryValues = [
+      name,
+      rules,
+      JSON.parse(JSON.stringify(exceptions)),
+      additionalInformation,
+      uuid,
+    ];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
