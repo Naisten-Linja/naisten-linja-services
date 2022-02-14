@@ -29,6 +29,8 @@ You have reserved a volunteer time for "${
     booking.bookingType.name
   }" on ${startDay}, from ${startTime} to ${endTime}.
 
+PLEASE NOTE: the booking time is in Europe/Helsinki timezone.
+
 Here is a summary if your booking details:
 
 Booking: ${booking.bookingType.name}
