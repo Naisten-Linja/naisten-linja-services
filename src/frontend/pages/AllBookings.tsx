@@ -91,51 +91,62 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
               bookingNote,
               user,
               workingRemotely,
-            }) => (
-              <tr key={uuid}>
-                <td>{bookingType.name}</td>
-                <td>{moment(start).format('ddd Do MMM YYYY')}</td>
-                <td>
-                  {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-                </td>
-                <td>
-                  {fullName}
-                  <br />
-                  {email}
-                  <br />
-                  {phone}
-                  <br />
-                  Work location: {workingRemotely ? 'Remote' : 'Office'}
-                </td>
-                <td>
-                  <UpdateBookingNoteForm
-                    fetchBookings={fetchBookings}
-                    setBookings={setBookings}
-                    booking={{
-                      uuid,
-                      end,
-                      start,
-                      fullName,
-                      phone,
-                      email,
-                      bookingType,
-                      bookingNote,
-                      user,
-                      workingRemotely,
-                    }}
-                  />
-                </td>
-                <td>{user.email}</td>
-                <td>
-                  <button
-                    className="button button-xxs button-border button-error"
-                    onClick={handleDeleteBooking(uuid)}
-                  >
-                    Delete
-                  </button>{' '}
-                </td>
-              </tr>
-            ),
+            }) => {
+              console.log(
+                moment(start).format('HH:mm'),
+                '===',
+                start,
+                ' | ',
+                moment(end).format('HH:mm'),
+                '===',
+                end,
+              );
+              return (
+                <tr key={uuid}>
+                  <td>{bookingType.name}</td>
+                  <td>{moment(start).format('ddd Do MMM YYYY')}</td>
+                  <td>
+                    {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
+                  </td>
+                  <td>
+                    {fullName}
+                    <br />
+                    {email}
+                    <br />
+                    {phone}
+                    <br />
+                    Work location: {workingRemotely ? 'Remote' : 'Office'}
+                  </td>
+                  <td>
+                    <UpdateBookingNoteForm
+                      fetchBookings={fetchBookings}
+                      setBookings={setBookings}
+                      booking={{
+                        uuid,
+                        end,
+                        start,
+                        fullName,
+                        phone,
+                        email,
+                        bookingType,
+                        bookingNote,
+                        user,
+                        workingRemotely,
+                      }}
+                    />
+                  </td>
+                  <td>{user.email}</td>
+                  <td>
+                    <button
+                      className="button button-xxs button-border button-error"
+                      onClick={handleDeleteBooking(uuid)}
+                    >
+                      Delete
+                    </button>{' '}
+                  </td>
+                </tr>
+              );
+            },
           )}
         </tbody>
       </table>

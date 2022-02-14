@@ -40,8 +40,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   const isReserved = !!ownBookings.find(
     ({ bookingType, ...booking }) =>
       bookingType.uuid === bookingTypeUuid &&
-      moment(booking.start).isSame(moment(start)) &&
-      moment(booking.end).isSame(moment(end)),
+      moment(booking.start).isSame(start) &&
+      moment(booking.end).isSame(end),
   );
 
   // These variables are only relevant if the user is a staff member
