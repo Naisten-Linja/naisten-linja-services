@@ -114,17 +114,11 @@ export async function updateBookingType({
   try {
     const queryText = `
         UPDATE booking_types
-        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::json, additional_information = $4::text
+        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::text[], additional_information = $4::text
         WHERE uuid = $5::text
         RETURNING *;
     `;
-    const queryValues = [
-      name,
-      rules,
-      JSON.parse(JSON.stringify(exceptions)),
-      additionalInformation,
-      uuid,
-    ];
+    const queryValues = [name, rules, exceptions, additionalInformation, uuid];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
