@@ -9,18 +9,27 @@ export type SendEmailParams = {
   text: string;
 };
 
+const dateLocale = 'en-GB';
+const timeZone = 'Europe/Helsinki';
+
 export function sendBookingConfirmationEmail(booking: ApiBooking) {
   const startDate = new Date(booking.start);
-  const startDay = startDate.toLocaleString('en-GB', {
+  const startDay = startDate.toLocaleString(dateLocale, {
     weekday: 'long',
     month: 'long',
     day: '2-digit',
     year: 'numeric',
+    timeZone,
   });
-  const startTime = startDate.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  const endTime = new Date(booking.end).toLocaleString('en-GB', {
+  const startTime = startDate.toLocaleString(dateLocale, {
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
+  });
+  const endTime = new Date(booking.end).toLocaleString(dateLocale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone,
   });
   const text = `
 Thank you, ${booking.fullName}!
