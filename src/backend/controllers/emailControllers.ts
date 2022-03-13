@@ -2,26 +2,31 @@ import sgMail from '@sendgrid/mail';
 
 import { ApiBooking } from '../../common/constants-common';
 import { getConfig } from '../config';
+import { getUsers } from '../models/users';
 
 export type SendEmailParams = {
-  to: string;
+  to: string | Array<string>;
   subject: string;
   text: string;
+  from: {
+    name: string;
+    email: string;
+  };
 };
 
 const dateLocale = 'en-GB';
 const timeZone = 'Europe/Helsinki';
 
-export function sendBookingConfirmationEmail(booking: ApiBooking) {
-  const startDate = new Date(booking.start);
-  const startDay = startDate.toLocaleString(dateLocale, {
+function getBookingTimeComponents(booking: ApiBooking) {
+  const date = new Date(booking.start);
+  const startDay = date.toLocaleString(dateLocale, {
     weekday: 'long',
     month: 'long',
     day: '2-digit',
     year: 'numeric',
     timeZone,
   });
-  const startTime = startDate.toLocaleString(dateLocale, {
+  const startTime = date.toLocaleString(dateLocale, {
     hour: '2-digit',
     minute: '2-digit',
     timeZone,
@@ -31,6 +36,20 @@ export function sendBookingConfirmationEmail(booking: ApiBooking) {
     minute: '2-digit',
     timeZone,
   });
+  return {
+    startDay,
+    startTime,
+    endTime,
+  };
+}
+
+export async function sendBookingConfirmationEmail(booking: ApiBooking) {
+  const { sendGridFromEmailAddress } = getConfig();
+  if (!sendGridFromEmailAddress) {
+    console.log('No From email adress was set');
+    return;
+  }
+  const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
   const text = `
 Thank you, ${booking.fullName}!
 
@@ -53,25 +72,58 @@ ${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
   return sendEmail({
     to: booking.email,
     subject: `Volunteer reservation for ${booking.bookingType.name} on ${startDay}`,
+    from: {
+      name: 'Naisten Linja Booking Notifcation',
+      email: sendGridFromEmailAddress,
+    },
+    text,
+  });
+}
+
+export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
+  const { sendGridFromEmailAddress } = getConfig();
+  if (!sendGridFromEmailAddress) {
+    console.log('No From email adress was set');
+    return;
+  }
+
+  const users = await getUsers();
+  if (!users) {
+    return;
+  }
+  const staffEmails = users.filter(({ role }) => role === 'staff').map(({ email }) => email);
+  const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
+  const text = `
+A new booking was made by user ${booking.fullName} (${booking.user.email}) with the follow details:
+
+Booking: ${booking.bookingType.name}
+Date: ${startDay}
+Time: ${startTime} - ${endTime}
+Email: ${booking.email}
+Phone: ${booking.phone}
+Working location: ${booking.workingRemotely ? 'Remotely' : 'From the office'}
+${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
+  `;
+
+  return sendEmail({
+    to: staffEmails,
+    subject: `New reservation made for slot ${startTime} - ${endTime} on ${startDay} for ${booking.bookingType.name}`,
+    from: {
+      name: 'Naisten Linja Booking Notifcation',
+      email: sendGridFromEmailAddress,
+    },
     text,
   });
 }
 
 export async function sendEmail(messageData: SendEmailParams): Promise<boolean> {
-  const { sendGridApiKey, sendGridFromEmailAddress } = getConfig();
-  if (!sendGridApiKey || !sendGridFromEmailAddress) {
-    console.log('sendEmail function called');
-    // console.log(messageData);
+  const { sendGridApiKey } = getConfig();
+  if (!sendGridApiKey) {
+    console.log('No SendGridApi key was provided');
   } else {
     sgMail.setApiKey(sendGridApiKey);
     try {
-      const result = await sgMail.send({
-        ...messageData,
-        from: {
-          name: 'Naisten Linja Volunteer Booking',
-          email: sendGridFromEmailAddress,
-        },
-      });
+      const result = await sgMail.send(messageData);
       if (result[0].statusCode === 202) {
         return true;
       }
