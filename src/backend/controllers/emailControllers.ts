@@ -112,7 +112,7 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
 
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
   const text = `
-A new booking was made by user ${booking.fullName} (${booking.user.email}) with the follow details:
+A new booking was made for user ${booking.fullName} (${booking.user.email}) with the follow details:
 
 Booking: ${booking.bookingType.name}
 Date: ${startDay}
@@ -127,7 +127,7 @@ ${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
     to: staffEmails,
     subject: `New reservation made for slot ${startTime} - ${endTime} on ${startDay} for ${booking.bookingType.name}`,
     from: {
-      name: 'Naisten Linja Booking Notifcation',
+      name: 'New Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
     text,
