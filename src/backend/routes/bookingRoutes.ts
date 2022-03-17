@@ -78,19 +78,11 @@ router.post<
     }
   });
 
-  // Initializing a new Date object, so setHours() does not mutate newBooking.start
-  const bookingDay = new Date(newBooking.start);
-  // Always use the beginning of the day for comparison.
-  bookingDay.setHours(0, 0, 0, 0);
-  const bookingDaysInAdvance = (bookingDay.getTime() - new Date().getTime()) / (1000 * 3600 * 24);
-  // Send notification to staff if a booking is made 14 days or less in advance
-  if (bookingDaysInAdvance <= 14) {
-    sendNewBookingNotificationToStaffs(newBooking).then((isSent) => {
-      if (!isSent) {
-        console.log(`Unable to send new booking notification for booking ${newBooking.uuid}`);
-      }
-    });
-  }
+  sendNewBookingNotificationToStaffs(newBooking).then((isSent) => {
+    if (!isSent) {
+      console.log(`Unable to send new booking notification for booking ${newBooking.uuid}`);
+    }
+  });
 
   if (newBooking.start) {
     res.status(201).json({ data: newBooking });

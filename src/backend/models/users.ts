@@ -9,6 +9,7 @@ export interface User {
   fullName: string | null;
   email: string;
   discourseUserId: number;
+  newBookingNotificationDaysThreshold: number | null;
 }
 
 export interface UserQueryResult {
@@ -19,6 +20,7 @@ export interface UserQueryResult {
   full_name?: string;
   email: string;
   discourse_user_id: number;
+  new_booking_notification_days_threshold: number | null;
 }
 
 export type UpsertUserParams = {
@@ -36,6 +38,7 @@ function queryResultToUser(row: UserQueryResult): User {
     fullName: row.full_name || null,
     email: row.email,
     discourseUserId: row.discourse_user_id,
+    newBookingNotificationDaysThreshold: row.new_booking_notification_days_threshold,
   };
 }
 

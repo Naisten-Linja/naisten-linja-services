@@ -91,7 +91,25 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
   if (!users) {
     return;
   }
-  const staffEmails = users.filter(({ role }) => role === 'staff').map(({ email }) => email);
+  const slotDay = new Date(booking.start);
+  const today = new Date();
+
+  // Always use the beginning of the day slot for comparison.
+  slotDay.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const bookingDaysInAdvance = (slotDay.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+  // Get a list of staff emails that has new booking notification settings set, and the amount of
+  // booking days in advanced is within the staf user's range setting
+  const staffEmails = users
+    .filter(
+      ({ role, newBookingNotificationDaysThreshold }) =>
+        role === 'staff' &&
+        newBookingNotificationDaysThreshold &&
+        newBookingNotificationDaysThreshold >= bookingDaysInAdvance,
+    )
+    .map(({ email }) => email);
+
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
   const text = `
 A new booking was made by user ${booking.fullName} (${booking.user.email}) with the follow details:
