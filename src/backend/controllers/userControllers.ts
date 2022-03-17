@@ -1,8 +1,8 @@
-import { ApiUserData } from '../../common/constants-common';
-import { User, getUsers, getUserByUuid, updateUserRole } from '../models/users';
+import { ApiUserData, ApiUpdateUserSettingsParams } from '../../common/constants-common';
+import * as userModel from '../models/users';
 
 export async function getApiUsers(): Promise<Array<ApiUserData>> {
-  const dbUsers = await getUsers();
+  const dbUsers = await userModel.getUsers();
   if (!dbUsers) {
     return [];
   }
@@ -22,16 +22,29 @@ export async function updateApiUserRole({
   uuid,
   role,
 }: {
-  uuid: User['uuid'];
-  role: User['role'];
-}): Promise<User | null> {
-  const user = await getUserByUuid(uuid);
+  uuid: userModel.User['uuid'];
+  role: userModel.User['role'];
+}): Promise<userModel.User | null> {
+  const user = await userModel.getUserByUuid(uuid);
   if (!user) {
     return null;
   }
-  const result = await updateUserRole({ uuid, role });
+  const result = await userModel.updateUserRole({ uuid, role });
   if (result) {
     return result;
   }
   return null;
+}
+
+export async function updateUserSettings({
+  uuid,
+  newBookingNotificationDaysThreshold,
+}: ApiUpdateUserSettingsParams & {
+  uuid: string;
+}): Promise<userModel.User | null> {
+  const result = await userModel.updateUserSettings({ uuid, newBookingNotificationDaysThreshold });
+  if (!result) {
+    return null;
+  }
+  return result;
 }

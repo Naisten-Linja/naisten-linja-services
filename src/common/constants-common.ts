@@ -181,4 +181,8 @@ export interface ApiPage {
   content: string;
 }
 
+export interface ApiUpdateUserSettingsParams {
+  newBookingNotificationDaysThreshold: number | null;
+}
+
 export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;

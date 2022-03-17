@@ -1,5 +1,5 @@
 import db from '../db';
-import { UserRole } from '../../common/constants-common';
+import { UserRole, ApiUpdateUserSettingsParams } from '../../common/constants-common';
 
 export interface User {
   id: number;
@@ -121,6 +121,32 @@ export async function updateUserRole({
     return queryResultToUser(result.rows[0]);
   } catch (err) {
     console.error(`User ${uuid} not found`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateUserSettings({
+  uuid,
+  newBookingNotificationDaysThreshold = null,
+}: ApiUpdateUserSettingsParams & {
+  uuid: string;
+}): Promise<User | null> {
+  try {
+    const queryText = `
+      UPDATE users
+      SET new_booking_notification_days_threshold = $2::int
+      WHERE uuid = $1::text
+      RETURNING *;
+    `;
+    const queryValues = [uuid, newBookingNotificationDaysThreshold];
+    const result = await db.query<UserQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToUser(result.rows[0]);
+  } catch (err) {
+    console.error(`Unable to update settings of user ${uuid}`);
     console.error(err);
     return null;
   }
