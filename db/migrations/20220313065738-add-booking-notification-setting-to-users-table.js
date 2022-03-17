@@ -21,7 +21,6 @@ exports.up = function (db, callback) {
       db.addColumn.bind(db, 'users', 'new_booking_notification_days_threshold', {
         type: 'int',
         notNull: false,
-        defaultValue: null,
       }),
     ],
     callback,
