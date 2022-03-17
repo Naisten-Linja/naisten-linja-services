@@ -19,6 +19,7 @@ export interface ApiUserData {
   role: UserRole;
   fullName: string | null;
   created: string;
+  newBookingNotificationDaysThreshold?: number | null;
 }
 
 export enum LetterStatus {
@@ -178,6 +179,10 @@ export interface ApiPage {
   slug: string;
   title: string;
   content: string;
+}
+
+export interface ApiUpdateUserSettingsParams {
+  newBookingNotificationDaysThreshold: number | null;
 }
 
 export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;

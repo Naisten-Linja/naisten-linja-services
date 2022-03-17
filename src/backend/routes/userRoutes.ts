@@ -2,43 +2,40 @@ import express from 'express';
 
 import { getApiUsers, updateApiUserRole } from '../controllers/userControllers';
 import { UserRole } from '../../common/constants-common';
+import { ApiUserData } from '../../common/constants-common';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  // Only allow admin to see users list
-  // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
-    res.status(403).json({ error: 'unauthorized' });
-    return;
-  }
-  const users = await getApiUsers();
-  res.status(200).json({ data: users });
-});
+router.get<Record<string, never>, { data: Array<ApiUserData> }>(
+  '/',
+  isAuthenticated([UserRole.staff]),
+  async (_, res) => {
+    const users = await getApiUsers();
+    res.status(200).json({ data: users });
+  },
+);
 
-router.put('/:uuid/role', async (req, res) => {
-  // Only allow staff to edit user's role
-  // @ts-ignore
-  if (req.user.role !== UserRole.staff) {
-    res.status(403).json({ error: 'unauthorized' });
-    return;
-  }
+router.put<{ uuid: string }, { data: ApiUserData } | { error: string }, { role: UserRole }>(
+  '/:uuid/role',
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    // Verify if role in request body is valid
+    if (!req.body.role || Object.values(UserRole).indexOf(req.body.role) < 0) {
+      res
+        .status(400)
+        .json({ error: `invalid role. allowed roles are ${Object.values(UserRole).join(', ')}` });
+      return;
+    }
 
-  // Verify if role in request body is valid
-  if (!req.body.role || Object.values(UserRole).indexOf(req.body.role) < 0) {
-    res
-      .status(400)
-      .json({ error: `invalid role. allowed roles are ${Object.values(UserRole).join(', ')}` });
-    return;
-  }
-
-  // Update the user's role with uuid specifed in route
-  const updatedUser = await updateApiUserRole({ uuid: req.params.uuid, role: req.body.role });
-  if (!updatedUser) {
-    res.status(400).json({ error: `unable to update user` });
-    return;
-  }
-  res.status(201).json({ data: updatedUser });
-});
+    // Update the user's role with uuid specifed in route
+    const updatedUser = await updateApiUserRole({ uuid: req.params.uuid, role: req.body.role });
+    if (!updatedUser) {
+      res.status(400).json({ error: `unable to update user` });
+      return;
+    }
+    res.status(201).json({ data: updatedUser });
+  },
+);
 
 export default router;

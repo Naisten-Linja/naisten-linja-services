@@ -14,7 +14,10 @@ import {
   ApiUpdateBookingParams,
   ApiBookedSlot,
 } from '../../common/constants-common';
-import { sendBookingConfirmationEmail } from '../controllers/emailControllers';
+import {
+  sendBookingConfirmationEmail,
+  sendNewBookingNotificationToStaffs,
+} from '../controllers/emailControllers';
 
 import { isAuthenticated } from '../middlewares';
 
@@ -68,13 +71,22 @@ router.post<
     return;
   }
 
+  // Not using await here in order to send email asyncronously without blocking the response
   sendBookingConfirmationEmail(newBooking).then((isSent) => {
     if (!isSent) {
       console.log(`Unable to send confirmation email for booking ${newBooking.uuid}`);
     }
   });
 
-  res.status(201).json({ data: newBooking });
+  sendNewBookingNotificationToStaffs(newBooking).then((isSent) => {
+    if (!isSent) {
+      console.log(`Unable to send new booking notification for booking ${newBooking.uuid}`);
+    }
+  });
+
+  if (newBooking.start) {
+    res.status(201).json({ data: newBooking });
+  }
 });
 
 router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(

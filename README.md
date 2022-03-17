@@ -3,7 +3,7 @@
 This is the code for Naisten Linja's services including:
 
 - [x] User authentication via Discourse SSO
-- [ ] Volunteer bookings management
+- [x] Volunteer bookings management
 - [x] Online letter API
 - [x] Admin interface for staff and volunteer to answer to online letters
 

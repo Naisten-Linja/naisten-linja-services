@@ -92,15 +92,6 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
               user,
               workingRemotely,
             }) => {
-              console.log(
-                moment(start).format('HH:mm'),
-                '===',
-                start,
-                ' | ',
-                moment(end).format('HH:mm'),
-                '===',
-                end,
-              );
               return (
                 <tr key={uuid}>
                   <td>{bookingType.name}</td>
