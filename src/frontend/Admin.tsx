@@ -10,6 +10,7 @@ import { BookingTypes } from './pages/BookingTypes';
 import { Booking } from './pages/Booking';
 import { MyBookings } from './pages/MyBookings';
 import { AllBookings } from './pages/AllBookings';
+import { ProfileSettings } from './pages/ProfileSettings';
 
 export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -25,6 +26,7 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
       <Booking path="booking" />
       <MyBookings path="my-bookings" />
       <AllBookings path="all-bookings" />
+      <ProfileSettings path="settings" />
     </Router>
   );
 };

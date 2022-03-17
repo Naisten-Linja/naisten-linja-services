@@ -11,6 +11,7 @@ import connectRedis, { RedisStore } from 'connect-redis';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import profileRoutes from './routes/profileRoutes';
 import onlineLetterRoutes from './routes/onlineLetterRoutes';
 import letterRoutes from './routes/letterRoutes';
 import bookingTypesRoutes from './routes/bookingTypesRoutes';
@@ -137,6 +138,7 @@ export function createApp() {
   );
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/profile', profileRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/online-letter', onlineLetterRoutes);
   app.use('/api/letters', letterRoutes);
