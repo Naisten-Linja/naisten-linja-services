@@ -6,6 +6,9 @@ import {
   validateSsoRequest,
   createToken,
   generateUserDataFromSsoRequest,
+  logUserOutOfDiscourse,
+  getJwtr,
+  TokenData,
 } from '../auth';
 import { upsertUser } from '../models/users';
 import { getConfig } from '../config';
@@ -106,9 +109,28 @@ router.get('/token/:nonce', (req, res) => {
   });
 });
 
-router.get('/logout', (_, res) => {
-  const { discourseUrl } = getConfig();
-  res.redirect(discourseUrl);
+router.post('/logout', async (req, res) => {
+  try {
+    const { user } = req;
+    if (user) {
+      const token: string = ((req.headers['Authorization'] || '') as string).replace('Bearer ', '');
+      const jwtr = getJwtr();
+      const tokenData = jwtr.decode<TokenData>(token);
+      if (tokenData) {
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        jwtr.destroy(tokenData.jti!);
+      }
+      const success = await logUserOutOfDiscourse(user.uuid);
+      res.status(200).json({
+        data: { success },
+      });
+      return;
+    }
+    res.status(401).json({ data: { success: false } });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ data: { success: false } });
+  }
 });
 
 export default router;

@@ -20,10 +20,13 @@ export function getConfig() {
     'DB_PORT',
     'DISCOURSE_URL',
     'DISCOURSE_SSO_SECRET',
+    'DISCOURSE_API_KEY',
+    'DISCOURSE_API_USER',
     'COOKIE_SECRET',
     'JWT_SECRET',
     'LETTER_ACCESS_KEY_SALT',
     'LETTER_AES_KEY',
+    'REDIS_URL',
   ]);
 
   if (process.env.ENVIRONMENT !== 'production' && !process.env.FRONTEND_PORT) {
@@ -57,6 +60,8 @@ export function getConfig() {
 
     discourseUrl: process.env.DISCOURSE_URL!,
     discourseSsoSecret: process.env.DISCOURSE_SSO_SECRET!,
+    discourseApiKey: process.env.DISCOURSE_API_KEY!,
+    discourseApiUser: process.env.DISCOURSE_API_USER!,
     cookieSecret: process.env.COOKIE_SECRET!,
 
     jwtSecret: process.env.JWT_SECRET!,
@@ -69,7 +74,7 @@ export function getConfig() {
     dbHost: process.env.DB_HOST!,
     dbPort: parseInt(process.env.DB_PORT!, 10),
 
-    redisUrl: process.env.REDIS_URL || null,
+    redisUrl: process.env.REDIS_URL!,
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,

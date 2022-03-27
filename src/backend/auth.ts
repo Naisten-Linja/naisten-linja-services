@@ -1,9 +1,12 @@
 import { Request } from 'express';
-import jwt from 'jsonwebtoken';
+import redis from 'redis';
+import JWTR from 'jwt-redis';
+// @ts-ignore
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 import { getConfig } from './config';
 import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
-import { UpsertUserParams } from './models/users';
+import { UpsertUserParams, getUserByUuid } from './models/users';
 
 export interface DiscourseSsoData {
   admin?: string;
@@ -99,22 +102,32 @@ export function validateSsoRequest(req: Request) {
   return isValidSignature && isValidNonce;
 }
 
-type TokenData = {
+export type TokenData = {
   uuid: string;
   email: string;
   fullName: string | null;
   role: string;
+  jti?: string;
 };
+
+let jwtr: JWTR | null = null;
+
+export function getJwtr() {
+  if (!jwtr) {
+    const { redisUrl } = getConfig();
+    const redisClient = redis.createClient({ url: redisUrl });
+    jwtr = new JWTR(redisClient);
+  }
+  return jwtr;
+}
 
 // Create a JWT token
 export async function createToken(data: TokenData): Promise<string | null> {
   try {
     const { jwtSecret } = getConfig();
-    // token will expire in 7 days
-    // TODO: would be better to have short-lived token and a long-live
-    // refresh token that is used to refresh token when the long-lived
-    // one exprired.
-    const token = await jwt.sign(data, jwtSecret, { expiresIn: '7d' });
+    const jwtr = getJwtr();
+    // token will expire in 1 day
+    const token = await jwtr.sign(data, jwtSecret, { expiresIn: '1 day' });
     return token;
   } catch (err) {
     console.error('Failed to create token');
@@ -139,4 +152,32 @@ export function generateUserDataFromSsoRequest(req: Request): UpsertUserParams |
     };
   }
   return null;
+}
+
+export async function logUserOutOfDiscourse(uuid: string): Promise<boolean> {
+  try {
+    const { discourseApiKey, discourseApiUser } = getConfig();
+    const u = await getUserByUuid(uuid);
+    if (!u) {
+      return false;
+    }
+    const { discourseUrl } = getConfig();
+    const response = await fetch(`${discourseUrl}/admin/users/${u.discourseUserId}/log_out.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': discourseApiKey,
+        'Api-Username': discourseApiUser,
+      },
+    });
+    const status = response.status;
+    if (status !== 200) {
+      console.log('unable to log user out of Discourse. Request status code: ', status);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.log('unable to log user out of Discourse: ', error);
+    return false;
+  }
 }

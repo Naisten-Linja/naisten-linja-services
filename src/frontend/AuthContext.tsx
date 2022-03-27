@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 
+import axios from 'axios';
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 
@@ -47,31 +48,57 @@ function getUserDataFromToken(token: string | null): TokenUserData | null {
 
 export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   const [user, setUser] = useState<TokenUserData | null>(
-    getUserDataFromToken(localStorage.getItem('token')),
+    getUserDataFromToken(sessionStorage.getItem('token')),
   );
-  const [token, setStateToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setStateToken] = useState<string | null>(sessionStorage.getItem('token'));
   const { addNotification } = useNotifications();
 
   const setToken = useCallback((t: string | null) => {
     if (!t) {
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     } else {
-      localStorage.setItem('token', t);
+      sessionStorage.setItem('token', t);
     }
     setStateToken(t);
   }, []);
 
+  useEffect(() => {
+    /* window.onbeforeunload = function () {
+     *   setToken(null);
+     *   setUser(null);
+     *   // postRequest('api/auth/logout', {}, { useJwt: true });
+     *   return null;
+     * }; */
+  }, [setToken, setUser]);
   function login() {
     setToken(null);
     setUser(null);
     window.location.replace('/api/auth/sso');
   }
 
-  function logout() {
-    setToken(null);
-    setUser(null);
-    addNotification({ type: 'success', message: 'Logged out' });
-    window.location.replace('api/auth/logout');
+  async function logout() {
+    try {
+      // Not using useRequest() here, since useRequest already relies on some AuthContext
+      await axios.post(
+        '/api/auth/logout',
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            withCredentials: true,
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+          },
+        },
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setToken(null);
+      setUser(null);
+      addNotification({ type: 'success', message: 'Logged out' });
+      window.location.replace('/');
+    }
   }
 
   useEffect(() => {
