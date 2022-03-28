@@ -121,8 +121,6 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     async function checkToken() {
       try {
         const now = Math.floor(new Date().getTime() / 1000);
-        console.log('NOW', now, tokenExpirationTime);
-        console.log('TICKING');
         if (now >= (tokenExpirationTime as number) - 60) {
           const result = await axios.post<
             unknown,
