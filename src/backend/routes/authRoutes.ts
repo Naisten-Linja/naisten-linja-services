@@ -85,7 +85,7 @@ router.get('/sso/verify', async (req, res) => {
   res.redirect(`${serviceUrl}/login/${encodeURIComponent(tokenNonce)}`);
 });
 
-router.get('/token/:nonce', (req, res) => {
+router.get('/token/:nonce', async (req, res) => {
   const nonce = req.param('nonce');
   if (!req.session || !req.session.tokenData || !nonce) {
     res.status(403).json({ error: 'unauthorized' });
@@ -102,9 +102,13 @@ router.get('/token/:nonce', (req, res) => {
   // Now the Single Sign On process from Discourse is done, delete the session token
   delete req.session.tokenData;
 
+  const jwtr = getJwtr();
+  const { exp } = await jwtr.decode(token);
+
   res.json({
     data: {
       token,
+      expiresAt: exp,
     },
   });
 });
@@ -112,13 +116,13 @@ router.get('/token/:nonce', (req, res) => {
 router.post('/logout', async (req, res) => {
   try {
     const { user } = req;
-    if (user) {
-      const token: string = ((req.headers['Authorization'] || '') as string).replace('Bearer ', '');
+    if (user && req.headers.authorization) {
+      const { jwtSecret } = getConfig();
+      const token = req.headers.authorization.replace('Bearer ', '');
       const jwtr = getJwtr();
-      const tokenData = jwtr.decode<TokenData>(token);
-      if (tokenData) {
-        /* eslint-disable @typescript-eslint/no-non-null-assertion */
-        jwtr.destroy(tokenData.jti!);
+      const tokenData = await jwtr.verify<TokenData>(token, jwtSecret);
+      if (tokenData && tokenData.jti) {
+        await jwtr.destroy(tokenData.jti);
       }
       const success = await logUserOutOfDiscourse(user.uuid);
       res.status(200).json({

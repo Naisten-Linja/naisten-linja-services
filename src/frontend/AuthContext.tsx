@@ -6,18 +6,20 @@ import { useNotifications } from './NotificationsContext';
 
 interface IAuthContext {
   token: string | null;
+  tokenExpirationTime: number | null;
   user: TokenUserData | null;
   logout: () => void;
   login: () => void;
-  setToken: (token: string | null) => void;
+  setToken: (token: string | null, expirationTime: number | null) => void;
 }
 
 export const AuthContext = React.createContext<IAuthContext>({
   token: null,
+  tokenExpirationTime: null,
   user: null,
   logout: () => {},
   login: () => {},
-  setToken: (_: string | null) => {},
+  setToken: (_: string | null, __: number | null) => {},
 });
 
 function validateUserData(userData: TokenUserData): boolean {
@@ -51,15 +53,24 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     getUserDataFromToken(sessionStorage.getItem('token')),
   );
   const [token, setStateToken] = useState<string | null>(sessionStorage.getItem('token'));
+  const [tokenExpirationTime, setTokenExpirationTime] = useState<number | null>(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    sessionStorage.getItem('tokenExp') ? parseInt(sessionStorage.getItem('tokenExp')!) : null,
+  );
   const { addNotification } = useNotifications();
 
-  const setToken = useCallback((t: string | null) => {
-    if (!t) {
+  const setToken = useCallback((t: string | null, exp: number | null) => {
+    if (!t || !exp) {
       sessionStorage.removeItem('token');
+      sessionStorage.removeItem('tokenExp');
+      setStateToken(null);
+      setTokenExpirationTime(null);
     } else {
       sessionStorage.setItem('token', t);
+      sessionStorage.setItem('tokenExp', `${exp}`);
+      setStateToken(t);
+      setTokenExpirationTime(exp);
     }
-    setStateToken(t);
   }, []);
 
   useEffect(() => {
@@ -71,7 +82,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
      * }; */
   }, [setToken, setUser]);
   function login() {
-    setToken(null);
+    setToken(null, null);
     setUser(null);
     window.location.replace('/api/auth/sso');
   }
@@ -94,7 +105,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     } catch (err) {
       console.error(err);
     } finally {
-      setToken(null);
+      setToken(null, null);
       setUser(null);
       addNotification({ type: 'success', message: 'Logged out' });
       window.location.replace('/');
@@ -110,7 +121,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   useEffect(() => {
     const userData = getUserDataFromToken(token);
     if (!userData) {
-      setToken(null);
+      setToken(null, null);
       setUser(null);
     } else {
       setUser(userData);
@@ -118,7 +129,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   }, [token, setToken]);
 
   return (
-    <AuthContext.Provider value={{ token, user, logout, login, setToken }}>
+    <AuthContext.Provider value={{ token, user, logout, login, setToken, tokenExpirationTime }}>
       {children}
     </AuthContext.Provider>
   );

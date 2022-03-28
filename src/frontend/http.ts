@@ -14,7 +14,20 @@ const defaultHeaders = {
 };
 
 export function useRequest() {
-  const { token, setToken } = useAuth();
+  const { token, setToken, logout } = useAuth();
+
+  const handleError = useCallback(
+    (err: unknown): void => {
+      // @ts-ignore
+      if (err && err.response?.status === 401) {
+        logout();
+        if (token) {
+          setToken(null, null);
+        }
+      }
+    },
+    [logout, token, setToken],
+  );
 
   const getRequest = useCallback(
     async function <T = unknown, R = AxiosResponse<T>>(
@@ -35,13 +48,11 @@ export function useRequest() {
         });
         return result;
       } catch (err) {
-        if (isInvalidTokenError(err)) {
-          setToken(null);
-        }
+        handleError(err);
         throw err;
       }
     },
-    [token, setToken],
+    [token, handleError],
   );
 
   const putRequest = useCallback(
@@ -63,13 +74,11 @@ export function useRequest() {
           },
         });
       } catch (err) {
-        if (isInvalidTokenError(err)) {
-          setToken(null);
-        }
+        handleError(err);
         throw err;
       }
     },
-    [token, setToken],
+    [token, handleError],
   );
 
   const postRequest = useCallback(
@@ -92,13 +101,11 @@ export function useRequest() {
         });
         return result;
       } catch (err) {
-        if (isInvalidTokenError(err)) {
-          setToken(null);
-        }
+        handleError(err);
         throw err;
       }
     },
-    [token, setToken],
+    [token, handleError],
   );
 
   const deleteRequest = useCallback(
@@ -120,18 +127,12 @@ export function useRequest() {
         });
         return result;
       } catch (err) {
-        if (isInvalidTokenError(err)) {
-          setToken(null);
-        }
+        handleError(err);
         throw err;
       }
     },
-    [token, setToken],
+    [token, handleError],
   );
 
   return { getRequest, putRequest, postRequest, deleteRequest };
-}
-
-function isInvalidTokenError(err: unknown) {
-  return axios.isAxiosError(err) && err.response?.data?.error === 'invalid jwt token';
 }

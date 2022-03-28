@@ -19,6 +19,7 @@ import bookingRoutes from './routes/bookingRoutes';
 import pageRoutes from './routes/pageRoutes';
 import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
+import { getJwtr } from './auth';
 
 export function createApp() {
   const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
@@ -85,10 +86,30 @@ export function createApp() {
   // In production, serve the all the frontend static files in the `./build` directory
   app.use('/', express.static(path.join(__dirname, '../../build')));
 
+  const jwtr = getJwtr();
+
   app.use(
     jwt({
       secret: jwtSecret,
       algorithms: ['HS256'],
+      isRevoked: async (req, _, done) => {
+        try {
+          const authHeader = req.headers.authorization;
+          if (!authHeader) {
+            return done(new Error('missing auth header'));
+          }
+          const token = authHeader.replace('Bearer ', '');
+          await jwtr.verify(token, jwtSecret);
+          done(null, false);
+        } catch (err) {
+          // @ts-ignore
+          if (err.name === 'TokenDestroyedError') {
+            return done(null, true);
+          } else {
+            return done(err, true);
+          }
+        }
+      },
     }).unless({
       path: [
         '/api/auth/sso',
@@ -166,6 +187,15 @@ export function createApp() {
       ),
     }),
   );
+
+  // @ts-ignore
+  app.use((err, _, res, next) => {
+    // Return human readable error message in case jwtr.verify throws an error
+    if (err.name === 'UnauthorizedError') {
+      res.status(401).json({ error: err.message });
+    }
+    next();
+  });
 
   return app;
 }

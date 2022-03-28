@@ -126,8 +126,8 @@ export async function createToken(data: TokenData): Promise<string | null> {
   try {
     const { jwtSecret } = getConfig();
     const jwtr = getJwtr();
-    // token will expire in 1 day
-    const token = await jwtr.sign(data, jwtSecret, { expiresIn: '1 day' });
+    // token will expire in 16 minutes
+    const token = await jwtr.sign(data, jwtSecret, { expiresIn: '16 minutes' });
     return token;
   } catch (err) {
     console.error('Failed to create token');
