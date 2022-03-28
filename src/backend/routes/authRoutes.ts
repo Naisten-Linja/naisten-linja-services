@@ -10,8 +10,10 @@ import {
   getJwtr,
   TokenData,
 } from '../auth';
+import { UserRole } from '../../common/constants-common';
 import { upsertUser } from '../models/users';
 import { getConfig } from '../config';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 
@@ -71,15 +73,23 @@ router.get('/sso/verify', async (req, res) => {
     return;
   }
 
-  const token = await createToken({
+  const t = await createToken({
     email: user.email,
     role: user.role,
     fullName: user.fullName,
     uuid: user.uuid,
   });
+
+  if (!t) {
+    res.redirect(`${serviceUrl}/login`);
+    return;
+  }
+
   const tokenNonce = generateRandomString(16, 'base64');
+
   req.session.tokenData = {
-    token,
+    token: t.token,
+    tokenExpirationTime: t.exp,
     nonce: tokenNonce,
   };
   res.redirect(`${serviceUrl}/login/${encodeURIComponent(tokenNonce)}`);
@@ -99,16 +109,15 @@ router.get('/token/:nonce', async (req, res) => {
   }
 
   const token = req.session.tokenData.token;
+  const expiresAt = req.session.tokenData.tokenExpirationTime;
+
   // Now the Single Sign On process from Discourse is done, delete the session token
   delete req.session.tokenData;
-
-  const jwtr = getJwtr();
-  const { exp } = await jwtr.decode(token);
 
   res.json({
     data: {
       token,
-      expiresAt: exp,
+      expiresAt,
     },
   });
 });
@@ -134,6 +143,48 @@ router.post('/logout', async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(401).json({ data: { success: false } });
+  }
+});
+
+router.post<
+  Record<string, never>,
+  | {
+      data: {
+        token: string;
+        expiresAt: number;
+      };
+    }
+  | { error: string }
+>('/refresh', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
+  try {
+    // These information should always be available if the user is authenticated
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const token = req.headers.authorization!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const user = req.user!;
+
+    const jwtr = getJwtr();
+    await jwtr.destroy(token);
+
+    const t = await createToken({
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+      uuid: user.uuid,
+    });
+    if (!t) {
+      res.status(401).json({ error: 'unauthorized' });
+      return;
+    }
+    res.status(200).json({
+      data: {
+        token: t.token,
+        expiresAt: t.exp,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ error: 'unauthorized' });
   }
 });
 
