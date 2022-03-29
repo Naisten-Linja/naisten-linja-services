@@ -6,9 +6,14 @@ import {
   validateSsoRequest,
   createToken,
   generateUserDataFromSsoRequest,
+  logUserOutOfDiscourse,
+  getJwtr,
+  TokenData,
 } from '../auth';
+import { UserRole } from '../../common/constants-common';
 import { upsertUser } from '../models/users';
 import { getConfig } from '../config';
+import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
 
@@ -68,21 +73,29 @@ router.get('/sso/verify', async (req, res) => {
     return;
   }
 
-  const token = await createToken({
+  const t = await createToken({
     email: user.email,
     role: user.role,
     fullName: user.fullName,
     uuid: user.uuid,
   });
+
+  if (!t) {
+    res.redirect(`${serviceUrl}/login`);
+    return;
+  }
+
   const tokenNonce = generateRandomString(16, 'base64');
+
   req.session.tokenData = {
-    token,
+    token: t.token,
+    tokenExpirationTime: t.exp,
     nonce: tokenNonce,
   };
   res.redirect(`${serviceUrl}/login/${encodeURIComponent(tokenNonce)}`);
 });
 
-router.get('/token/:nonce', (req, res) => {
+router.get('/token/:nonce', async (req, res) => {
   const nonce = req.param('nonce');
   if (!req.session || !req.session.tokenData || !nonce) {
     res.status(403).json({ error: 'unauthorized' });
@@ -96,19 +109,83 @@ router.get('/token/:nonce', (req, res) => {
   }
 
   const token = req.session.tokenData.token;
+  const expiresAt = req.session.tokenData.tokenExpirationTime;
+
   // Now the Single Sign On process from Discourse is done, delete the session token
   delete req.session.tokenData;
 
   res.json({
     data: {
       token,
+      expiresAt,
     },
   });
 });
 
-router.get('/logout', (_, res) => {
-  const { discourseUrl } = getConfig();
-  res.redirect(discourseUrl);
+router.post('/logout', async (req, res) => {
+  try {
+    const { user } = req;
+    if (user && req.headers.authorization) {
+      const { jwtSecret } = getConfig();
+      const token = req.headers.authorization.replace('Bearer ', '');
+      const jwtr = getJwtr();
+      const tokenData = await jwtr.verify<TokenData>(token, jwtSecret);
+      if (tokenData && tokenData.jti) {
+        await jwtr.destroy(tokenData.jti);
+      }
+      const success = await logUserOutOfDiscourse(user.uuid);
+      res.status(200).json({
+        data: { success },
+      });
+      return;
+    }
+    res.status(401).json({ data: { success: false } });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ data: { success: false } });
+  }
+});
+
+router.post<
+  Record<string, never>,
+  | {
+      data: {
+        token: string;
+        expiresAt: number;
+      };
+    }
+  | { error: string }
+>('/refresh', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
+  try {
+    // These information should always be available if the user is authenticated
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const token = req.headers.authorization!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const user = req.user!;
+
+    const jwtr = getJwtr();
+    await jwtr.destroy(token);
+
+    const t = await createToken({
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+      uuid: user.uuid,
+    });
+    if (!t) {
+      res.status(401).json({ error: 'unauthorized' });
+      return;
+    }
+    res.status(200).json({
+      data: {
+        token: t.token,
+        expiresAt: t.exp,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(401).json({ error: 'unauthorized' });
+  }
 });
 
 export default router;

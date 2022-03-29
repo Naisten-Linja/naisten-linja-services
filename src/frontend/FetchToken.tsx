@@ -15,11 +15,15 @@ export const FetchToken = (props: RouteComponentProps<{ nonce?: string }>) => {
     const source = axios.CancelToken.source();
     const getToken = async (nonce: string) => {
       try {
-        const result = await getRequest<{ data: { token: string } }>(`/api/auth/token/${nonce}`, {
-          withCredentials: true,
-          cancelToken: source.token,
-        });
-        setToken(result.data.data.token);
+        const result = await getRequest<{ data: { token: string; expiresAt: number } }>(
+          `/api/auth/token/${nonce}`,
+          {
+            withCredentials: true,
+            cancelToken: source.token,
+          },
+        );
+        const { token, expiresAt } = result.data.data;
+        setToken(token, expiresAt);
         setDone(true);
       } catch (err) {
         setDone(true);

@@ -1,22 +1,26 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
+import { useIdleTimer } from 'react-idle-timer';
 
+import axios from 'axios';
 import type { TokenUserData } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 
 interface IAuthContext {
   token: string | null;
+  tokenExpirationTime: number | null;
   user: TokenUserData | null;
   logout: () => void;
   login: () => void;
-  setToken: (token: string | null) => void;
+  setToken: (token: string | null, expirationTime: number | null) => void;
 }
 
 export const AuthContext = React.createContext<IAuthContext>({
   token: null,
+  tokenExpirationTime: null,
   user: null,
   logout: () => {},
   login: () => {},
-  setToken: (_: string | null) => {},
+  setToken: (_: string | null, __: number | null) => {},
 });
 
 function validateUserData(userData: TokenUserData): boolean {
@@ -45,34 +49,77 @@ function getUserDataFromToken(token: string | null): TokenUserData | null {
   return userData;
 }
 
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  withCredentials: true,
+};
+
 export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   const [user, setUser] = useState<TokenUserData | null>(
-    getUserDataFromToken(localStorage.getItem('token')),
+    getUserDataFromToken(sessionStorage.getItem('token')),
   );
-  const [token, setStateToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setStateToken] = useState<string | null>(sessionStorage.getItem('token'));
+  const [tokenExpirationTime, setTokenExpirationTime] = useState<number | null>(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    sessionStorage.getItem('tokenExp') ? parseInt(sessionStorage.getItem('tokenExp')!) : null,
+  );
   const { addNotification } = useNotifications();
 
-  const setToken = useCallback((t: string | null) => {
-    if (!t) {
-      localStorage.removeItem('token');
+  const setToken = useCallback((t: string | null, exp: number | null) => {
+    if (!t || !exp) {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('tokenExp');
+      setStateToken(null);
+      setTokenExpirationTime(null);
+      setUser(null);
     } else {
-      localStorage.setItem('token', t);
+      sessionStorage.setItem('token', t);
+      sessionStorage.setItem('tokenExp', `${exp}`);
+      setStateToken(t);
+      setTokenExpirationTime(exp);
+      setUser(getUserDataFromToken(t));
     }
-    setStateToken(t);
   }, []);
 
   function login() {
-    setToken(null);
+    setToken(null, null);
     setUser(null);
     window.location.replace('/api/auth/sso');
   }
 
-  function logout() {
-    setToken(null);
-    setUser(null);
-    addNotification({ type: 'success', message: 'Logged out' });
-    window.location.replace('api/auth/logout');
-  }
+  const logout = useCallback(
+    async ({ redirect }: { redirect: boolean } = { redirect: true }) => {
+      try {
+        // Not using useRequest() here, since useRequest already relies on some AuthContext
+        await axios.post(
+          '/api/auth/logout',
+          {},
+          {
+            headers: {
+              ...defaultHeaders,
+              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            },
+          },
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setToken(null, null);
+        addNotification({ type: 'success', message: 'Logged out' });
+        if (redirect) {
+          window.location.replace('/');
+        }
+      }
+    },
+    [setToken, addNotification],
+  );
+
+  const { getLastActiveTime } = useIdleTimer({
+    timeout: 1000 * 60 * 15,
+    onIdle: () => logout({ redirect: false }),
+    debounce: 500,
+  });
 
   useEffect(() => {
     if (user) {
@@ -81,17 +128,49 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
   }, [user, addNotification]);
 
   useEffect(() => {
-    const userData = getUserDataFromToken(token);
-    if (!userData) {
-      setToken(null);
-      setUser(null);
-    } else {
-      setUser(userData);
+    let renewSessionTicker: number | null = null;
+
+    async function checkToken() {
+      try {
+        const now = new Date().getTime();
+        if (
+          now >= (tokenExpirationTime as number) - 60000 &&
+          now - 1000 * 60 * 15 < getLastActiveTime()
+        ) {
+          const result = await axios.post<
+            unknown,
+            { data: { data: { token: string; expiresAt: number } } }
+          >(
+            '/api/auth/refresh',
+            {},
+            {
+              headers: {
+                ...defaultHeaders,
+                Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+              },
+            },
+          );
+          setToken(result.data.data.token, result.data.data.expiresAt * 1000);
+        }
+      } catch (err) {
+        logout();
+        throw err;
+      }
     }
-  }, [token, setToken]);
+
+    if (!!token && !!tokenExpirationTime) {
+      renewSessionTicker = setInterval(checkToken, 15000);
+    }
+
+    return () => {
+      if (renewSessionTicker) {
+        clearInterval(renewSessionTicker);
+      }
+    };
+  }, [token, tokenExpirationTime, logout, setToken]);
 
   return (
-    <AuthContext.Provider value={{ token, user, logout, login, setToken }}>
+    <AuthContext.Provider value={{ token, user, logout, login, setToken, tokenExpirationTime }}>
       {children}
     </AuthContext.Provider>
   );
