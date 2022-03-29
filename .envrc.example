@@ -8,6 +8,10 @@ export PORT=9000
 # Admin > Settings > Login, and look for `sso provider secrets` field, and copy the secret value for `localhost`
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
+export DISCOURSE_API_KEY=
+export DISCOURSE_API_USER=
+
+export REDIS_URL=redis://localhost:6379
 
 # Set these variables if you are planning to test sending real emails
 export SENDGRID_API_KEY=
