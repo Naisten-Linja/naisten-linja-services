@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
+import { useIdleTimer } from 'react-idle-timer';
 
 import axios from 'axios';
 import type { TokenUserData } from '../common/constants-common';
@@ -87,27 +88,38 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
     window.location.replace('/api/auth/sso');
   }
 
-  const logout = useCallback(async () => {
-    try {
-      // Not using useRequest() here, since useRequest already relies on some AuthContext
-      await axios.post(
-        '/api/auth/logout',
-        {},
-        {
-          headers: {
-            ...defaultHeaders,
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+  const logout = useCallback(
+    async ({ redirect }: { redirect: boolean } = { redirect: true }) => {
+      try {
+        // Not using useRequest() here, since useRequest already relies on some AuthContext
+        await axios.post(
+          '/api/auth/logout',
+          {},
+          {
+            headers: {
+              ...defaultHeaders,
+              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            },
           },
-        },
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setToken(null, null);
-      addNotification({ type: 'success', message: 'Logged out' });
-      window.location.replace('/');
-    }
-  }, [setToken, addNotification]);
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setToken(null, null);
+        addNotification({ type: 'success', message: 'Logged out' });
+        if (redirect) {
+          window.location.replace('/');
+        }
+      }
+    },
+    [setToken, addNotification],
+  );
+
+  const { getLastActiveTime } = useIdleTimer({
+    timeout: 1000 * 60 * 15,
+    onIdle: () => logout({ redirect: false }),
+    debounce: 500,
+  });
 
   useEffect(() => {
     if (user) {
@@ -120,8 +132,11 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
 
     async function checkToken() {
       try {
-        const now = Math.floor(new Date().getTime() / 1000);
-        if (now >= (tokenExpirationTime as number) - 60) {
+        const now = new Date().getTime();
+        if (
+          now >= (tokenExpirationTime as number) - 60000 &&
+          now - 1000 * 60 * 15 < getLastActiveTime()
+        ) {
           const result = await axios.post<
             unknown,
             { data: { data: { token: string; expiresAt: number } } }
@@ -135,7 +150,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
               },
             },
           );
-          setToken(result.data.data.token, result.data.data.expiresAt);
+          setToken(result.data.data.token, result.data.data.expiresAt * 1000);
         }
       } catch (err) {
         logout();
