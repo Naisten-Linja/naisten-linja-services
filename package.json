@@ -88,7 +88,7 @@
     "eslint-watch": "^7.0.0",
     "formik": "^2.2.9",
     "http-proxy-middleware": "^1.0.5",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "nodemon": "^2.0.4",
     "normalize.css": "^8.0.1",
