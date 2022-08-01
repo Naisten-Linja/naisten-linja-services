@@ -83,6 +83,13 @@ port forwarding setting. Then, try `npm run dev` again.
 
 The same applies to Redis container as well.
 
+To convert **all local user from volunteer to a staff member** in the database, log in to the application at least once, and then run:
+
+```sh
+# ONLY FOR DEVELOPMENT
+docker exec -it naisten_linja_db psql nl_dev nl_dev -c "update users set role='staff';"
+```
+
 ### Making changes to the database schema
 
 We are using [db-migrate](https://github.com/db-migrate/node-db-migrate) to manage database schema changes. All

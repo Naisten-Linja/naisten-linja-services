@@ -6,7 +6,7 @@
   },
   "scripts": {
     "backend:build": "tsc -p tsconfig.backend.json",
-    "backend:dev": "nodemon --watch src/backend -x \"tsc -p ./tsconfig.backend.json --noEmit && TS_NODE_PROJECT=tsconfig.backend.json ts-node src/start-backend.ts\"",
+    "backend:dev": "nodemon --watch src/backend -e js,json,ts -x \"tsc -p ./tsconfig.backend.json --noEmit && TS_NODE_PROJECT=tsconfig.backend.json ts-node src/start-backend.ts\"",
     "backend:typecheck": "tsc -p tsconfig.backend.json --noEmit",
     "start-production": "npm run db-migrate up && node build-backend/start-backend.js",
     "start-dev-db": "./start-dev-db",
