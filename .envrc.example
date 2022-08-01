@@ -6,12 +6,17 @@ export PORT=9000
 # Ask around the team for these 2 values. Alternatively, if you have access to Discourse Admin,
 # the sso secret can be found or defined in
 # Admin > Settings > Login, and look for `sso provider secrets` field, and copy the secret value for `localhost`
+# The API_KEY can be generated in Admin > API (https://online-group-dev.naistenlinja.fi/admin/api/keys)
+# The API_USER can be system.
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
 export DISCOURSE_API_KEY=
 export DISCOURSE_API_USER=
 
-export REDIS_URL=redis://localhost:6379
+# Redis as session store
+# Make sure you have a redis instance running, and match the connection url accordingly
+export REDIS_PORT=6379
+export REDIS_URL="redis://localhost:$REDIS_PORT"
 
 # Set these variables if you are planning to test sending real emails
 export SENDGRID_API_KEY=
@@ -44,9 +49,5 @@ export LETTER_AES_KEY=3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b8
 export PATH=$PATH:$(pwd)/node_modules/.bin
 
 # These variables are only required in production:
-
-# Uncomment this if you'd like to use Redis as session store when developing locally.
-# When used, make sure you have a redis instance running, and match the connection url accordingly
-# export REDIS_URL='redis://localhost:6379'
 
 # export APP_DOMAIN=
