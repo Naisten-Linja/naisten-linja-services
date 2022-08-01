@@ -7,15 +7,16 @@ export PORT=9000
 # the sso secret can be found or defined in
 # Admin > Settings > Login, and look for `sso provider secrets` field, and copy the secret value for `localhost`
 # The API_KEY can be generated in Admin > API (https://online-group-dev.naistenlinja.fi/admin/api/keys)
-# The API_USER can be system.
+# The API_USER can be "system".
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
 export DISCOURSE_API_KEY=
 export DISCOURSE_API_USER=
 
-# Redis as session store
-# Make sure you have a redis instance running, and match the connection url accordingly
+# Redis as session store.
+# This REDIS_PORT is ONLY USED IN DEV by the start-dev-redis script to start the container in correct port
 export REDIS_PORT=6379
+# URL to use for connecting to Redis. This one is needed for production too.
 export REDIS_URL="redis://localhost:$REDIS_PORT"
 
 # Set these variables if you are planning to test sending real emails

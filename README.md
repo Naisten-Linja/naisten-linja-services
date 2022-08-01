@@ -10,8 +10,8 @@ This is the code for Naisten Linja's services including:
 |                            |                                          |
 | -------------------------- | ---------------------------------------- |
 | Production app URL         | https://services.naistenlinja.fi         |
-| Produciton Discourse URL   | https://ryhmat.naistenlinja.fi           |
-| Development app URL        | https://services.naistenlinja.fi         |
+| Production Discourse URL   | https://ryhmat.naistenlinja.fi           |
+| Development app URL        | https://services-dev.naistenlinja.fi     |
 | Development Discourse URL  | https://online-group-dev.naistenlinja.fi |
 | Frontend & backend hosting | Heroku                                   |
 | Discourse hosting          | Upcloud VPS                              |
@@ -69,8 +69,8 @@ Once the database and environment variables are setup, run
 npm run dev
 ```
 
-This will start a docker container running PostgreSQL, run database migration, then start both the front and backend
-development app.
+This will start a docker container running PostgreSQL, another container running Redis, run database migration,
+then start both the front and backend development app.
 
 After that, the frontend app is accessible at http://localhost:3000 (`FRONTEND_PORT` was set in
 `.envrc` to 3000 by default).
@@ -80,6 +80,8 @@ most likely another service is using port `5433` in your local environment. Try 
 change `DB_PORT` value in `.envrc` to a different one (`5434` for example), run `direnv allow && docker rm
 naisten_linja_db`. This will update `DB_PORT` and remove the old `naisten_linja_db` container that was using the old
 port forwarding setting. Then, try `npm run dev` again.
+
+The same applies to Redis container as well.
 
 ### Making changes to the database schema
 
