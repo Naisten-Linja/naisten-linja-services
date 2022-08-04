@@ -4,6 +4,7 @@ build
 build-backend
 .envrc
 db-data
+redis-data
 
 # misc
 .DS_Store

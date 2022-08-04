@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# This script allows anyone to connect to redis in the port that is published on the host level
+# THIS IS NOT SAFE FOR PRODUCTION
+
+container_name='naisten_linja_redis'
+
+echo ${REDIS_PORT}
+
+if [[ $(docker ps -a -f "name=${container_name}" --format '{{.Names}}') == $container_name ]]; then
+    echo "Starting container ${container_name}."
+    docker start ${container_name}
+else
+    echo "Container $container_name not found. Creating a new one."
+    docker run --name ${container_name} -v "/$(pwd)/redis-data:/data" -p ${REDIS_PORT}:6379 -d redis:7.0.4 redis-server --save 60 1 --loglevel warning
+fi
+
+tries=0
+
+until (nc -vzw 2 localhost $REDIS_PORT) || (($tries == 5))
+do
+    sleep 2
+    ((tries+=1))
+done
