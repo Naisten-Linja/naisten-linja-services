@@ -1,16 +1,23 @@
 import sgMail from '@sendgrid/mail';
 
-import { ApiBooking } from '../../common/constants-common';
+import { ApiBooking, UserRole } from '../../common/constants-common';
 import { getConfig } from '../config';
 import { getUsers } from '../models/users';
 
-export type SendEmailParams = {
+export type SendDynamicEmailParams = {
   to: string | Array<string>;
-  subject: string;
-  text: string;
   from: {
     name: string;
     email: string;
+  };
+  templateId: string;
+  dynamicTemplateData: {
+    reminder: boolean;
+    recipientRole: UserRole;
+    startDay: string;
+    startTime: string;
+    endTime: string;
+    booking: ApiBooking;
   };
 };
 
@@ -44,46 +51,43 @@ function getBookingTimeComponents(booking: ApiBooking) {
 }
 
 export async function sendBookingConfirmationEmail(booking: ApiBooking) {
-  const { sendGridFromEmailAddress } = getConfig();
+  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
+  if (!sendGridBookingTemplateId) {
+    console.log('No booking template was set');
+    return;
+  }
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
-  const text = `
-Thank you, ${booking.fullName}!
 
-You have reserved a volunteer time for "${
-    booking.bookingType.name
-  }" on ${startDay}, from ${startTime} to ${endTime}.
-
-PLEASE NOTE: the booking time is in Europe/Helsinki timezone.
-
-Here is a summary if your booking details:
-
-Booking: ${booking.bookingType.name}
-Date: ${startDay}
-Time: ${startTime} - ${endTime}
-Email: ${booking.email}
-Phone: ${booking.phone}
-Working location: ${booking.workingRemotely ? 'Remotely' : 'From the office'}
-${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
-  `;
-  return sendEmail({
+  return sendEmailWithDynamicTemplate({
     to: booking.email,
-    subject: `Volunteer reservation for ${booking.bookingType.name} on ${startDay}`,
     from: {
       name: 'Naisten Linja Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    text,
+    templateId: sendGridBookingTemplateId,
+    dynamicTemplateData: {
+      reminder: false,
+      recipientRole: UserRole.volunteer,
+      startDay,
+      startTime,
+      endTime,
+      booking
+    },
   });
 }
 
 export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
-  const { sendGridFromEmailAddress } = getConfig();
+  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
+    return;
+  }
+  if (!sendGridBookingTemplateId) {
+    console.log('No booking template was set');
     return;
   }
 
@@ -111,30 +115,26 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
     .map(({ email }) => email);
 
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
-  const text = `
-A new booking was made for user ${booking.fullName} (${booking.user.email}) with the follow details:
 
-Booking: ${booking.bookingType.name}
-Date: ${startDay}
-Time: ${startTime} - ${endTime}
-Email: ${booking.email}
-Phone: ${booking.phone}
-Working location: ${booking.workingRemotely ? 'Remotely' : 'From the office'}
-${booking.bookingNote ? 'Booking note:\n' + booking.bookingNote : ''}
-  `;
-
-  return sendEmail({
+  return sendEmailWithDynamicTemplate({
     to: staffEmails,
-    subject: `New reservation made for slot ${startTime} - ${endTime} on ${startDay} for ${booking.bookingType.name}`,
     from: {
       name: 'New Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    text,
+    templateId: sendGridBookingTemplateId,
+    dynamicTemplateData: {
+      reminder: false,
+      recipientRole: UserRole.staff,
+      startDay,
+      startTime,
+      endTime,
+      booking
+    },
   });
 }
 
-export async function sendEmail(messageData: SendEmailParams): Promise<boolean> {
+export async function sendEmailWithDynamicTemplate(messageData: SendDynamicEmailParams): Promise<boolean> {
   const { sendGridApiKey } = getConfig();
   if (!sendGridApiKey) {
     console.log('No SendGridApi key was provided');
