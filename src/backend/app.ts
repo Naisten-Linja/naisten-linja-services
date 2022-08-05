@@ -208,6 +208,11 @@ function activateNotificationCronJobs() {
   // Send booking notifications to volunteers
   // some days before the booking they had made.
   const hour = getConfig().bookingReminderSendingHour
+  if (!hour) {
+    console.log("Env BOOKING_REMINDER_SENDING_HOUR was not set, not sending any booking reminders")
+    return;
+  }
+
   cron.schedule(`0 ${hour} * * *`, async () => {
     const results = await sendBookingRemindersToVolunteers();
 

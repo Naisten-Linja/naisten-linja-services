@@ -27,7 +27,6 @@ export function getConfig() {
     'LETTER_ACCESS_KEY_SALT',
     'LETTER_AES_KEY',
     'REDIS_URL',
-    'BOOKING_REMINDER_SENDING_HOUR',
   ]);
 
   if (process.env.ENVIRONMENT !== 'production' && !process.env.FRONTEND_PORT) {
@@ -38,10 +37,13 @@ export function getConfig() {
     throw 'Variable SENDGRID_API_KEY is missing from your environment';
   }
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
-    throw 'Variable SENDGRID_FROM_EMAIL_ADRESS is missing from your environment';
+    throw 'Variable SENDGRID_FROM_EMAIL_ADDRESS is missing from your environment';
   }
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_BOOKING_TEMPLATE_ID) {
     throw 'Variable SENDGRID_BOOKING_TEMPLATE_ID is missing from your environment';
+  }
+  if (process.env.ENVIRONMENT === 'production' && !process.env.BOOKING_REMINDER_SENDING_HOUR) {
+    throw 'Variable BOOKING_REMINDER_SENDING_HOUR is missing from your environment';
   }
 
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
@@ -83,6 +85,6 @@ export function getConfig() {
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
     sendGridBookingTemplateId: process.env.SENDGRID_BOOKING_TEMPLATE_ID || null,
-    bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR,
+    bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR || null,
   };
 }
