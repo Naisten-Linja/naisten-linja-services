@@ -84,88 +84,90 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                 onCancelCallback={editCallback(bookingType)}
               />
             ) : (
-              <table className="table-responsive ">
-                <thead>
-                  <tr>
-                    <td>
-                      <button
-                        className="button button-xxs button-info width-100"
-                        onClick={() =>
-                          setEditStates({
-                            ...editStates,
-                            [uuid]: !isEditing,
-                          })
-                        }
-                      >
-                        Edit
-                      </button>
-                    </td>
-                    <td className="font-weight-bold font-size-xl">{name}</td>
-                  </tr>
-                  {additionalInformation && (
+              <div className="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <td>
+                        <button
+                          className="button button-xxs button-info width-100"
+                          onClick={() =>
+                            setEditStates({
+                              ...editStates,
+                              [uuid]: !isEditing,
+                            })
+                          }
+                        >
+                          Edit
+                        </button>
+                      </td>
+                      <td className="font-weight-bold font-size-xl">{name}</td>
+                    </tr>
+                    {additionalInformation && (
+                      <tr>
+                        <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                          Additional information
+                        </th>
+                        <td className="font-weight-semibold font-size-s">
+                          <div
+                            key="additional-information"
+                            className="display-inline-block border-radius background-success-100 padding-xxs font-size-xs font-weight-semibold"
+                          >
+                            {additionalInformation}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                        Additional information
+                        Exceptions
                       </th>
                       <td className="font-weight-semibold font-size-s">
-                        <div
-                          key="additional-information"
-                          className="display-inline-block border-radius background-success-100 padding-xxs font-size-xs font-weight-semibold"
-                        >
-                          {additionalInformation}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  <tr>
-                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                      Exceptions
-                    </th>
-                    <td className="font-weight-semibold font-size-s">
-                      <ul className="list-unstyled">
-                        {exceptions.map((exceptionDateString, idx) => (
-                          <li
-                            className="display-inline-block margin-right-xxs"
-                            key={`exception.${idx}`}
-                          >
-                            <div
-                              key={`exception-${idx}`}
-                              className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+                        <ul className="list-unstyled">
+                          {exceptions.map((exceptionDateString, idx) => (
+                            <li
+                              className="display-inline-block margin-right-xxs"
+                              key={`exception.${idx}`}
                             >
-                              {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th className="font-weight-semibold" style={{ width: '7rem' }}>
-                      Week day
-                    </th>
-                    <th className="font-weight-semibold">Slots</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rules.map(({ slots = [] }, idx) => (
-                    <tr key={idx}>
-                      <th> {weekDays[idx]}</th>
-                      <td key={idx}>
-                        {slots.length > 0
-                          ? slots.map((slot, idx) => (
                               <div
-                                key={`slot-${idx}`}
-                                className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
+                                key={`exception-${idx}`}
+                                className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
                               >
-                                {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                                {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
                               </div>
-                            ))
-                          : ''}
+                            </li>
+                          ))}
+                        </ul>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                    <tr>
+                      <th className="font-weight-semibold" style={{ width: '7rem' }}>
+                        Week day
+                      </th>
+                      <th className="font-weight-semibold">Slots</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rules.map(({ slots = [] }, idx) => (
+                      <tr key={idx}>
+                        <th> {weekDays[idx]}</th>
+                        <td key={idx}>
+                          {slots.length > 0
+                            ? slots.map((slot, idx) => (
+                                <div
+                                  key={`slot-${idx}`}
+                                  className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
+                                >
+                                  {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                                </div>
+                              ))
+                            : ''}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         );

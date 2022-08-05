@@ -66,81 +66,83 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
       <p>
         <b>Please note booking times are in Europe/Helsinki timezone</b>
       </p>
-      <table className="table-responsive">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Date</th>
-            <th>Slot time</th>
-            <th>Booking details</th>
-            <th style={{ width: '18rem' }}>Note</th>
-            <th>User email</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map(
-            ({
-              uuid,
-              end,
-              start,
-              fullName,
-              phone,
-              email,
-              bookingType,
-              bookingNote,
-              user,
-              workingRemotely,
-            }) => {
-              return (
-                <tr key={uuid}>
-                  <td>{bookingType.name}</td>
-                  <td>{moment(start).format('ddd Do MMM YYYY')}</td>
-                  <td>
-                    {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-                  </td>
-                  <td>
-                    {fullName}
-                    <br />
-                    {email}
-                    <br />
-                    {phone}
-                    <br />
-                    Work location: {workingRemotely ? 'Remote' : 'Office'}
-                  </td>
-                  <td>
-                    <UpdateBookingNoteForm
-                      fetchBookings={fetchBookings}
-                      setBookings={setBookings}
-                      booking={{
-                        uuid,
-                        end,
-                        start,
-                        fullName,
-                        phone,
-                        email,
-                        bookingType,
-                        bookingNote,
-                        user,
-                        workingRemotely,
-                      }}
-                    />
-                  </td>
-                  <td>{user.email}</td>
-                  <td>
-                    <button
-                      className="button button-xxs button-border button-error"
-                      onClick={handleDeleteBooking(uuid)}
-                    >
-                      Delete
-                    </button>{' '}
-                  </td>
-                </tr>
-              );
-            },
-          )}
-        </tbody>
-      </table>
+      <div className="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Slot time</th>
+              <th>Booking details</th>
+              <th style={{ width: '18rem' }}>Note</th>
+              <th>User email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map(
+              ({
+                uuid,
+                end,
+                start,
+                fullName,
+                phone,
+                email,
+                bookingType,
+                bookingNote,
+                user,
+                workingRemotely,
+              }) => {
+                return (
+                  <tr key={uuid}>
+                    <td>{bookingType.name}</td>
+                    <td>{moment(start).format('ddd Do MMM YYYY')}</td>
+                    <td>
+                      {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
+                    </td>
+                    <td>
+                      {fullName}
+                      <br />
+                      {email}
+                      <br />
+                      {phone}
+                      <br />
+                      Work location: {workingRemotely ? 'Remote' : 'Office'}
+                    </td>
+                    <td>
+                      <UpdateBookingNoteForm
+                        fetchBookings={fetchBookings}
+                        setBookings={setBookings}
+                        booking={{
+                          uuid,
+                          end,
+                          start,
+                          fullName,
+                          phone,
+                          email,
+                          bookingType,
+                          bookingNote,
+                          user,
+                          workingRemotely,
+                        }}
+                      />
+                    </td>
+                    <td>{user.email}</td>
+                    <td>
+                      <button
+                        className="button button-xxs button-border button-error"
+                        onClick={handleDeleteBooking(uuid)}
+                      >
+                        Delete
+                      </button>{' '}
+                    </td>
+                  </tr>
+                );
+              },
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

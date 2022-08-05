@@ -48,46 +48,48 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <>
       <h1>Users</h1>
-      <table className="table-responsive">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Full name</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => {
-            return (
-              <tr key={`user-list-item-${u.uuid}`}>
-                <td>{u.email}</td>
-                <td>{u.fullName}</td>
-                <td>
-                  <select
-                    defaultValue={u.role}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      updateUserRole({
-                        uuid: u.uuid,
-                        email: u.email,
-                        role: e.target.value as UserRole,
-                      });
-                    }}
-                    disabled={loggedInUser !== null && u.uuid === loggedInUser.uuid}
-                  >
-                    {Object.values(UserRole).map((role) => {
-                      return (
-                        <option key={`user-role-option-${u.uuid}-${role}`} value={role}>
-                          {role}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Full name</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => {
+              return (
+                <tr key={`user-list-item-${u.uuid}`}>
+                  <td>{u.email}</td>
+                  <td>{u.fullName}</td>
+                  <td>
+                    <select
+                      defaultValue={u.role}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        updateUserRole({
+                          uuid: u.uuid,
+                          email: u.email,
+                          role: e.target.value as UserRole,
+                        });
+                      }}
+                      disabled={loggedInUser !== null && u.uuid === loggedInUser.uuid}
+                    >
+                      {Object.values(UserRole).map((role) => {
+                        return (
+                          <option key={`user-role-option-${u.uuid}-${role}`} value={role}>
+                            {role}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };
