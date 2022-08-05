@@ -27,6 +27,7 @@ export function getConfig() {
     'LETTER_ACCESS_KEY_SALT',
     'LETTER_AES_KEY',
     'REDIS_URL',
+    'BOOKING_REMINDER_SENDING_HOUR',
   ]);
 
   if (process.env.ENVIRONMENT !== 'production' && !process.env.FRONTEND_PORT) {
@@ -78,5 +79,6 @@ export function getConfig() {
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
+    bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR,
   };
 }

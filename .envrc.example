@@ -23,6 +23,11 @@ export REDIS_URL="redis://localhost:$REDIS_PORT"
 export SENDGRID_API_KEY=
 export SENDGRID_FROM_EMAIL_ADDRESS=
 
+# The hour when booking reminder emails will be sent to volunteers
+# In development you can set this to "* *" to make the emails run every minute.
+# In production this should be a single number to avoid sending same email multiple times a day.
+export BOOKING_REMINDER_SENDING_HOUR=9
+
 # The list of allowed CORS origins requests to the backend API.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.
 # For example: http://domain1.com,http://domain2.com

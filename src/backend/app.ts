@@ -8,6 +8,7 @@ import expressWinston from 'express-winston';
 import path from 'path';
 import redis from 'redis';
 import connectRedis, { RedisStore } from 'connect-redis';
+import cron from 'node-cron';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
@@ -20,6 +21,7 @@ import pageRoutes from './routes/pageRoutes';
 import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 import { getJwtr } from './auth';
+import { sendBookingRemindersToVolunteers } from './controllers/emailControllers';
 
 export function createApp() {
   const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
@@ -197,5 +199,24 @@ export function createApp() {
     next();
   });
 
+  activateNotificationCronJobs();
+
   return app;
+}
+
+function activateNotificationCronJobs() {
+  // Send booking notifications to volunteers
+  // some days before the booking they had made.
+  const hour = getConfig().bookingReminderSendingHour
+  cron.schedule(`0 ${hour} * * *`, async () => {
+    const results = await sendBookingRemindersToVolunteers();
+
+    if (typeof results === 'undefined') {
+      console.log("Failed to run sendBookingRemindersToVolunteers");
+    } else {
+      const success = results.filter(res => res).length;
+      const errors = results.length - success;
+      console.log(`Sent ${success} emails, failed to send ${errors} emails`);
+    }
+  });
 }
