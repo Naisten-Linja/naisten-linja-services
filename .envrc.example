@@ -22,6 +22,7 @@ export REDIS_URL="redis://localhost:$REDIS_PORT"
 # Set these variables if you are planning to test sending real emails
 export SENDGRID_API_KEY=
 export SENDGRID_FROM_EMAIL_ADDRESS=
+export SENDGRID_BOOKING_TEMPLATE_ID=
 
 # The hour when booking reminder emails will be sent to volunteers
 # In development you can set this to "* *" to make the emails run every minute.
