@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import moment, { Moment } from 'moment-timezone';
 import styled from 'styled-components';
 import {
@@ -29,9 +29,6 @@ type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
 };
 
-// Give current date in Finnish (since default timezone was already set in App.tsx)
-const currentDate = moment();
-
 const bookingTypeColors = [
   'rgba(192, 46, 29, 0.9)',
   'rgba(13, 84, 73, 0.9)',
@@ -42,6 +39,11 @@ const bookingTypeColors = [
 ];
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
+  // Give current date in Finnish (since default timezone was already set in App.tsx)
+  // This has to be inside this component because on the main level the default time zone
+  // is not set yet.
+  const currentDate = useRef(moment()).current;
+
   const [startDate, setStartDate] = useState(currentDate.startOf('week'));
   const [selectedBookingTypes, setSelectedBookingTypes] = useState<Array<string>>([]);
   const [bookingDetails, setBookingDetails] = useState<BookingSlotDetails | null>(null);
