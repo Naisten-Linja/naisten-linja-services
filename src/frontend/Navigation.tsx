@@ -12,7 +12,7 @@ export const Navigation = () => {
   return (
     <NavigationWrapper>
       <Container>
-        <div className="group group-m group-space-between">
+        <div className="nav-inline group-m group-space-between">
           <ul>
             <li>
               <MainMenu />
