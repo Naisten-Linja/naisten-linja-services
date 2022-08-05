@@ -39,6 +39,9 @@ export function getConfig() {
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
     throw 'Variable SENDGRID_FROM_EMAIL_ADRESS is missing from your environment';
   }
+  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_BOOKING_TEMPLATE_ID) {
+    throw 'Variable SENDGRID_BOOKING_TEMPLATE_ID is missing from your environment';
+  }
 
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
   // is not able to pick this up automatically. So disabling no-non-null-assertion eslint rule here.
@@ -78,5 +81,6 @@ export function getConfig() {
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
+    sendGridBookingTemplateId: process.env.SENDGRID_BOOKING_TEMPLATE_ID || null,
   };
 }
