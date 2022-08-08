@@ -132,30 +132,24 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
   return (
     <div
-      className="flex align-items-flex-start fixed overflow-auto"
-      style={{ height: '80vh', width: '120vh', maxWidth: '100%' }}
+      className="flex flex-wrap align-items-flex-start fixed overflow-auto"
+      style={{ height: '80vh', width: '120vh', maxWidth: '90%' }}
     >
       <section
         className="flex flex-wrap sticky padding-right-s"
         style={{ width: '12rem', top: 0, marginRight: '3rem' }}
       >
         <h1 className="font-size-xxl">Book a slot</h1>
-
         {bookingTypes.map(({ uuid, name }) => (
-          <div
-            key={uuid}
-            className="flex width-100 align-items-flex-start margin-top-xs position-relative"
-          >
+          <div key={uuid} className="flex align-items-center margin-vertical-1-4">
             <div
               aria-hidden={true}
               style={{
                 width: '0.75rem',
                 height: '0.75rem',
-                position: 'absolute',
-                top: '0.25rem',
-                left: '-1.25rem',
                 borderRadius: '50%',
-                overflow: 'hidden',
+                marginRight: 8,
+                flexShrink: 0,
                 background: getBookingTypeColor(uuid),
               }}
             />
@@ -180,10 +174,11 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
         ))}
       </section>
 
-      <div className="flex flex-wrap flex-1">
+      <div className="flex-1" style={{ marginLeft: "3rem" }}>
+        {/* TODO: for mobile device with smaller height size, the last two rows will get cut-off */}
         <CalendarHeader startDate={startDate} setStartDate={setStartDate} />
 
-        <section className="flex width-100">
+        <section className="flex" >
           {weekDays.map((currentDate) => {
             const bookingTypesInCurrentDay = bookingTypes.filter(({ rules, uuid, exceptions }) => {
               const ruleOnCurrentDay = rules[currentDate.weekday()];
