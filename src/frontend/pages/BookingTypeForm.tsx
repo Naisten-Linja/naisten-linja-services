@@ -12,9 +12,9 @@ import {
 } from '../../common/constants-common';
 
 import { useNotifications } from '../NotificationsContext';
-import { format } from 'date-fns';
 import ExceptionsDatePicker from '../ExceptionsDatePicker/ExceptionsDatePicker';
 import { useRequest } from '../http';
+import moment from 'moment-timezone';
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -173,7 +173,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                 key={`exception.${idx}`}
                               >
                                 <p className="font-size-xs no-margin padding-right-s">
-                                  {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
+                                  {moment(exceptionDateString).format('DD.MM.yyyy')}
                                 </p>
                                 <button
                                   className="button button-tertiary button-text button-xxs"

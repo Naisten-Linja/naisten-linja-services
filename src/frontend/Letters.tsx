@@ -10,6 +10,7 @@ import { useAuth } from './AuthContext';
 import { useRequest } from './http';
 
 import './assets/react-select-search.css';
+import moment from 'moment-timezone';
 
 const LettersTable = styled.table`
   tr {
@@ -111,7 +112,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
           {letters.map((letter) => {
             return (
               <tr key={`letter-list-item-${letter.uuid}`}>
-                <td>{new Date(letter.created).toLocaleString()}</td>
+                <td>{moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}</td>
                 <td>
                   <Link to={letter.uuid}>{letter.title}</Link>
                 </td>

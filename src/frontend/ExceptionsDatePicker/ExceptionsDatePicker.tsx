@@ -17,11 +17,13 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
 }) => {
   const [{ value: exceptions }, , { setValue }] = useField<Array<string>>('exceptions');
   const [{ value: rules }] = useField('rules');
-  const dateExceptions = exceptions.map(
-    (exceptionDateString: string) => new Date(exceptionDateString),
-  );
+
+  // exceptions is list of "2022-12-30" formatted strings
+  // dateExceptions is list of Date objects which point to the NOON IN BROWSER'S LOCAL TIMEZONE
+  const dateExceptions = exceptions.map(storedDateToLocalNoon);
 
   const handleDayClick = (day: Date, { selected, disabled }: DayModifiers) => {
+    // day points to the local noon of the correct date
     if (disabled) {
       return;
     }
@@ -30,7 +32,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
 
     if (selected) {
       const selectedIndex = exceptions.findIndex((selectedItem) =>
-        DateUtils.isSameDay(new Date(selectedItem), day),
+        DateUtils.isSameDay(storedDateToLocalNoon(selectedItem), day),
       );
       newExceptions.splice(selectedIndex, 1);
     } else {
@@ -84,5 +86,21 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
     </Modal>
   );
 };
+
+/**
+ * The DayPicker library works with Dates that point to the noon
+ * in the local timezone of the browser. This function converts a
+ * string in form "2022-01-30" into a Date object.
+ */
+function storedDateToLocalNoon(dateString: string): Date {
+  const dateSplit = (/^(\d\d\d\d)-(\d\d)-(\d\d)$/).exec(dateString);
+  if (!dateSplit) {
+    throw new Error("Invalid exception date " + dateString);
+  }
+  const year = parseInt(dateSplit[1]);
+  const month = parseInt(dateSplit[2]);
+  const day = parseInt(dateSplit[3]);
+  return new Date(year, month - 1, day, 12, 0, 0);
+}
 
 export default ExceptionsDatePicker;
