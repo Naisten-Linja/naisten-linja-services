@@ -5,7 +5,7 @@ import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { BookingTypeForm } from './BookingTypeForm';
-import { format } from 'date-fns';
+import moment from 'moment-timezone';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -132,7 +132,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                               key={`exception-${idx}`}
                               className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
                             >
-                              {format(new Date(exceptionDateString), 'dd.MM.yyyy')}
+                              {moment(exceptionDateString).format('DD.MM.yyyy')}
                             </div>
                           </li>
                         ))}
