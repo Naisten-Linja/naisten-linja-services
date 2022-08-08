@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import moment, { Moment } from 'moment-timezone';
 import styled from 'styled-components';
 import {
@@ -104,13 +104,15 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
     setSelectedBookingTypes(bookingTypes.map(({ uuid }) => uuid));
   }, [bookingTypes, setSelectedBookingTypes]);
 
+  const bookingWrapper = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const earliestStartHour = Math.min(
       ...bookingTypes.flatMap(({ rules }) =>
         rules.flatMap(({ slots }) => slots.map(({ start }) => parseInt(start.split(':')[0]))),
       ),
     );
-    window.scrollTo({ top: earliestStartHour * HOUR_CELL_HEIGHT * 16 });
+
+    bookingWrapper.current?.scroll({ top: earliestStartHour * HOUR_CELL_HEIGHT * 14 });
   }, [bookingTypes]);
 
   const weekDays = Array.from(new Array(7).keys()).map((dayOffset) =>
@@ -132,6 +134,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
   return (
     <div
+      ref={bookingWrapper}
       className="flex flex-wrap align-items-flex-start fixed overflow-auto"
       style={{ height: '80vh', width: '120vh', maxWidth: '90%' }}
     >
