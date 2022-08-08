@@ -9,6 +9,7 @@ import ResponsiveMenu from 'react-responsive-navbar';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
 
 export const Navigation = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const responsiveMenu= useRef<any>(null);
 
   const handleMenuItemClicked = () => {
@@ -20,9 +21,9 @@ export const Navigation = () => {
       <ResponsiveMenu
         ref={responsiveMenu}
         menuOpenButton={<IoMdMenu size={24} />}
-        menuCloseButton={<IoMdClose size={24} color="MediumPurple" />}
+        menuCloseButton={<IoMdClose size={24} />}
         changeMenuOn="500px"
-        largeMenuClassName="padding-m"
+        largeMenuClassName="padding-m container"
         smallMenuClassName="padding-m"
         menu={<MainMenu afterMenuClicked={handleMenuItemClicked}/>}
       />
@@ -33,7 +34,7 @@ export const Navigation = () => {
 const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
   const { user, logout, login } = useAuth();
   return (
-    <nav className="nav-inline" onClick={afterMenuClicked}>
+    <nav className="group group-m group-space-between" onClick={afterMenuClicked}>
       <ul>
         <li>
           <Link to="/">Naisten Linja</Link>
