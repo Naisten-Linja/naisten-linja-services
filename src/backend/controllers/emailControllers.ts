@@ -13,8 +13,6 @@ export type SendDynamicEmailParams = {
   };
   templateId: string;
   dynamicTemplateData: {
-    reminder: boolean;
-    recipientRole: UserRole;
     startDay: string;
     startTime: string;
     endTime: string;
@@ -52,12 +50,12 @@ function getBookingTimeComponents(booking: ApiBooking) {
 }
 
 export async function sendBookingConfirmationEmail(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
+  const { sendGridFromEmailAddress, sendGridVolunteerBookingConfirmationTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
-  if (!sendGridBookingTemplateId) {
+  if (!sendGridVolunteerBookingConfirmationTemplate) {
     console.log('No booking template was set');
     return;
   }
@@ -69,10 +67,8 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
       name: 'Naisten Linja Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    templateId: sendGridBookingTemplateId,
+    templateId: sendGridVolunteerBookingConfirmationTemplate,
     dynamicTemplateData: {
-      reminder: false,
-      recipientRole: UserRole.volunteer,
       startDay,
       startTime,
       endTime,
@@ -91,12 +87,12 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
  * get multiple notifications sent at the same time.
  */
 export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | undefined> {
-  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
+  const { sendGridFromEmailAddress, sendGridVolunteerBookingReminderTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
-  if (!sendGridBookingTemplateId) {
+  if (!sendGridVolunteerBookingReminderTemplate) {
     console.log('No booking template was set');
     return;
   }
@@ -138,10 +134,8 @@ export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | un
         name: 'Naisten Linja Booking Notifcation',
         email: sendGridFromEmailAddress,
       },
-      templateId: sendGridBookingTemplateId,
+      templateId: sendGridVolunteerBookingReminderTemplate,
       dynamicTemplateData: {
-        reminder: true,
-        recipientRole: UserRole.volunteer,
         startDay,
         startTime,
         endTime,
@@ -154,12 +148,12 @@ export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | un
 }
 
 export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
+  const { sendGridFromEmailAddress, sendGridStaffBookingConfirmationTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
-  if (!sendGridBookingTemplateId) {
+  if (!sendGridStaffBookingConfirmationTemplate) {
     console.log('No booking template was set');
     return;
   }
@@ -195,10 +189,8 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
       name: 'New Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    templateId: sendGridBookingTemplateId,
+    templateId: sendGridStaffBookingConfirmationTemplate,
     dynamicTemplateData: {
-      reminder: false,
-      recipientRole: UserRole.staff,
       startDay,
       startTime,
       endTime,
