@@ -131,10 +131,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
   };
 
   return (
-    <div className="flex width-100 align-items-flex-start">
+    <div
+      className="flex align-items-flex-start fixed overflow-auto"
+      style={{ height: '80vh', width: '120vh', maxWidth: '100%' }}
+    >
       <section
         className="flex flex-wrap sticky padding-right-s"
-        style={{ width: '12rem', top: '4rem', marginRight: '3rem' }}
+        style={{ width: '12rem', top: 0, marginRight: '3rem' }}
       >
         <h1 className="font-size-xxl">Book a slot</h1>
 
@@ -229,6 +232,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
           })}
         </section>
       </div>
+
       {bookingDetails && (
         <DialogOverlay onDismiss={() => setBookingDetails(null)}>
           <DialogContent aria-label="Make a new booking">
@@ -264,7 +268,7 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
   );
 
   return (
-    <div className="width-100 sticky background-white z-index-medium" style={{ top: '2.85rem' }}>
+    <div className="width-100 sticky background-white z-index-medium" style={{ top: 0 }}>
       <div className="position-relative width-100 padding-top-xxs ">
         {/* Workaround to hide the hour marker when scrolling down the page */}
         <div
