@@ -11,6 +11,7 @@ import { Booking } from './pages/Booking';
 import { MyBookings } from './pages/MyBookings';
 import { AllBookings } from './pages/AllBookings';
 import { ProfileSettings } from './pages/ProfileSettings';
+import { Materials } from './pages/Materials';
 
 export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -27,6 +28,7 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
       <MyBookings path="my-bookings" />
       <AllBookings path="all-bookings" />
       <ProfileSettings path="settings" />
+      <Materials path="materials" />
     </Router>
   );
 };

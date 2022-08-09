@@ -6,26 +6,15 @@ import { useAuth } from '../AuthContext';
 import { ContentPage } from '../ContentPage';
 import { EditContentPageForm } from '../EditContentPageForm';
 
-export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
+export const Materials: React.FunctionComponent<RouteComponentProps> = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const { user, login } = useAuth();
-
-  if (!user) {
-    return (
-      <div>
-        <p>Please login first to start using the service.</p>
-        <button onClick={login} className="button button-primary">
-          Login
-        </button>
-      </div>
-    );
-  }
+  const { user } = useAuth();
 
   if (!isEditing) {
     return (
       <>
-        <ContentPage slug="/" />
-        {user.role === UserRole.staff && (
+        <ContentPage slug="/materials" />
+        {user && user.role === UserRole.staff && (
           <button
             className="button margin-top-xs button-primary"
             onClick={() => setIsEditing(true)}
@@ -39,7 +28,7 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <EditContentPageForm
-      slug="/"
+      slug="/materials"
       afterSubmit={() => setIsEditing(false)}
       afterCancel={() => setIsEditing(false)}
     />

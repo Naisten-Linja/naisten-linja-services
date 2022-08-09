@@ -13,7 +13,7 @@ router.get<
   { slug: string }
 >('/', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
   const { slug } = req.query;
-  const page = await getPageBySlug(slug[0]);
+  const page = await getPageBySlug(slug);
   if (!page) {
     res.status(404).json({ error: 'page not found' });
     return;
