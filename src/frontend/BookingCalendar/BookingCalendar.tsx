@@ -15,7 +15,7 @@ import { BookingForm } from './BookingForm';
 import { HOUR_CELL_HEIGHT, BookingSlotDetails } from './shared-constants';
 
 const DialogOverlay = styled(ReachDialogOverlay)`
-  z-index: 99;
+  z-index: 110;
 `;
 
 const DialogContent = styled(ReachDialogContent)`
@@ -137,9 +137,14 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
   return (
     <div
       ref={bookingWrapper}
-      className="flex flex-wrap align-items-flex-start fixed overflow-auto"
-      style={{ height: '80vh', width: '120vh', maxWidth: '90%' }}
-    >
+      className="flex flex-wrap align-items-flex-start overflow-auto"
+      style={{ height: 'calc(100vh - 5vh - 2rem - 6rem)', marginBottom: '-5rem' }}
+    > {/*
+        -5vh: space for multiline header
+        -2rem: container top padding
+        -6rem: estimated normal header bar
+        -5rem margin-bottom: remove the parent container bottom margin
+      */}
       <section
         className="flex flex-wrap sticky padding-right-s"
         style={{ width: '12rem', top: 0, marginRight: '3rem' }}
@@ -180,7 +185,6 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
       </section>
 
       <div className="flex-1" style={{ marginLeft: "3rem" }}>
-        {/* TODO: for mobile device with smaller height size, the last two rows will get cut-off */}
         <CalendarHeader startDate={startDate} setStartDate={setStartDate} />
 
         <section className="flex" >
@@ -275,7 +279,7 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
           className="position-absolute position-top-left height-100 background-white"
           style={{ width: '3rem', transform: 'translateX(-100%)' }}
         />
-        <section className="flex width-100 align-items-center margin-bottom-xxs">
+        <section className="flex flex-wrap width-100 align-items-center margin-bottom-xxs">
           <div className="button-group">
             <button
               className="button"
@@ -293,13 +297,14 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
           <h2 className="no-margin">
             <span
               className={`
-              background-light-200
-              border-radius
-              font-size-m
-              font-weight-regular
-              margin-xs
-              padding-horizontal-xs
-          `}
+                background-light-200
+                border-radius
+                font-size-m
+                font-weight-regular
+                margin-xs
+                padding-horizontal-xs
+              `}
+              style={{ whiteSpace: 'nowrap' }}
             >
               {`Week ${startDate.format('w')}`}
             </span>
