@@ -128,3 +128,28 @@ the frontend code, and does not work correctly when editing backend folder). Set
 path for editor's TypeScript hinting turns out to be more tedious than it should be. There is a
 [long pending issue](https://github.com/microsoft/vscode/issues/12463) for vscode for example, nor there is such option
 in [Emacs Tide](https://github.com/ananthakumaran/tide)
+
+## How timezones work in this application
+
+**Server application**
+- The application has been set (in first row of `src/start-backend.ts`) to use UTC time everywhere
+- Data in the database is stored in UTC time without timezone information
+- Data is returned in the API as strings, in standard format which includes timezone information.
+- Server can receive data in any timezone as standard formatted strings which always include timezone information.
+  The timezone can be anything as long as it is correct. For example `12:00 GMT+00:00` and `15:00 GMT+03:00` are
+  both accepted and work the same way, because they represent the exactly same absolute moment in time.
+- **Exception to everything above**: slots are defined as a JSON object, which is not handled by the server at all.
+  Therefore the time ranges of the slots are always in `Europe/Helsinki` timezone. This is fine, because they do not
+  represent any specific moment in time, but something that can repeat on different days.
+
+**Browser application**
+- All dates and times are shown to the user in `Europe/Helsinki` timezone, regardless of the user's own timezone
+- Moment.js library has been configured to use `Europe/Helsinki` timezone by default. This works as long as no moment
+  objects are created on the root scope of the application, because then they would be initialised before the default
+  timezone has been set. By always using Moment.js for parsing and formatting the dates, everything should work well
+  without any tricks needed.
+- **Exception:** The component `ExceptionsDatePicker` handles whole days, not hours or minutes. It is using a library
+  [react-day-picker](https://react-day-picker.js.org/), which uses the browser's local timezone for getting dates in
+  and out of it. In that one component using that, instead of using Moment.js, we parse dates directly into browser's
+  local timezone, pointing to the local noon. The inputs and outputs of `ExceptionsDatePicker` are still just strings
+  in format `2022-01-30`, so this difference in timestamp processing does not affect anything outside of that.

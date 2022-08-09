@@ -7,6 +7,7 @@ import { useNotifications } from './NotificationsContext';
 import { useAuth } from './AuthContext';
 import { LetterContent } from './ui-components/content';
 import { Button, ButtonText } from './ui-components/buttons';
+import moment from 'moment-timezone';
 
 export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: string }>> = ({
   letterUuid,
@@ -150,7 +151,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <h1>{letter.title}</h1>
       <p>
         <i>
-          <b>Created:</b> {new Date(letter.created).toLocaleString('en-GB')}
+          <b>Created:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
         </i>
       </p>
       <LetterContent>{letter.content}</LetterContent>
@@ -159,7 +160,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b> {new Date(reply.updated).toLocaleString('en-GB')}
+            <b>Updated on:</b> {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
           </i>
           <br />
           <i>

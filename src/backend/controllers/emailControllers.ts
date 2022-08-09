@@ -3,6 +3,7 @@ import sgMail from '@sendgrid/mail';
 import { ApiBooking, UserRole } from '../../common/constants-common';
 import { getConfig } from '../config';
 import { getUsers } from '../models/users';
+import { getAllBookings } from './bookingControllers';
 
 export type SendDynamicEmailParams = {
   to: string | Array<string>;
@@ -12,8 +13,6 @@ export type SendDynamicEmailParams = {
   };
   templateId: string;
   dynamicTemplateData: {
-    reminder: boolean;
-    recipientRole: UserRole;
     startDay: string;
     startTime: string;
     endTime: string;
@@ -51,12 +50,12 @@ function getBookingTimeComponents(booking: ApiBooking) {
 }
 
 export async function sendBookingConfirmationEmail(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
+  const { sendGridFromEmailAddress, sendGridVolunteerBookingConfirmationTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
-  if (!sendGridBookingTemplateId) {
+  if (!sendGridVolunteerBookingConfirmationTemplate) {
     console.log('No booking template was set');
     return;
   }
@@ -68,10 +67,8 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
       name: 'Naisten Linja Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    templateId: sendGridBookingTemplateId,
+    templateId: sendGridVolunteerBookingConfirmationTemplate,
     dynamicTemplateData: {
-      reminder: false,
-      recipientRole: UserRole.volunteer,
       startDay,
       startTime,
       endTime,
@@ -80,13 +77,83 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
   });
 }
 
-export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridBookingTemplateId } = getConfig();
+/**
+ * Send reminder email to volunteers about their bookings.
+ *
+ * This function is supposed to be run **exactly once** every day,
+ * at the time when the emails need to be sent.
+ *
+ * If same volunteer has multiple bookings for the same day, they will
+ * get multiple notifications sent at the same time.
+ */
+export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | undefined> {
+  const { sendGridFromEmailAddress, sendGridVolunteerBookingReminderTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
     return;
   }
-  if (!sendGridBookingTemplateId) {
+  if (!sendGridVolunteerBookingReminderTemplate) {
+    console.log('No booking template was set');
+    return;
+  }
+
+  console.log(`Starting to send booking reminders at ${new Date().toISOString()}`);
+
+  const bookings = await getAllBookings()
+  if (!bookings) {
+    console.log("Failed to fetch bookings");
+    return;
+  }
+
+  // Find which bookings we want to send a reminder for
+  const bookingsToRemindAbout = bookings
+    .filter(booking => {
+      const bookingReminderDaysBefore: number | null = 3; // remind 3 days before booking
+      if (bookingReminderDaysBefore === null) return false; // user does not want a reminder
+
+      const slotDay = new Date(booking.start);
+      const today = new Date();
+
+      // Always use the beginning of the day slot for comparison.
+      slotDay.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+      const bookingDaysInAdvance = (slotDay.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+      const daysToTargetSendingTime = Math.abs(bookingDaysInAdvance - bookingReminderDaysBefore);
+      return daysToTargetSendingTime < 0.5; // should take rounding errors and leap days/seconds into account
+    });
+
+  console.log(`Found ${bookingsToRemindAbout.length} bookings to remind about.`)
+
+  const results = bookingsToRemindAbout.map(booking => {
+    const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
+
+    return sendEmailWithDynamicTemplate({
+      to: booking.email,
+      from: {
+        name: 'Naisten Linja Booking Notifcation',
+        email: sendGridFromEmailAddress,
+      },
+      templateId: sendGridVolunteerBookingReminderTemplate,
+      dynamicTemplateData: {
+        startDay,
+        startTime,
+        endTime,
+        booking
+      },
+    });
+  });
+
+  return Promise.all(results);
+}
+
+export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
+  const { sendGridFromEmailAddress, sendGridStaffBookingConfirmationTemplate } = getConfig();
+  if (!sendGridFromEmailAddress) {
+    console.log('No From email adress was set');
+    return;
+  }
+  if (!sendGridStaffBookingConfirmationTemplate) {
     console.log('No booking template was set');
     return;
   }
@@ -122,10 +189,8 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
       name: 'New Booking Notifcation',
       email: sendGridFromEmailAddress,
     },
-    templateId: sendGridBookingTemplateId,
+    templateId: sendGridStaffBookingConfirmationTemplate,
     dynamicTemplateData: {
-      reminder: false,
-      recipientRole: UserRole.staff,
       startDay,
       startTime,
       endTime,

@@ -22,7 +22,16 @@ export REDIS_URL="redis://localhost:$REDIS_PORT"
 # Set these variables if you are planning to test sending real emails
 export SENDGRID_API_KEY=
 export SENDGRID_FROM_EMAIL_ADDRESS=
-export SENDGRID_BOOKING_TEMPLATE_ID=
+export SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID=
+export SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID=
+export SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID=
+
+# The hour when booking reminder emails will be sent to volunteers
+# In development you can set this to "* *" to make the emails run every minute, but then you should also
+# remove the SENDGRID api credentials then to not use all of the quota!!
+# Unset/comment the environment variable to disable the reminders.
+# In production this should be a single number to avoid sending same email multiple times a day.
+export BOOKING_REMINDER_SENDING_HOUR=9
 
 # The list of allowed CORS origins requests to the backend API.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.
