@@ -38,7 +38,7 @@ export const EditContentPageForm: React.FC<{ slug: string, afterSubmit: () => vo
     return () => {
       updateStateAfterFetch = false;
     };
-  }, [setPage, addNotification, getRequest]);
+  }, [pageSlug, setPage, addNotification, getRequest]);
 
   const updatePage = useCallback(
     async (uuid: string, { slug, content, title }: ApiUpdatePageParams) => {
