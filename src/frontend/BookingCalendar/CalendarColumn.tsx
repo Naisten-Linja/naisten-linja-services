@@ -93,13 +93,15 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
             )?.count || 0;
           const availableSeats = seats - bookedSlotCount;
 
+          // Assign background color for a booking slot. If it's an old booking, grey out
+          const bgColor = end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor; 
           // Add diagonal pattern to the background if the seats are fully booked
-          const fullBookingTypeColor = `repeating-linear-gradient(
+          const slotBackground = (availableSeats > 0) ? bgColor : `repeating-linear-gradient(
             45deg,
-            ${bookingTypeColor},
+            ${bgColor},
             #000 1px,
-            ${bookingTypeColor} 1px,
-            ${bookingTypeColor} 8px
+            ${bgColor} 1px,
+            ${bgColor} 8px
           );`;
 
           const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
@@ -122,7 +124,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
               top={top}
               height={height}
               leftOffset={leftOffset}
-              background={end.isBefore(moment()) ? '#8c8c8c' : (availableSeats > 0) ? bookingTypeColor : fullBookingTypeColor}
+              background={slotBackground}
               width={slotsInOverlappingZone.length > 1 ? '50%' : '100%'}
               onClick={() =>
                 openBookingForm({
