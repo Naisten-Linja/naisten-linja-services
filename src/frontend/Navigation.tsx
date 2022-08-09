@@ -1,48 +1,40 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Link } from '@reach/router';
 
 import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
-import { Container } from './ui-components/layout';
+import ResponsiveMenu from 'react-responsive-navbar';
+import { IoMdMenu, IoMdClose } from 'react-icons/io';
 
 export const Navigation = () => {
-  const { user, logout, login } = useAuth();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const responsiveMenu= useRef<any>(null);
+
+  const handleMenuItemClicked = () => {
+    if (responsiveMenu.current) responsiveMenu.current?.handleClick();
+  }
+
   return (
     <NavigationWrapper>
-      <Container>
-        <div className="group group-m group-space-between">
-          <ul>
-            <li>
-              <MainMenu />
-            </li>
-            {!user && (
-              <li>
-                <ButtonSmall buttonType="secondary" onClick={login}>
-                  login
-                </ButtonSmall>
-              </li>
-            )}
-            {user && (
-              <li>
-                {user.email} ({user.role}) {` `}
-                <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
-                  Logout
-                </ButtonSmall>
-              </li>
-            )}
-          </ul>
-        </div>
-      </Container>
+      <ResponsiveMenu
+        ref={responsiveMenu}
+        menuOpenButton={<IoMdMenu size={24} />}
+        menuCloseButton={<IoMdClose size={24} />}
+        changeMenuOn="500px"
+        largeMenuClassName="padding-m container"
+        smallMenuClassName="padding-m"
+        menu={<MainMenu afterMenuClicked={handleMenuItemClicked}/>}
+      />
     </NavigationWrapper>
   );
 };
 
-const MainMenu = () => {
-  const { user } = useAuth();
+const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
+  const { user, logout, login } = useAuth();
   return (
-    <nav className="nav-inline">
+    <nav className="group group-m group-space-between" onClick={afterMenuClicked}>
       <ul>
         <li>
           <Link to="/">Naisten Linja</Link>
@@ -85,6 +77,21 @@ const MainMenu = () => {
             </li>
           </>
         )}
+        {!user && (
+          <li>
+            <ButtonSmall buttonType="secondary" onClick={login}>
+              login
+            </ButtonSmall>
+          </li>
+        )}
+        {user && (
+          <li>
+            {user.email} ({user.role}) {` `}
+            <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
+              Logout
+            </ButtonSmall>
+          </li>
+        )}
       </ul>
     </nav>
   );
@@ -93,7 +100,6 @@ const MainMenu = () => {
 const NavigationWrapper = styled.div`
   width: 100%;
   position: sticky;
-  padding: 0.5rem 0;
   z-index: 10;
   top: 0;
   background: #2e0556;

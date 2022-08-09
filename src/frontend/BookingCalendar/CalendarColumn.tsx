@@ -93,6 +93,17 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
             )?.count || 0;
           const availableSeats = seats - bookedSlotCount;
 
+          // Assign background color for a booking slot. If it's an old booking, grey out
+          const bgColor = end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor; 
+          // Add diagonal pattern to the background if the seats are fully booked
+          const slotBackground = (availableSeats > 0) ? bgColor : `repeating-linear-gradient(
+            45deg,
+            ${bgColor},
+            #000 1px,
+            ${bgColor} 1px,
+            ${bgColor} 8px
+          );`;
+
           const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
           const height = `${(end.diff(start, 'seconds') / 3600) * HOUR_CELL_HEIGHT}rem`;
           // Get overlapping slots
@@ -113,7 +124,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
               top={top}
               height={height}
               leftOffset={leftOffset}
-              backgroundColor={end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor}
+              background={slotBackground}
               width={slotsInOverlappingZone.length > 1 ? '50%' : '100%'}
               onClick={() =>
                 openBookingForm({
@@ -145,7 +156,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
 
 const SlotButton = styled.button<{
   leftOffset: string;
-  backgroundColor: string;
+  background: string;
   top: string;
   height: string;
   width: string;
@@ -162,10 +173,10 @@ const SlotButton = styled.button<{
   padding: 0.5rem;
   position: absolute;
   text-align: left;
-  ${({ backgroundColor, leftOffset, top, height, width }) => css`
+  ${({ background, leftOffset, top, height, width }) => css`
     top: ${top};
     height: ${height};
-    background-color: ${backgroundColor};
+    background: ${background};
     left: ${leftOffset};
     width: ${width};
     &:hover,
@@ -173,7 +184,7 @@ const SlotButton = styled.button<{
     &:focus {
       color: white;
       z-index: 2;
-      background-color: ${backgroundColor};
+      background: ${background};
     }
     &:focus {
       outline: 0.125rem solid #08c;
