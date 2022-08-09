@@ -137,7 +137,17 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     return null;
   }
   const { fullName, email } = user;
-  const initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
+
+  const unreservedUsers = users.filter((u) => !reservedUserUuids.includes(u.uuid));
+  const unreservedUserOptions = unreservedUsers.map((u) => ({
+    value: u.uuid,
+    label: `${u.email}${u.fullName ? ` - ${u.fullName}` : ''}`,
+  }));
+
+  // If the login user is already reserved, then default the dropdown to the first user on the list.
+  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0] as ApiUserData;
+
+  let initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
     workingRemotely: 'true' | 'false';
   } = {
     bookingTypeUuid,
@@ -150,15 +160,18 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     phone: '',
     workingRemotely: 'false',
   };
-  const isPastSlot = moment().isAfter(end);
 
-  const userList = users
-    .filter((u) => !reservedUserUuids.includes(u.uuid))
-    .map((u) => ({
-      value: u.uuid,
-      label: `${u.email}${u.fullName ? ` - ${u.fullName}` : ''}`,
-  }));
-  
+  // If the login user is already reserved, set the initial user info to the first user on the list.
+  if (unreservedUser) {
+    initialFormValues = {
+      ...initialFormValues,
+      email: unreservedUser.email,
+      fullName: unreservedUser.fullName || '',
+      userUuid: unreservedUser.uuid,
+    }
+  }
+
+  const isPastSlot = moment().isAfter(end);
   
   return (
     <>
@@ -197,6 +210,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             afterSubmit();
           }}
           initialValues={initialFormValues}
+          enableReinitialize
         >
           {({ setFieldValue }) => (
             <Form>
@@ -217,9 +231,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                         {...field}
                         isSearchable
                         value={
-                          userList ? userList.find((option) => option.value === field.value) : ''
+                          unreservedUserOptions ? unreservedUserOptions.find((option) => option.value === field.value) : ''
                         }
-                        options={userList}
+                        options={unreservedUserOptions}
                         onChange={(opt: { value: string; key: string }) => {
                           const selectedUser = users.find((u) => u.uuid === opt.value);
                           if (selectedUser) {
