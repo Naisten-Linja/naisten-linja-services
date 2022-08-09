@@ -22,7 +22,7 @@ export const Navigation = () => {
         ref={responsiveMenu}
         menuOpenButton={<IoMdMenu size={24} />}
         menuCloseButton={<IoMdClose size={24} />}
-        changeMenuOn="500px"
+        changeMenuOn="600px"
         largeMenuClassName="padding-m container"
         smallMenuClassName="padding-m"
         menu={<MainMenu afterMenuClicked={handleMenuItemClicked}/>}
@@ -37,7 +37,7 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
     <nav className="group group-m group-space-between" onClick={afterMenuClicked}>
       <ul>
         <li>
-          <Link to="/">Naisten Linja</Link>
+          <Link to="/" style={{ fontWeight: 'bold' }}>Naisten Linja</Link>
         </li>
         {user && user.role === UserRole.staff && (
           <>
@@ -100,7 +100,7 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
 const NavigationWrapper = styled.div`
   width: 100%;
   position: sticky;
-  z-index: 10;
+  z-index: 100;
   top: 0;
   background: #2e0556;
   color: var(--white);
