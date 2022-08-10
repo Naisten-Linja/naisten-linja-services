@@ -288,12 +288,12 @@ export async function updateLetterAssignee({
   assigneeUuid,
 }: {
   letterUuid: string;
-  assigneeUuid: string;
+  assigneeUuid: string | null;
 }): Promise<Letter | null> {
   try {
     const queryText = `
        UPDATE letters
-       SET assigned_responder_uuid = $1::text
+       SET assigned_responder_uuid = $1
        WHERE letters.uuid = $2::text
        RETURNING *;
     `;

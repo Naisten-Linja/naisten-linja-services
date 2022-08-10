@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import styled from 'styled-components';
-// eslint-disable-next-line
-import SelectSearch from 'react-select-search';
+import Select from 'react-select';
 
 import { ApiLetterAdmin, ApiUserData, UserRole } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 import { useAuth } from './AuthContext';
 import { useRequest } from './http';
 
-import './assets/react-select-search.css';
 import moment from 'moment-timezone';
 
 const LettersTable = styled.table`
@@ -72,7 +70,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     assigneeUuid,
   }: {
     letterUuid: string;
-    assigneeUuid: string;
+    assigneeUuid: string | null;
   }) => {
     const email = (users.find((u) => u.uuid === assigneeUuid) || {}).email;
     try {
@@ -81,8 +79,11 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         { letterUuid, assigneeUuid },
         { useJwt: true },
       );
+
       if (result.data.data) {
-        addNotification({ type: 'success', message: `Letter was assigned to ${email}` });
+        if (assigneeUuid)
+          addNotification({ type: 'success', message: `Letter was assigned to ${email}` });
+        else addNotification({ type: 'success', message: `Letter was unassigned to any email` });
       }
     } catch (err) {
       console.log(err);
@@ -91,10 +92,26 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     await fetchLetters();
   };
 
-  const assigneeOptions = users.map((u) => ({
-    name: `${u.email}${u.fullName ? ' - ' + u.fullName : ''}`,
-    value: u.uuid as string | null,
-  }));
+  type OptionType = {
+    value: string | null;
+    label: string;
+  };
+
+  const assigneeOptions: OptionType[] = users
+    .map((u) => ({
+      value: u.uuid as string | null,
+      label: `${u.fullName ? u.fullName + ' - ' : ''}${u.email}`,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const handleUserSelection = (letter: ApiLetterAdmin, opt: OptionType | null) => {
+    if (opt && opt.value !== letter.assignedResponderUuid) {
+      assignLetter({ letterUuid: letter.uuid, assigneeUuid: opt.value });
+    } else {
+      // Unassigned letter will set assigneeUuid field to null
+      assignLetter({ letterUuid: letter.uuid, assigneeUuid: null });
+    }
+  };
 
   return (
     <>
@@ -118,16 +135,21 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                 </td>
                 <td>{letter.replyStatus || ''}</td>
                 {isStaff && (
-                  <td>
-                    <SelectSearch
-                      options={assigneeOptions}
-                      value={letter.assignedResponderUuid}
+                  <td style={{ maxWidth: 200 }}>
+                    <Select
+                      value={
+                        assigneeOptions
+                          ? assigneeOptions.find(
+                              (option) => option.value === letter.assignedResponderUuid,
+                            )
+                          : null
+                      }
                       placeholder="Assign to a user"
-                      search
-                      onChange={(assigneeUuid: string) => {
-                        if (assigneeUuid !== letter.assignedResponderUuid) {
-                          assignLetter({ letterUuid: letter.uuid, assigneeUuid });
-                        }
+                      options={assigneeOptions}
+                      isSearchable
+                      isClearable
+                      onChange={(selected) => {
+                        handleUserSelection(letter, selected);
                       }}
                     />
                   </td>

@@ -109,8 +109,8 @@ router.post(
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { letterUuid, assigneeUuid } = req.body;
-    if (!letterUuid || !assigneeUuid) {
-      res.status(400).json({ error: 'missing letterUuid or assigneeUuid in request body' });
+    if (!letterUuid) {
+      res.status(400).json({ error: 'missing letterUuid in request body' });
       return;
     }
 

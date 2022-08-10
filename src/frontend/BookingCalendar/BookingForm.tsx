@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import moment from 'moment-timezone';
 import { Formik, Form, Field } from 'formik';
+import Select from 'react-select';
 import '@reach/dialog/styles.css';
 
 import {
@@ -136,7 +137,19 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     return null;
   }
   const { fullName, email } = user;
-  const initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
+
+  const unreservedUsers = users.filter((u) => !reservedUserUuids.includes(u.uuid));
+  const unreservedUserOptions = unreservedUsers
+    .map((u) => ({
+      value: u.uuid,
+      label: `${u.fullName ? u.fullName + ' - ' : ''}${u.email}`,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // If the login user is already reserved, then default the dropdown to the first user on the list.
+  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0] as ApiUserData;
+
+  let initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
     workingRemotely: 'true' | 'false';
   } = {
     bookingTypeUuid,
@@ -149,8 +162,19 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     phone: '',
     workingRemotely: 'false',
   };
-  const isPastSlot = moment().isAfter(end);
 
+  // If the login user is already reserved, set the initial user info to the first user on the list.
+  if (unreservedUser) {
+    initialFormValues = {
+      ...initialFormValues,
+      email: unreservedUser.email,
+      fullName: unreservedUser.fullName || '',
+      userUuid: unreservedUser.uuid,
+    }
+  }
+
+  const isPastSlot = moment().isAfter(end);
+  
   return (
     <>
       <h2>Reserve a slot</h2>
@@ -188,6 +212,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             afterSubmit();
           }}
           initialValues={initialFormValues}
+          enableReinitialize
         >
           {({ setFieldValue }) => (
             <Form>
@@ -200,31 +225,27 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                     type="text"
                     name="userUuid"
                     id="booking-details-user-uuid"
-                    defaultValue={user.uuid}
                     required
                     as="select"
                     // @ts-ignore
                     render={({ field }) => (
-                      <select
+                      <Select
                         {...field}
-                        onChange={(e) => {
-                          const selectedUser = users.find((u) => u.uuid === e.target.value);
+                        isSearchable
+                        value={
+                          unreservedUserOptions ? unreservedUserOptions.find((option) => option.value === field.value) : ''
+                        }
+                        options={unreservedUserOptions}
+                        onChange={(opt: { value: string; key: string }) => {
+                          const selectedUser = users.find((u) => u.uuid === opt.value);
                           if (selectedUser) {
                             setFieldValue('email', selectedUser.email);
                             setFieldValue('fullName', selectedUser.fullName || '');
                           }
-                          field.onChange(e);
+                          setFieldValue(field.name, opt.value);
                         }}
-                      >
-                        {users
-                          .filter((u) => !reservedUserUuids.includes(u.uuid))
-                          .map((u) => (
-                            <option value={u.uuid} key={u.uuid}>
-                              {u.email}
-                              {u.fullName ? ` - ${u.fullName}` : ''}
-                            </option>
-                          ))}
-                      </select>
+                        onBlur={field.onBlur}
+                      />
                     )}
                   ></Field>
                 </>
