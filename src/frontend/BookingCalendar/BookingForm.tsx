@@ -277,9 +277,6 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                 as="textarea"
               />
               <input className="button button-primary" type="submit" value="Book the slot" />
-              <button className="button width-100" type="button" onClick={dismissModal}>
-                Cancel
-              </button>
             </Form>
           )}
         </Formik>
@@ -303,6 +300,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           ))}
         </>
       )}
+      
+      <button className="button width-100 margin-top-l" type="button" onClick={dismissModal}>
+        Close
+      </button>
     </>
   );
 };
