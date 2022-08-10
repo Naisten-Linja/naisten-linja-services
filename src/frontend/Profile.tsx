@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
+import DataTable from 'react-data-table-component';
 
 import { useRequest } from './http';
 import { ApiBooking, ApiUserData, UserRole } from '../common/constants-common';
@@ -44,9 +45,7 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
         },
       );
       if (result.data.data && updateStateAfterFetch) {
-        setBookings(
-          result.data.data.sort((a, b) => (new Date(a.start) > new Date(b.start) ? 1 : -1)),
-        );
+        setBookings(result.data.data);
       }
     };
     getBookings();
@@ -101,58 +100,57 @@ const UserProfile: React.FC<{ user: ApiUserData }> = ({ user }) => {
 };
 
 const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) => {
+  const dateSort = (a: { start: string }, b: { start: string }) => {
+    return new Date(a.start) > new Date(b.start) ? 1 : -1;
+  };
+
+  const columns = [
+    {
+      id: 1,
+      name: 'Title',
+      selector: (row: ApiBooking) => row.bookingType.name,
+      wrap: true,
+    },
+    {
+      id: 2,
+      name: 'Date',
+      selector: (row: ApiBooking) => {
+        return `${moment(row.start).format('ddd Do MMM YYYY')}
+        ${moment(row.start).format('HH:mm')} - ${moment(row.end).format('HH:mm')}`;
+      },
+      sortable: true,
+      sortFunction: dateSort,
+      wrap: true,
+    },
+    {
+      id: 3,
+      name: 'Full Name',
+      selector: (row: ApiBooking) => row.fullName,
+    },
+    {
+      id: 4,
+      name: 'Email',
+      selector: (row: ApiBooking) => row.email,
+      wrap: true,
+    },
+    {
+      id: 5,
+      name: 'Phone',
+      selector: (row: ApiBooking) => row.phone,
+    },
+    {
+      id: 6,
+      name: 'Work Location',
+      selector: (row: ApiBooking) => row.workingRemotely ? 'Remote' : 'Office',
+    },
+    {
+      id: 7,
+      name: 'Note',
+      selector: (row: ApiBooking) => row.bookingNote,
+    },
+  ];
+
   return (
-    <div className="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Booking details</th>
-            <th>Personal details</th>
-            <th>Note</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map(
-            ({
-              uuid,
-              bookingType,
-              bookingNote,
-              start,
-              end,
-              fullName,
-              email,
-              phone,
-              workingRemotely,
-            }) => (
-              <tr key={uuid}>
-                <td>
-                  <b>{bookingType.name}</b>
-                  <br />
-                  {moment(start).format('ddd Do MMM YYYY')}
-                  <br />
-                  {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-                </td>
-                <td>
-                  {fullName}
-                  <br />
-                  {email}
-                  <br />
-                  {phone}
-                  <br />
-                  Work location: {workingRemotely ? 'Remote' : 'Office'}
-                </td>
-                <td>
-                  {!!bookingNote && (
-                    <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                      {bookingNote}
-                    </pre>
-                  )}
-                </td>
-              </tr>
-            ),
-          )}
-        </tbody>
-      </table>
-    </div>
+    <DataTable columns={columns} data={bookings} defaultSortFieldId={2} pagination responsive />
   );
 };
