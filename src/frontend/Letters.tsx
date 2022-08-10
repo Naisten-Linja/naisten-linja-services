@@ -97,10 +97,12 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     label: string;
   };
 
-  const assigneeOptions: OptionType[] = users.map((u) => ({
-    value: u.uuid as string | null,
-    label: `${u.email}${u.fullName ? ' - ' + u.fullName : ''}`,
-  }));
+  const assigneeOptions: OptionType[] = users
+    .map((u) => ({
+      value: u.uuid as string | null,
+      label: `${u.fullName ? u.fullName + ' - ' : ''}${u.email}`,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const handleUserSelection = (letter: ApiLetterAdmin, opt: OptionType | null) => {
     if (opt && opt.value !== letter.assignedResponderUuid) {
