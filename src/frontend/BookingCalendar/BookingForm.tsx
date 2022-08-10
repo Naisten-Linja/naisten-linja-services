@@ -139,10 +139,12 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   const { fullName, email } = user;
 
   const unreservedUsers = users.filter((u) => !reservedUserUuids.includes(u.uuid));
-  const unreservedUserOptions = unreservedUsers.map((u) => ({
-    value: u.uuid,
-    label: `${u.email}${u.fullName ? ` - ${u.fullName}` : ''}`,
-  }));
+  const unreservedUserOptions = unreservedUsers
+    .map((u) => ({
+      value: u.uuid,
+      label: `${u.fullName ? u.fullName + ' - ' : ''}${u.email}`,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   // If the login user is already reserved, then default the dropdown to the first user on the list.
   const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0] as ApiUserData;
