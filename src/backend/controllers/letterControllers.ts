@@ -94,7 +94,7 @@ export async function assignLetter({
   assigneeUuid,
 }: {
   letterUuid: string;
-  assigneeUuid: string;
+  assigneeUuid: string | null;
 }): Promise<ApiLetterAdmin | null> {
   const letter = await updateLetterAssignee({ letterUuid, assigneeUuid });
   if (!letter) {
