@@ -7,6 +7,7 @@ import { Letters } from './Letters';
 import { Reply } from './Reply';
 import { Booking } from './pages/Booking';
 import { MyBookings } from './pages/MyBookings';
+import { Materials } from './pages/Materials';
 
 export const Volunteer: React.FunctionComponent<RouteComponentProps> = () => {
   const { token, user } = useAuth();
@@ -19,6 +20,7 @@ export const Volunteer: React.FunctionComponent<RouteComponentProps> = () => {
       <Reply path="letters/:letterUuid" />
       <Booking path="booking" />
       <MyBookings path="my-bookings" />
+      <Materials path="materials" />
     </Router>
   );
 };

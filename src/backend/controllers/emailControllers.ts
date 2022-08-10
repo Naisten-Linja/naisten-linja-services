@@ -1,6 +1,6 @@
 import sgMail from '@sendgrid/mail';
 
-import { ApiBooking, UserRole } from '../../common/constants-common';
+import { ApiBooking } from '../../common/constants-common';
 import { getConfig } from '../config';
 import { getUsers } from '../models/users';
 import { getAllBookings } from './bookingControllers';

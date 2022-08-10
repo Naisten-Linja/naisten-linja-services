@@ -6,7 +6,8 @@ import { ApiPage, ApiUpdatePageParams } from '../common/constants-common';
 import { useRequest } from './http';
 import { useNotifications } from './NotificationsContext';
 
-export const EditFrontPageForm: React.FC<{ afterSubmit: () => void; afterCancel: () => void }> = ({
+export const EditContentPageForm: React.FC<{ slug: string, afterSubmit: () => void; afterCancel: () => void }> = ({
+  slug: pageSlug,
   afterSubmit,
   afterCancel,
 }) => {
@@ -20,7 +21,7 @@ export const EditFrontPageForm: React.FC<{ afterSubmit: () => void; afterCancel:
     const fetchPage = async () => {
       try {
         const result = await getRequest<{ data: ApiPage }>(
-          `/api/pages/?slug=${encodeURIComponent('/')}`,
+          `/api/pages/?slug=${encodeURIComponent(pageSlug)}`,
           { useJwt: true },
         );
         if (result.data.data && updateStateAfterFetch) {
@@ -37,7 +38,7 @@ export const EditFrontPageForm: React.FC<{ afterSubmit: () => void; afterCancel:
     return () => {
       updateStateAfterFetch = false;
     };
-  }, [setPage, addNotification, getRequest]);
+  }, [pageSlug, setPage, addNotification, getRequest]);
 
   const updatePage = useCallback(
     async (uuid: string, { slug, content, title }: ApiUpdatePageParams) => {

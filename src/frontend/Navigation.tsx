@@ -62,6 +62,9 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
             <li>
               <Link to="admin/settings">Settings</Link>
             </li>
+            <li>
+              <Link to="admin/materials">Materials</Link>
+            </li>
           </>
         )}
         {user && user.role === UserRole.volunteer && (
@@ -74,6 +77,9 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
             </li>
             <li>
               <Link to="volunteer/my-bookings">My bookings</Link>
+            </li>
+            <li>
+              <Link to="volunteer/materials">Materials</Link>
             </li>
           </>
         )}
