@@ -101,6 +101,17 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
 );
 
 router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
+  '/user/:userUuid',
+  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  async (req, res) => {
+    const { userUuid } = req.params;
+    const bookings = (await getUserBookings(userUuid)) || [];
+
+    res.status(200).json({ data: bookings });
+  },
+);
+
+router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
   '/all',
   // Only allow staff to view all detailed booking information
   isAuthenticated([UserRole.staff]),

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, Link } from '@reach/router';
 
 import { ApiUserData, UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
@@ -61,7 +61,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
             {users.map((u) => {
               return (
                 <tr key={`user-list-item-${u.uuid}`}>
-                  <td>{u.email}</td>
+                  <td><Link to={u.uuid}>{u.email}</Link></td>
                   <td>{u.fullName}</td>
                   <td>
                     <select

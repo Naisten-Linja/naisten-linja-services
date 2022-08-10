@@ -48,4 +48,17 @@ router.get<Record<string, never>, { data: ApiUserData | null } | { error: string
   },
 );
 
+router.get<Record<string, never>, { data: ApiUserData | null } | { error: string }>(
+  '/:userUuid',
+  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  async (req, res) => {
+    const { userUuid } = req.params;
+    const userData = await getUserData(userUuid);
+    if (!userData) {
+      res.status(404).json({ error: `unable to get user profile` });
+    }
+    res.status(200).json({ data: userData });
+  },
+);
+
 export default router;
