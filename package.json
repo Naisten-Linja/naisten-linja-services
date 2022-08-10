@@ -108,7 +108,6 @@
     "react-idle-timer": "^4.6.4",
     "react-modal": "^3.14.4",
     "react-scripts": "4.0.3",
-    "react-select-search": "^2.0.3",
     "rsuite": "^4.8.4",
     "styled-components": "^5.1.0",
     "ts-node": "^10.4.0",
@@ -134,9 +133,6 @@
     "transform": {
       "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest"
     },
-    "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!react-select-search)"
-    ],
     "moduleNameMapper": {
       "^.+\\.(css|sass|scss)$": "identity-obj-proxy"
     }
