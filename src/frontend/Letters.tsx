@@ -102,7 +102,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     label: `${u.email}${u.fullName ? ' - ' + u.fullName : ''}`,
   }));
 
-  const handleUserSelection = (letter: ApiLetterAdmin, opt: OptionType) => {
+  const handleUserSelection = (letter: ApiLetterAdmin, opt: OptionType | null) => {
     if (opt && opt.value !== letter.assignedResponderUuid) {
       assignLetter({ letterUuid: letter.uuid, assigneeUuid: opt.value });
     } else {
@@ -140,15 +140,13 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                           ? assigneeOptions.find(
                               (option) => option.value === letter.assignedResponderUuid,
                             )
-                          : ''
+                          : null
                       }
                       placeholder="Assign to a user"
-                      // @ts-ignore
                       options={assigneeOptions}
                       isSearchable
                       isClearable
-                      // @ts-ignore
-                      onChange={(selected: OptionType) => {
+                      onChange={(selected) => {
                         handleUserSelection(letter, selected);
                       }}
                     />
