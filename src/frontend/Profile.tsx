@@ -141,7 +141,7 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
     {
       id: 6,
       name: 'Work Location',
-      selector: (row: ApiBooking) => row.workingRemotely ? 'Remote' : 'Office',
+      selector: (row: ApiBooking) => (row.workingRemotely ? 'Remote' : 'Office'),
     },
     {
       id: 7,
