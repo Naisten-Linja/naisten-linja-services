@@ -14,7 +14,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const ALL_TYPES_OPTION = { label: '(All booking types)', value: null };
 
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
-  const [bookingStats, setBookingStats] = useState<Array<ApiBookingUserStats>>([]);
+  const [bookingStats, setBookingStats] = useState<Array<ApiBookingUserStats> | null>(null);
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
   const [currBookingType, setCurrBookingType] = useState<BookingTypeOption>(ALL_TYPES_OPTION);
   const { user: loggedInUser } = useAuth();
@@ -72,6 +72,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
 
   useEffect(() => {
     let updateStateAfterFetch = true;
+    setBookingStats(null);
     fetchBookingStats((bookingStats) => {
       if (bookingStats && updateStateAfterFetch) {
         setBookingStats(bookingStats);
@@ -108,7 +109,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       totalPrevious: 0,
       totalUpcoming: 0,
     };
-    const stats = bookingStats.find(stats => stats.uuid === user.uuid) || emptyStats;
+    const stats = bookingStats?.find(stats => stats.uuid === user.uuid) || emptyStats;
     return { ...user, ...stats };
   });
 
@@ -142,6 +143,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
           <Select
             id="user-list-booking-type-select"
             isSearchable
+            isLoading={bookingStats === null}
             value={currBookingType}
             options={bookingTypeOptions}
             onChange={(opt) => setCurrBookingType(opt || ALL_TYPES_OPTION)}

@@ -132,18 +132,22 @@ async function bookingModelToApiBooking(
   };
 }
 
-export async function getBookingUserStats(): Promise<ApiBookingUserStats[] | null> {
+export async function getBookingUserStats(bookingType: string | undefined): Promise<ApiBookingUserStats[] | null> {
   const bookings = await getAllBookings();
   if (bookings === null) {
     return null;
   }
-  const bookingsByUser = bookings.reduce<Record<string, ApiBooking[]>>((obj, booking) => {
-    const u_uuid = booking.user.uuid;
-    return {
-      ...obj,
-      [u_uuid]: [...(obj[u_uuid] || []), booking],
-    };
-  }, {});
+  const bookingsByUser = bookings
+    .filter(booking =>
+      typeof bookingType === 'undefined' || booking.bookingType.uuid === bookingType
+    )
+    .reduce<Record<string, ApiBooking[]>>((obj, booking) => {
+      const u_uuid = booking.user.uuid;
+      return {
+        ...obj,
+        [u_uuid]: [...(obj[u_uuid] || []), booking],
+      };
+    }, {});
 
   const now = new Date();
 
