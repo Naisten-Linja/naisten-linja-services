@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 
-import { ApiUserData, UserRole } from '../common/constants-common';
+import { ApiBooking, ApiBookingUserStats, ApiUserData, UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
+import moment from 'moment-timezone';
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
+  const [bookingStats, setBookingStats] = useState<Array<ApiBookingUserStats>>([]);
   const { user: loggedInUser } = useAuth();
   const { addNotification } = useNotifications();
   const { getRequest, putRequest } = useRequest();
@@ -45,6 +47,54 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     fetchUsers();
   }, [getRequest]);
 
+  const fetchBookingStats = useCallback(
+    async (callback: (bookingStats: Array<ApiBookingUserStats>) => void) => {
+      const result = await getRequest<{ data: Array<ApiBookingUserStats> }>('/api/bookings/userstats', {
+        useJwt: true,
+      });
+      if (result.data.data) {
+        const bookings = result.data.data;
+        callback(bookings);
+      }
+    },
+    [getRequest],
+  );
+
+  useEffect(() => {
+    let updateStateAfterFetch = true;
+    fetchBookingStats((bookingStats) => {
+      if (bookingStats && updateStateAfterFetch) {
+        setBookingStats(bookingStats);
+      }
+    });
+    return () => {
+      updateStateAfterFetch = false;
+    };
+  }, [getRequest, setBookingStats, fetchBookingStats]);
+
+  const usersWithBookings = users.map(user => {
+    const emptyStats: ApiBookingUserStats = {
+      uuid: user.uuid,
+      previousBooking: null,
+      upcomingBooking: null,
+      totalPrevious: 0,
+      totalUpcoming: 0,
+    };
+    const stats = bookingStats.find(stats => stats.uuid === user.uuid) || emptyStats;
+    return { ...user, ...stats };
+  })
+
+  const renderBooking = (booking: ApiBooking | null, total: number) => {
+    if (booking === null) return <>-</>
+    const others = total > 0 ? total - 1 : 0
+    return <span>
+      {moment(booking.start).format('ddd Do MMM YYYY')}
+      <br />
+      {moment(booking.start).format('HH:mm')} - {moment(booking.end).format('HH:mm')}
+      {others > 0 ? <span style={{ float: 'right' }}>(+{others} more)</span> : null}
+    </span>
+  }
+
   return (
     <>
       <h1>Users</h1>
@@ -54,15 +104,19 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
             <tr>
               <th>Email</th>
               <th>Full name</th>
+              <th>Previous booking</th>
+              <th>Upcoming booking</th>
               <th>Role</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => {
+            {usersWithBookings.map((u) => {
               return (
                 <tr key={`user-list-item-${u.uuid}`}>
                   <td><Link to={u.uuid}>{u.email}</Link></td>
                   <td>{u.fullName}</td>
+                  <td>{renderBooking(u.previousBooking, u.totalPrevious)}</td>
+                  <td>{renderBooking(u.upcomingBooking, u.totalUpcoming)}</td>
                   <td>
                     <select
                       defaultValue={u.role}

@@ -6,6 +6,7 @@ import {
   getUserBookings,
   deleteBooking,
   updateBooking,
+  getBookingUserStats,
 } from '../controllers/bookingControllers';
 import {
   UserRole,
@@ -13,6 +14,7 @@ import {
   ApiCreateBookingParams,
   ApiUpdateBookingParams,
   ApiBookedSlot,
+  ApiBookingUserStats,
 } from '../../common/constants-common';
 import {
   sendBookingConfirmationEmail,
@@ -117,6 +119,16 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
   isAuthenticated([UserRole.staff]),
   async (_, res) => {
     const bookings = (await getAllBookings()) || [];
+    res.status(200).json({ data: bookings });
+  },
+);
+
+router.get<Record<string, never>, { data: Array<ApiBookingUserStats> } | { error: string }>(
+  '/userstats',
+  // Only allow staff to view all detailed booking information
+  isAuthenticated([UserRole.staff]),
+  async (_, res) => {
+    const bookings = (await getBookingUserStats()) || [];
     res.status(200).json({ data: bookings });
   },
 );

@@ -1,4 +1,4 @@
-import { ApiBooking, ApiBookingType } from '../../common/constants-common';
+import { ApiBooking, ApiBookingType, ApiBookingUserStats } from '../../common/constants-common';
 
 import * as bookingTypesController from './bookingTypeControllers';
 import * as bookingsModel from '../models/bookings';
@@ -130,4 +130,40 @@ async function bookingModelToApiBooking(
     start: start.toString(),
     end: end.toString(),
   };
+}
+
+export async function getBookingUserStats(): Promise<ApiBookingUserStats[] | null> {
+  const bookings = await getAllBookings();
+  if (bookings === null) {
+    return null;
+  }
+  const bookingsByUser = bookings.reduce<Record<string, ApiBooking[]>>((obj, booking) => {
+    const u_uuid = booking.user.uuid;
+    return {
+      ...obj,
+      [u_uuid]: [...(obj[u_uuid] || []), booking],
+    };
+  }, {});
+
+  const now = new Date();
+
+  return Object.entries(bookingsByUser).map(([uuid, bookings]) => {
+    const [previous, upcoming] = bookings
+      .reduce<[ApiBooking[], ApiBooking[]]>(([previous, upcoming], booking) => {
+        if (new Date(booking.end) > now) { // ongoing bookings are upcoming bookings
+          return [previous, [...upcoming, booking]];
+        } else {
+          return [[...previous, booking], upcoming];
+        }
+      }, [[], []]);
+    previous.sort((a, b) => new Date(b.end).getTime() - new Date(a.end).getTime());
+    upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    return {
+      uuid,
+      previousBooking: previous.length > 0 ? previous[0] : null,
+      upcomingBooking: upcoming.length > 0 ? upcoming[0] : null,
+      totalPrevious: previous.length,
+      totalUpcoming: upcoming.length,
+    };
+  });
 }
