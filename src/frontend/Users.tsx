@@ -7,7 +7,7 @@ import { ApiBooking, ApiBookingType, ApiBookingUserStats, ApiUserData, UserRole 
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
-import styled from 'styled-components';
+import { OverrideTurretInputHeightForReactSelectDiv } from './utils-frontend';
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   type BookingTypeOption = { label: string, value: string | null };
@@ -197,9 +197,3 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     </>
   );
 };
-
-const OverrideTurretInputHeightForReactSelectDiv = styled.div`
-  input {
-    height: auto;
-  }
-`

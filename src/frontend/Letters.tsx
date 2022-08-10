@@ -9,6 +9,7 @@ import { useAuth } from './AuthContext';
 import { useRequest } from './http';
 
 import moment from 'moment-timezone';
+import { OverrideTurretInputHeightForReactSelectDiv } from './utils-frontend';
 
 const LettersTable = styled.table`
   tr {
@@ -136,22 +137,24 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                 <td>{letter.replyStatus || ''}</td>
                 {isStaff && (
                   <td style={{ maxWidth: 200 }}>
-                    <Select
-                      value={
-                        assigneeOptions
-                          ? assigneeOptions.find(
-                              (option) => option.value === letter.assignedResponderUuid,
-                            )
-                          : null
-                      }
-                      placeholder="Assign to a user"
-                      options={assigneeOptions}
-                      isSearchable
-                      isClearable
-                      onChange={(selected) => {
-                        handleUserSelection(letter, selected);
-                      }}
-                    />
+                    <OverrideTurretInputHeightForReactSelectDiv>
+                      <Select
+                        value={
+                          assigneeOptions
+                            ? assigneeOptions.find(
+                                (option) => option.value === letter.assignedResponderUuid,
+                              )
+                            : null
+                        }
+                        placeholder="Assign to a user"
+                        options={assigneeOptions}
+                        isSearchable
+                        isClearable
+                        onChange={(selected) => {
+                          handleUserSelection(letter, selected);
+                        }}
+                      />
+                    </OverrideTurretInputHeightForReactSelectDiv>
                   </td>
                 )}
               </tr>
