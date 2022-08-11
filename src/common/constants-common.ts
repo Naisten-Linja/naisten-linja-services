@@ -167,6 +167,14 @@ export interface ApiUpdateBookingParams {
   bookingNote: string;
 }
 
+export interface ApiBookingUserStats {
+  uuid: string;
+  previousBooking: ApiBooking | null;
+  upcomingBooking: ApiBooking | null;
+  totalPrevious: number;
+  totalUpcoming: number;
+}
+
 export interface ApiBookedSlot {
   bookingTypeUuid: string;
   start: string;
