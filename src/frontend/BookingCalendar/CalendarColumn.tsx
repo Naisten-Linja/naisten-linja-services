@@ -35,6 +35,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
   return (
     <section
       className="flex flex-1 flex-column position-relative"
+      style={{ minWidth: '7rem' }}
       aria-label={currentDate.format('ddd DD')}
     >
       {Array.from(new Array(24).keys()).map((hourOffset) => {
@@ -173,6 +174,7 @@ const SlotButton = styled.button<{
   padding: 0.5rem;
   position: absolute;
   text-align: left;
+  font-size: 0.8rem;
   ${({ background, leftOffset, top, height, width }) => css`
     top: ${top};
     height: ${height};
