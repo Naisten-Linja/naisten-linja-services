@@ -50,7 +50,7 @@ router.get<Record<string, never>, { data: ApiUserData | null } | { error: string
 
 router.get<Record<string, never>, { data: ApiUserData | null } | { error: string }>(
   '/:userUuid',
-  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { userUuid } = req.params;
     const userData = await getUserData(userUuid);
