@@ -102,7 +102,7 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
 
 router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
   '/user/:userUuid',
-  isAuthenticated([UserRole.staff, UserRole.volunteer]),
+  isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { userUuid } = req.params;
     const bookings = (await getUserBookings(userUuid)) || [];
