@@ -114,13 +114,19 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
     {
       id: 2,
       name: 'Date',
-      selector: (row: ApiBooking) => {
-        return `${moment(row.start).format('ddd Do MMM YYYY')}
-        ${moment(row.start).format('HH:mm')} - ${moment(row.end).format('HH:mm')}`;
-      },
+      selector: (row: ApiBooking) => `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
       sortable: true,
       sortFunction: dateSort,
       wrap: true,
+      format: (row: ApiBooking) => {
+        return (
+          <>
+            {moment(row.start).format('ddd Do MMM YYYY')}
+            <br />
+            {moment(row.start).format('HH:mm')} - {moment(row.end).format('HH:mm')}
+          </>
+        );
+      },
     },
     {
       id: 3,
@@ -132,11 +138,13 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
       name: 'Email',
       selector: (row: ApiBooking) => row.email,
       wrap: true,
+      grow: 2,
     },
     {
       id: 5,
       name: 'Phone',
       selector: (row: ApiBooking) => row.phone,
+      wrap: true,
     },
     {
       id: 6,
@@ -147,6 +155,7 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
       id: 7,
       name: 'Note',
       selector: (row: ApiBooking) => row.bookingNote,
+      wrap: true,
     },
   ];
 
