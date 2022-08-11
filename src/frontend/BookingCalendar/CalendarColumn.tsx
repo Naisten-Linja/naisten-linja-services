@@ -35,7 +35,6 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
   return (
     <section
       className="flex flex-1 flex-column position-relative"
-      style={{ minWidth: '7rem' }}
       aria-label={currentDate.format('ddd DD')}
     >
       {Array.from(new Array(24).keys()).map((hourOffset) => {
@@ -99,10 +98,11 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
           // Add diagonal pattern to the background if the seats are fully booked
           const slotBackground = (availableSeats > 0) ? bgColor : `repeating-linear-gradient(
             45deg,
-            ${bgColor},
-            #000 1px,
-            ${bgColor} 1px,
-            ${bgColor} 8px
+            ${bgColor} 0px,
+            #000 0px,
+            #000 5px,
+            ${bgColor} 5px,
+            ${bgColor} 10px
           );`;
 
           const top = `${(start.diff(currentDate, 'minutes') / 1440) * 100}%`;
