@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
-import DataTable from 'react-data-table-component';
+import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
 import Select from 'react-select';
 
@@ -172,14 +172,16 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     );
   };
 
-  const sortDate = (a: ApiBooking, b: ApiBooking) => {
-    const futureWhenEarthMightStillExist = new Date(10000000000000);
-    const dateA = a ? new Date(a.start) : futureWhenEarthMightStillExist;
-    const dateB = b ? new Date(b.start) : futureWhenEarthMightStillExist;
+  const sortDate = (a: ApiBooking | null, b: ApiBooking | null, showNullValuesIn: 'history' | 'future') => {
+    const nullFallback = (showNullValuesIn === 'history')
+      ? new Date(0)
+      : new Date(10000000000000);
+    const dateA = a ? new Date(a.start) : nullFallback;
+    const dateB = b ? new Date(b.start) : nullFallback;
     return dateA > dateB ? 1 : -1;
   };
 
-  const columns = [
+  const columns: TableColumn<UserDataStats>[] = [
     {
       id: 1,
       name: 'Email',
@@ -191,24 +193,24 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     {
       id: 2,
       name: 'Full Name',
-      selector: (row: UserDataStats) => row.fullName,
+      selector: (row: UserDataStats) => row.fullName || '',
       sortable: true,
     },
     {
       id: 3,
       name: 'Previous booking',
-      selector: (row: UserDataStats) => row.previousBooking,
+      selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.previousBooking, row.totalPrevious),
       sortable: true,
-      sortFunction: (a: ApiBooking, b: ApiBooking) => sortDate(a, b),
+      sortFunction: (a, b) => sortDate(a.previousBooking, b.previousBooking, 'history'),
     },
     {
       id: 4,
       name: 'Upcoming booking',
-      selector: (row: UserDataStats) => row.upcomingBooking,
+      selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.upcomingBooking, row.totalUpcoming),
       sortable: true,
-      sortFunction: (a: ApiBooking, b: ApiBooking) => sortDate(a, b),
+      sortFunction: (a, b) => sortDate(a.upcomingBooking, b.upcomingBooking, 'future'),
     },
     {
       id: 5,
@@ -269,8 +271,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
           />
         </OverrideTurretInputHeightForReactSelectDiv>
       </div>
-      {/* @ts-ignore */}
-      <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive />
+      <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive/>
     </>
   );
 };
