@@ -3,7 +3,7 @@ import { RouteComponentProps, Link } from '@reach/router';
 import DataTable from 'react-data-table-component';
 
 import { useRequest } from './http';
-import { ApiBooking, ApiUserData, UserRole } from '../common/constants-common';
+import { ApiBooking, ApiUserData, TokenUserData, UserRole } from '../common/constants-common';
 import moment from 'moment';
 import { useAuth } from './AuthContext';
 
@@ -58,7 +58,7 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
     <div>
       {loggedInUser?.role === UserRole.staff && <Link to={'/admin/users'}>&lt; all users</Link>}
       <h1>User Profile</h1>
-      {user && <UserProfile user={user} />}
+      {user && <UserProfile loggedInUser={loggedInUser} user={user} />}
       {bookings.length < 1 && <p>You have not booked any slot yet</p>}
       {upcomingBookings.length > 0 && (
         <>
@@ -79,7 +79,10 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
   );
 };
 
-const UserProfile: React.FC<{ user: ApiUserData }> = ({ user }) => {
+const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserData }> = ({
+  loggedInUser,
+  user,
+}) => {
   return (
     <div className="flex flex-column">
       <div>
@@ -95,6 +98,11 @@ const UserProfile: React.FC<{ user: ApiUserData }> = ({ user }) => {
         <span className="font-weight-bold">Created on:</span>{' '}
         {moment(user.created).format('dddd DD/MM/YYYY, HH:mm')}
       </div>
+      {loggedInUser?.role === UserRole.staff && (
+        <div>
+          <span className="font-weight-bold">Notes:</span> {user.userNote || '-'}
+        </div>
+      )}
     </div>
   );
 };
