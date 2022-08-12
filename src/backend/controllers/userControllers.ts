@@ -14,6 +14,7 @@ export async function getApiUsers(): Promise<Array<ApiUserData>> {
       created: user.created,
       role: user.role,
       newBookingNotificationDaysThreshold: user.newBookingNotificationDaysThreshold,
+      userNote: user.userNote,
     };
   });
   return users;
@@ -57,6 +58,24 @@ export async function updateUserSettings({
   return result;
 }
 
+export async function updateApiUserNote({
+  uuid,
+  userNote,
+}: {
+  uuid: userModel.User['uuid'];
+  userNote: userModel.User['userNote'];
+}): Promise<userModel.User | null> {
+  const user = await userModel.getUserByUuid(uuid);
+  if (!user) {
+    return null;
+  }
+  const result = await userModel.updateUserNote({ uuid, userNote });
+  if (result) {
+    return result;
+  }
+  return null;
+}
+
 export async function getUserData(uuid: string): Promise<ApiUserData | null> {
   const user = await userModel.getUserByUuid(uuid);
   if (!user) {
@@ -69,5 +88,6 @@ export async function getUserData(uuid: string): Promise<ApiUserData | null> {
     created: user.created,
     role: user.role,
     newBookingNotificationDaysThreshold: user.newBookingNotificationDaysThreshold,
+    userNote: user.userNote,
   };
 }

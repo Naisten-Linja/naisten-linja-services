@@ -10,6 +10,7 @@ export interface User {
   email: string;
   discourseUserId: number;
   newBookingNotificationDaysThreshold: number | null;
+  userNote: string;
 }
 
 export interface UserQueryResult {
@@ -21,6 +22,7 @@ export interface UserQueryResult {
   email: string;
   discourse_user_id: number;
   new_booking_notification_days_threshold: number | null;
+  user_note: string;
 }
 
 export type UpsertUserParams = {
@@ -39,6 +41,7 @@ function queryResultToUser(row: UserQueryResult): User {
     email: row.email,
     discourseUserId: row.discourse_user_id,
     newBookingNotificationDaysThreshold: row.new_booking_notification_days_threshold,
+    userNote: row.user_note,
   };
 }
 
@@ -147,6 +150,33 @@ export async function updateUserSettings({
     return queryResultToUser(result.rows[0]);
   } catch (err) {
     console.error(`Unable to update settings of user ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateUserNote({
+  userNote,
+  uuid,
+}: {
+  userNote: string;
+  uuid: User['uuid'];
+}): Promise<User | null> {
+  try {
+    const queryText = `
+      UPDATE users
+      SET user_note = $1::text
+      WHERE uuid = $2::text
+      RETURNING *;
+    `;
+    const queryValues = [userNote, uuid];
+    const result = await db.query<UserQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToUser(result.rows[0]);
+  } catch (err) {
+    console.error(`User ${uuid} not found`);
     console.error(err);
     return null;
   }
