@@ -20,6 +20,7 @@ export interface ApiUserData {
   fullName: string | null;
   created: string;
   newBookingNotificationDaysThreshold?: number | null;
+  userNote: string;
 }
 
 export enum LetterStatus {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
+import { Formik, Field, Form } from 'formik';
+import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
 import Select from 'react-select';
 
@@ -15,7 +17,6 @@ import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
 import { OverrideTurretInputHeightForReactSelectDiv } from './utils-frontend';
 
-import DataTable, { TableColumn } from 'react-data-table-component';
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
@@ -42,10 +43,10 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   }) => {
     try {
       await putRequest(`/api/users/${uuid}/role`, { role }, { useJwt: true });
-      
+
       // Update the state
-      const i = users.findIndex(u => u.uuid === uuid);
-      const usersUpdated = [...users]
+      const i = users.findIndex((u) => u.uuid === uuid);
+      const usersUpdated = [...users];
       usersUpdated[i].role = role;
       setUsers(usersUpdated);
 
@@ -56,20 +57,34 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
+  const fetchUsers = useCallback(
+    async (callback: (allUsers: Array<ApiUserData>) => void) => {
       try {
         const result = await getRequest<{ data: Array<ApiUserData> }>(`/api/users`, {
           useJwt: true,
         });
-        setUsers(result.data.data);
+        const data = result.data.data;
+        setUsers(data);
+        callback(data);
       } catch (err) {
         console.log(err);
         setUsers([]);
       }
+    },
+    [getRequest],
+  );
+
+  useEffect(() => {
+    let updateStateAfterFetch = true;
+    fetchUsers((users) => {
+      if (users && updateStateAfterFetch) {
+        setUsers(users);
+      }
+    });
+    return () => {
+      updateStateAfterFetch = false;
     };
-    fetchUsers();
-  }, [getRequest]);
+  }, [getRequest, setUsers, fetchUsers]);
 
   const fetchBookingStats = useCallback(
     async (callback: (bookingStats: Array<ApiBookingUserStats>) => void) => {
@@ -132,9 +147,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       };
       const stats = bookingStats?.find((stats) => stats.uuid === user.uuid) || emptyStats;
       return { ...user, ...stats };
-    })
+    });
     setUsersWithBookings(userStats);
-  }, [users, bookingStats])
+  }, [users, bookingStats]);
 
   const bookingTypeOptions: Array<BookingTypeOption> = [
     ALL_TYPES_OPTION,
@@ -164,7 +179,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     const dateA = a ? new Date(a.start) : nullFallback;
     const dateB = b ? new Date(b.start) : nullFallback;
     return dateA > dateB ? 1 : -1;
-  }
+  };
 
   const columns: TableColumn<UserDataStats>[] = [
     {
@@ -225,6 +240,19 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
         );
       },
     },
+    {
+      id: 6,
+      name: 'Notes',
+      selector: (row: UserDataStats) => row.userNote,
+      format: (row: UserDataStats) => (
+        <UpdateUserNoteForm
+          userNote={row.userNote}
+          userUuid={row.uuid}
+          fetchUsers={fetchUsers}
+          setUsers={setUsers}
+        />
+      ),
+    },
   ];
 
   return (
@@ -245,5 +273,89 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       </div>
       <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive/>
     </>
+  );
+};
+
+type UpdateUserNoteFormProps = {
+  userUuid: string;
+  userNote: string;
+  fetchUsers: (callback: (users: Array<ApiUserData>) => void) => Promise<void>;
+  setUsers: (users: Array<ApiUserData>) => void;
+};
+
+const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
+  userUuid,
+  userNote,
+  fetchUsers,
+  setUsers,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const { addNotification } = useNotifications();
+  const { putRequest } = useRequest();
+
+  const updateUserNote = useCallback(
+    async (note: string) => {
+      try {
+        const result = await putRequest<{ data: ApiUserData }>(
+          `/api/users/${userUuid}/note`,
+          {
+            userNote: note,
+          },
+          { useJwt: true },
+        );
+        if (result.data.data) {
+          addNotification({ type: 'success', message: 'User note was updated' });
+          fetchUsers((users) => {
+            setUsers(users);
+          });
+        }
+      } catch (err) {
+        addNotification({ type: 'error', message: 'Failed to update user note' });
+      } finally {
+        setIsEditing(false);
+      }
+    },
+    [putRequest, userUuid, addNotification, fetchUsers, setUsers],
+  );
+
+  const initialFormValues = {
+    userNote,
+  };
+
+  if (!isEditing) {
+    return (
+      <>
+        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{userNote}</pre>
+        <button
+          className="button button-xxs"
+          onClick={() => {
+            setIsEditing(true);
+          }}
+        >
+          Edit
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <Formik
+      initialValues={initialFormValues}
+      onSubmit={({ userNote }) => {
+        updateUserNote(userNote);
+      }}
+    >
+      <Form>
+        <Field type="text" name="userNote" as="textarea" aria-label="User note" />
+        <input
+          type="submit"
+          className="button button-xxs button-primary"
+          value="Save"
+        />
+        <button type="button" className="button button-xxs" onClick={() => setIsEditing(false)}>
+          Cancel
+        </button>
+      </Form>
+    </Formik>
   );
 };
