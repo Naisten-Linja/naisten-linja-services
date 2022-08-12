@@ -198,6 +198,15 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 3,
+      name: 'Phone number',
+      selector: (row: UserDataStats) => {
+        if (row.upcomingBooking) return row.upcomingBooking.phone;
+        if (row.previousBooking) return row.previousBooking.phone;
+        return '-';
+      },
+    },
+    {
+      id: 4,
       name: 'Previous booking',
       selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.previousBooking, row.totalPrevious),
@@ -205,7 +214,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       sortFunction: (a, b) => sortDate(a.previousBooking, b.previousBooking, 'history'),
     },
     {
-      id: 4,
+      id: 5,
       name: 'Upcoming booking',
       selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.upcomingBooking, row.totalUpcoming),
@@ -213,7 +222,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       sortFunction: (a, b) => sortDate(a.upcomingBooking, b.upcomingBooking, 'future'),
     },
     {
-      id: 5,
+      id: 6,
       name: 'Role',
       selector: (row: UserDataStats) => row.role,
       format: (row: UserDataStats) => {
@@ -241,7 +250,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       },
     },
     {
-      id: 6,
+      id: 7,
       name: 'Notes',
       selector: (row: UserDataStats) => row.userNote,
       format: (row: UserDataStats) => (
