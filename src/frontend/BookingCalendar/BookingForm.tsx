@@ -138,7 +138,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   }
   const { fullName, email } = user;
 
-  const unreservedUsers = users.filter((u) => !reservedUserUuids.includes(u.uuid));
+  const unreservedUsers = users
+    .filter((u) => !reservedUserUuids.includes(u.uuid))
+    .map(u => { // attach phone number for each user, fetched from their next booking
+      const bookingsByUser = allBookings.filter(b => b.user.uuid === u.uuid);
+      return {
+        ...u,
+        phone: findPhoneNumberFromClosestBooking(bookingsByUser),
+      };
+    });
   const unreservedUserOptions = unreservedUsers
     .map((u) => ({
       value: u.uuid,
@@ -147,7 +155,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   // If the login user is already reserved, then default the dropdown to the first user on the list.
-  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0] as ApiUserData;
+  const unreservedUser: ApiUserData = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0]
 
   let initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
     workingRemotely: 'true' | 'false';
@@ -159,11 +167,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     end: end.toString(),
     userUuid: user.uuid,
     bookingNote: '',
-    phone: '',
+    phone: findPhoneNumberFromClosestBooking(ownBookings) || '',
     workingRemotely: 'false',
   };
 
-  // If the login user is already reserved, set the initial user info to the first user on the list.
+  // For staff we have list of users available, update the initial value accordingly.
   if (unreservedUser) {
     initialFormValues = {
       ...initialFormValues,
@@ -307,3 +315,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     </>
   );
 };
+
+function findPhoneNumberFromClosestBooking(bookingsByUser: ApiBooking[]): string | null {
+  bookingsByUser.sort((a, b) => (new Date(a.start) < new Date(b.start)) ? 1 : -1);
+  const nextUpcoming = bookingsByUser.find(b => new Date(b.start) > new Date())
+  if (typeof nextUpcoming !== 'undefined') {
+    return nextUpcoming.phone;
+  } else if (bookingsByUser.length > 0) {
+    return bookingsByUser[bookingsByUser.length - 1].phone;
+  } else {
+    return null;
+  }
+}
