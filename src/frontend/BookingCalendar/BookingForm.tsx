@@ -155,7 +155,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   // If the login user is already reserved, then default the dropdown to the first user on the list.
-  const unreservedUser: ApiUserData = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0]
+  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0]
 
   let initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
     workingRemotely: 'true' | 'false';
@@ -177,6 +177,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       ...initialFormValues,
       email: unreservedUser.email,
       fullName: unreservedUser.fullName || '',
+      phone: unreservedUser.phone || '',
       userUuid: unreservedUser.uuid,
     }
   }
@@ -245,10 +246,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                         }
                         options={unreservedUserOptions}
                         onChange={(opt: { value: string; key: string }) => {
-                          const selectedUser = users.find((u) => u.uuid === opt.value);
+                          const selectedUser = unreservedUsers.find((u) => u.uuid === opt.value);
                           if (selectedUser) {
                             setFieldValue('email', selectedUser.email);
                             setFieldValue('fullName', selectedUser.fullName || '');
+                            setFieldValue('phone', selectedUser.phone || '');
                           }
                           setFieldValue(field.name, opt.value);
                         }}
