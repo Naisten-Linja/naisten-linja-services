@@ -92,6 +92,7 @@ export interface ApiReplyAdmin {
   created: string;
   updated: string;
   recipientStatus: RecipientStatus;
+  readTimestamp: string | null;
 }
 
 export const weekDays = [

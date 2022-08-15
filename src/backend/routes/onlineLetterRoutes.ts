@@ -1,4 +1,5 @@
 import express from 'express';
+import moment from 'moment';
 import { RecipientStatus } from '../../common/constants-common';
 
 import { initiateLetter, sendLetter, readLetter } from '../controllers/letterControllers';
@@ -52,7 +53,7 @@ router.post('/read', async (req, res) => {
 
   // When recipient opens the reply for the first time, it will update its recipient status to "read".
   if (reply?.recipientStatus === null || reply?.recipientStatus === RecipientStatus.unread) {
-    const success = await updateLettersReplyRecipientStatus(reply.uuid, RecipientStatus.read);
+    const success = await updateLettersReplyRecipientStatus(reply.uuid, RecipientStatus.read, new Date());
     if (!success) {
       res.status(403).json({ error: 'Cannot update recipient status' });
       return;

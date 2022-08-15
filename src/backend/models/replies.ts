@@ -13,6 +13,7 @@ export interface Reply {
   created: string;
   updated: string;
   recipientStatus: RecipientStatus;
+  readTimestamp: Date | null;
 }
 
 export interface ReplyQueryResult {
@@ -26,6 +27,7 @@ export interface ReplyQueryResult {
   content: string;
   content_iv: string;
   recipient_status: RecipientStatus;
+  read_timestamp: Date | null;
 }
 
 function queryResultToReply(row: ReplyQueryResult): Reply {
@@ -40,6 +42,7 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     authorType: row.author_type,
     internalAuthorUuid: row.internal_author_uuid || null,
     recipientStatus: row.recipient_status,
+    readTimestamp: row.read_timestamp
   };
 }
 
@@ -98,18 +101,20 @@ export async function updateReply({
 export async function updateReplyRecipientStatus({
   uuid,
   recipientStatus,
+  readTimestamp
 }: {
   uuid: string;
   recipientStatus: RecipientStatus;
+  readTimestamp: Date | null;
 }): Promise<Reply | null> {
   try {
     const queryText = `
        UPDATE replies
-       SET recipient_status = $1::text
-       WHERE uuid = $2::text
+       SET recipient_status = $1::text, read_timestamp = $2::timestamp
+       WHERE uuid = $3::text
        RETURNING *;
     `;
-    const queryValues = [recipientStatus, uuid];
+    const queryValues = [recipientStatus, readTimestamp, uuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
