@@ -116,6 +116,7 @@ export function createApp() {
       path: [
         '/api/auth/sso',
         '/api/auth/sso/verify',
+        '/api/auth/profile-redirect',
         /^\/api\/auth\/token\/.*/,
         '/api/online-letter/start',
         '/api/online-letter/send',
