@@ -18,8 +18,8 @@ exports.up = function (db, callback) {
   );
 };
 
-exports.down = function (db) {
-  return null;
+exports.down = function (db, callback) {
+  async.series([db.removeColumn.bind(db, 'replies', 'read_receipt')], callback);
 };
 
 exports._meta = {
