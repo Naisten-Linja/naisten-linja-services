@@ -160,15 +160,19 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b> {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
+            <b>Updated on:</b>{' '}
+            {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
           </i>
           <br />
           <i>
             <b>Status:</b> {reply.status}
           </i>
+          <br />
+          <i>
+            <b>Read on:</b> {reply?.readTimestamp ? moment(reply?.readTimestamp).format('ddd Do MMM YYYY HH:mm') : "-"}
+          </i>
         </p>
       )}
-
       {disableReplyEdit ? replyContent : editForm}
     </>
   );
