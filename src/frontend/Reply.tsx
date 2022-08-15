@@ -169,7 +169,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           </i>
           <br />
           <i>
-            <b>Read on:</b> {reply?.readTimestamp ? moment(reply?.readTimestamp).format('ddd Do MMM YYYY HH:mm') : "-"}
+            <b>Read on:</b> {reply?.readTimestamp ? moment(reply?.readTimestamp).format('dddd DD/MM/YYYY, HH:mm') : "-"}
           </i>
         </p>
       )}
