@@ -141,11 +141,11 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                   <Link to={letter.uuid}>{letter.title}</Link>
                 </td>
                 <td>{letter.replyStatus || ''}</td>
-                <th>
+                <td>
                   {letter.replyReadTimestamp
                     ? moment(letter.replyReadTimestamp).format('dddd DD/MM/YYYY, HH:mm')
                     : '-'}
-                </th>
+                </td>
                 {isStaff && (
                   <td style={{ maxWidth: 200 }}>
                     <OverrideTurretInputHeightForReactSelectDiv>
