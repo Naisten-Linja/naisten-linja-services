@@ -1,8 +1,8 @@
-import { createReply, getReply, updateReply, updateReplyRecipientStatus } from '../models/replies';
+import { createReply, getReply, updateReply, updateReplyReadReceipt } from '../models/replies';
 import { getLetterByUuid } from '../models/letters';
 import {
   ApiReplyAdmin,
-  RecipientStatus,
+  ReadReceiptStatus,
   ReplyStatus,
   ResponderType,
 } from '../../common/constants-common';
@@ -36,7 +36,7 @@ export async function replyToLetter({
   if (!reply) {
     return null;
   }
-  const { uuid, created, updated, recipientStatus, readTimestamp } = reply;
+  const { uuid, created, updated, readReceipt, readTimestamp } = reply;
   return {
     uuid,
     authorType,
@@ -46,7 +46,7 @@ export async function replyToLetter({
     letterUuid,
     status,
     content,
-    recipientStatus,
+    readReceipt,
     readTimestamp: readTimestamp ? readTimestamp.toString() : null
   };
 }
@@ -64,7 +64,7 @@ export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin
     internalAuthorUuid,
     status,
     content,
-    recipientStatus,
+    readReceipt,
     readTimestamp
   } = reply;
   return {
@@ -76,7 +76,7 @@ export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin
     letterUuid,
     status,
     content,
-    recipientStatus,
+    readReceipt,
     readTimestamp: readTimestamp ? readTimestamp.toString() : null
   };
 }
@@ -99,7 +99,7 @@ export async function updateLettersReply(
     letterUuid,
     status: updatedStatus,
     content: updatedContent,
-    recipientStatus,
+    readReceipt,
     readTimestamp
   } = reply;
   return {
@@ -111,17 +111,17 @@ export async function updateLettersReply(
     letterUuid,
     status: updatedStatus,
     content: updatedContent,
-    recipientStatus,
+    readReceipt,
     readTimestamp: readTimestamp ? readTimestamp.toString() : null
   };
 }
 
-export async function updateLettersReplyRecipientStatus(
+export async function updateLettersReplyReadReceipt(
   replyUuid: string,
-  recipientStatus: RecipientStatus,
+  readReceipt: ReadReceiptStatus,
   readTimestamp: Date | null = null,
 ): Promise<boolean | null> {
-  const reply = await updateReplyRecipientStatus({ uuid: replyUuid, recipientStatus, readTimestamp  });
+  const reply = await updateReplyReadReceipt({ uuid: replyUuid, readReceipt, readTimestamp  });
   if (!reply) {
     return null;
   }

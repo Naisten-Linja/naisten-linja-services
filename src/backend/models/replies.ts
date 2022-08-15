@@ -1,7 +1,7 @@
 import db from '../db';
 
 import { aesEncrypt, aesDecrypt } from '../utils';
-import { RecipientStatus, ReplyStatus, ResponderType } from '../../common/constants-common';
+import { ReadReceiptStatus, ReplyStatus, ResponderType } from '../../common/constants-common';
 
 export interface Reply {
   uuid: string;
@@ -12,7 +12,7 @@ export interface Reply {
   content: string;
   created: string;
   updated: string;
-  recipientStatus: RecipientStatus;
+  readReceipt: ReadReceiptStatus;
   readTimestamp: Date | null;
 }
 
@@ -26,7 +26,7 @@ export interface ReplyQueryResult {
   internal_author_uuid?: string;
   content: string;
   content_iv: string;
-  recipient_status: RecipientStatus;
+  read_receipt: ReadReceiptStatus;
   read_timestamp: Date | null;
 }
 
@@ -41,7 +41,7 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     content,
     authorType: row.author_type,
     internalAuthorUuid: row.internal_author_uuid || null,
-    recipientStatus: row.recipient_status,
+    readReceipt: row.read_receipt,
     readTimestamp: row.read_timestamp
   };
 }
@@ -98,30 +98,30 @@ export async function updateReply({
   }
 }
 
-export async function updateReplyRecipientStatus({
+export async function updateReplyReadReceipt({
   uuid,
-  recipientStatus,
+  readReceipt,
   readTimestamp
 }: {
   uuid: string;
-  recipientStatus: RecipientStatus;
+  readReceipt: ReadReceiptStatus;
   readTimestamp: Date | null;
 }): Promise<Reply | null> {
   try {
     const queryText = `
        UPDATE replies
-       SET recipient_status = $1::text, read_timestamp = $2::timestamp
+       SET read_receipt = $1::text, read_timestamp = $2::timestamp
        WHERE uuid = $3::text
        RETURNING *;
     `;
-    const queryValues = [recipientStatus, readTimestamp, uuid];
+    const queryValues = [readReceipt, readTimestamp, uuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
     return queryResultToReply(result.rows[0]);
   } catch (err) {
-    console.error(`Failed update recipient status for reply ${uuid}`);
+    console.error(`Failed update read receipt for reply ${uuid}`);
     console.error(err);
     return null;
   }

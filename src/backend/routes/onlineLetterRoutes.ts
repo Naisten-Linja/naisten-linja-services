@@ -1,9 +1,8 @@
 import express from 'express';
-import moment from 'moment';
-import { RecipientStatus } from '../../common/constants-common';
+import { ReadReceiptStatus } from '../../common/constants-common';
 
 import { initiateLetter, sendLetter, readLetter } from '../controllers/letterControllers';
-import { updateLettersReplyRecipientStatus } from '../controllers/replyControllers';
+import { updateLettersReplyReadReceipt } from '../controllers/replyControllers';
 
 const router = express.Router();
 
@@ -51,11 +50,11 @@ router.post('/read', async (req, res) => {
     return;
   }
 
-  // When recipient opens the reply for the first time, it will update its recipient status to "read".
-  if (reply?.recipientStatus === null || reply?.recipientStatus === RecipientStatus.unread) {
-    const success = await updateLettersReplyRecipientStatus(reply.uuid, RecipientStatus.read, new Date());
+  // When recipient opens the reply for the first time, it will update its read receipt to "read".
+  if (reply?.readReceipt === null || reply?.readReceipt === ReadReceiptStatus.unread) {
+    const success = await updateLettersReplyReadReceipt(reply.uuid, ReadReceiptStatus.read, new Date());
     if (!success) {
-      res.status(403).json({ error: 'Cannot update recipient status' });
+      res.status(403).json({ error: 'Cannot update read receipt' });
       return;
     }
   }

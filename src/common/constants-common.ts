@@ -71,7 +71,7 @@ export enum ReplyStatus {
   published = 'published',
 }
 
-export enum RecipientStatus {
+export enum ReadReceiptStatus {
   unread = 'unread',
   read = 'read',
 }
@@ -91,7 +91,7 @@ export interface ApiReplyAdmin {
   content: string;
   created: string;
   updated: string;
-  recipientStatus: RecipientStatus;
+  readReceipt: ReadReceiptStatus;
   readTimestamp: string | null;
 }
 
