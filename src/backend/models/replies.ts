@@ -1,7 +1,7 @@
 import db from '../db';
 
 import { aesEncrypt, aesDecrypt } from '../utils';
-import { ReplyStatus, ResponderType } from '../../common/constants-common';
+import { RecipientStatus, ReplyStatus, ResponderType } from '../../common/constants-common';
 
 export interface Reply {
   uuid: string;
@@ -12,6 +12,7 @@ export interface Reply {
   content: string;
   created: string;
   updated: string;
+  recipientStatus: RecipientStatus;
 }
 
 export interface ReplyQueryResult {
@@ -24,6 +25,7 @@ export interface ReplyQueryResult {
   internal_author_uuid?: string;
   content: string;
   content_iv: string;
+  recipient_status: RecipientStatus;
 }
 
 function queryResultToReply(row: ReplyQueryResult): Reply {
@@ -37,6 +39,7 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     content,
     authorType: row.author_type,
     internalAuthorUuid: row.internal_author_uuid || null,
+    recipientStatus: row.recipient_status,
   };
 }
 
@@ -87,6 +90,33 @@ export async function updateReply({
     return queryResultToReply(result.rows[0]);
   } catch (err) {
     console.error(`Failed update reply ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateReplyRecipientStatus({
+  uuid,
+  recipientStatus,
+}: {
+  uuid: string;
+  recipientStatus: RecipientStatus;
+}): Promise<Reply | null> {
+  try {
+    const queryText = `
+       UPDATE replies
+       SET recipient_status = $1::text
+       WHERE uuid = $2::text
+       RETURNING *;
+    `;
+    const queryValues = [recipientStatus, uuid];
+    const result = await db.query<ReplyQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToReply(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed update recipient status for reply ${uuid}`);
     console.error(err);
     return null;
   }

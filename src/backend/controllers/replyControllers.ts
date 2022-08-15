@@ -1,6 +1,11 @@
-import { createReply, getReply, updateReply } from '../models/replies';
+import { createReply, getReply, updateReply, updateReplyRecipientStatus } from '../models/replies';
 import { getLetterByUuid } from '../models/letters';
-import { ApiReplyAdmin, ReplyStatus, ResponderType } from '../../common/constants-common';
+import {
+  ApiReplyAdmin,
+  RecipientStatus,
+  ReplyStatus,
+  ResponderType,
+} from '../../common/constants-common';
 
 // Check if a letter is assigned a user
 export async function isUserAssignedToLetter(
@@ -31,8 +36,18 @@ export async function replyToLetter({
   if (!reply) {
     return null;
   }
-  const { uuid, created, updated } = reply;
-  return { uuid, authorType, created, updated, internalAuthorUuid, letterUuid, status, content };
+  const { uuid, created, updated, recipientStatus } = reply;
+  return {
+    uuid,
+    authorType,
+    created,
+    updated,
+    internalAuthorUuid,
+    letterUuid,
+    status,
+    content,
+    recipientStatus,
+  };
 }
 
 export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin | null> {
@@ -40,8 +55,27 @@ export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin
   if (!reply) {
     return null;
   }
-  const { uuid, authorType, created, updated, internalAuthorUuid, status, content } = reply;
-  return { uuid, authorType, created, updated, internalAuthorUuid, letterUuid, status, content };
+  const {
+    uuid,
+    authorType,
+    created,
+    updated,
+    internalAuthorUuid,
+    status,
+    content,
+    recipientStatus,
+  } = reply;
+  return {
+    uuid,
+    authorType,
+    created,
+    updated,
+    internalAuthorUuid,
+    letterUuid,
+    status,
+    content,
+    recipientStatus,
+  };
 }
 
 export async function updateLettersReply(
@@ -62,6 +96,7 @@ export async function updateLettersReply(
     letterUuid,
     status: updatedStatus,
     content: updatedContent,
+    recipientStatus,
   } = reply;
   return {
     uuid,
@@ -72,5 +107,17 @@ export async function updateLettersReply(
     letterUuid,
     status: updatedStatus,
     content: updatedContent,
+    recipientStatus,
   };
+}
+
+export async function updateLettersReplyRecipientStatus(
+  replyUuid: string,
+  recipientStatus: RecipientStatus,
+): Promise<boolean | null> {
+  const reply = await updateReplyRecipientStatus({ uuid: replyUuid, recipientStatus });
+  if (!reply) {
+    return null;
+  }
+  return true;
 }

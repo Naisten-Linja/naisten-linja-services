@@ -71,6 +71,11 @@ export enum ReplyStatus {
   published = 'published',
 }
 
+export enum RecipientStatus {
+  unread = 'unread',
+  read = 'read',
+}
+
 export interface ApiReplyParamsAdmin {
   letterUuid: string;
   content: string;
@@ -86,6 +91,7 @@ export interface ApiReplyAdmin {
   content: string;
   created: string;
   updated: string;
+  recipientStatus: RecipientStatus;
 }
 
 export const weekDays = [

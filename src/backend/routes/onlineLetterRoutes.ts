@@ -1,6 +1,8 @@
 import express from 'express';
+import { RecipientStatus } from '../../common/constants-common';
 
 import { initiateLetter, sendLetter, readLetter } from '../controllers/letterControllers';
+import { updateLettersReplyRecipientStatus } from '../controllers/replyControllers';
 
 const router = express.Router();
 
@@ -47,6 +49,16 @@ router.post('/read', async (req, res) => {
     res.status(403).json({ error: 'Wrong letter access credentials' });
     return;
   }
+
+  // When recipient opens the reply for the first time, it will update its recipient status to "read".
+  if (reply?.recipientStatus === null || reply?.recipientStatus === RecipientStatus.unread) {
+    const success = await updateLettersReplyRecipientStatus(reply.uuid, RecipientStatus.read);
+    if (!success) {
+      res.status(403).json({ error: 'Cannot update recipient status' });
+      return;
+    }
+  }
+
   const letterContent = {
     title: letter.title,
     content: letter.content,
