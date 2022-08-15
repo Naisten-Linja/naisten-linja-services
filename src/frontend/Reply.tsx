@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
+import MDEditor from '@uiw/react-md-editor';
 
 import { useRequest } from './http';
 import { ApiLetterAdmin, ApiReplyAdmin, UserRole, ReplyStatus } from '../common/constants-common';
@@ -17,6 +18,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const { user } = useAuth();
   const [letter, setLetter] = useState<ApiLetterAdmin | null>(null);
   const [reply, setReply] = useState<ApiReplyAdmin | null>(null);
+  const [content, setContent] = useState<string | null>(null);
   const disableReplyEdit =
     user && user.role === UserRole.volunteer && reply && reply.status !== ReplyStatus.draft;
   const showSendForReviewBtn = !reply || reply.status === ReplyStatus.draft;
@@ -73,6 +75,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         useJwt: true,
       });
       setReply(result.data.data || null);
+      setContent(result.data.data.content);
     } catch (err) {
       console.log(err);
       addNotification({
@@ -101,9 +104,22 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const editForm = (
     <form ref={formRef} onSubmit={submitReply}>
       {reply && <input type="hidden" value={reply.uuid} id="replyUuid" disabled />}
-      <p className="field">
-        <textarea required id="replyContent" rows={10} defaultValue={reply ? reply.content : ''} />
-      </p>
+      <div className="field">
+        <MDEditor
+          value={content ? content : ''}
+          height={500}
+          textareaProps={{
+            id: 'replyContent',
+            // Disable transparent text fill color upon focusing on the text area
+            // @ts-ignore
+            style: { '-webkit-text-fill-color': 'inherit' },
+            minHeight: '300px',
+          }}
+          onChange={(val) => {
+            if (val) setContent(val);
+          }}
+        />
+      </div>
       <p className="field">
         {showSendForReviewBtn && (
           <Button
@@ -160,7 +176,8 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b> {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
+            <b>Updated on:</b>{' '}
+            {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
           </i>
           <br />
           <i>
