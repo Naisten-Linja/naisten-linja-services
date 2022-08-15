@@ -95,6 +95,11 @@ export interface ApiReplyAdmin {
   readTimestamp: string | null;
 }
 
+export interface ApiLetterWithReadStatus extends ApiLetterAdmin {
+  replyReadReceipt: ReadReceiptStatus | null;
+  replyReadTimestamp: string | null;
+}
+
 export const weekDays = [
   'sunday',
   'monday',

@@ -2,7 +2,7 @@ import db from '../db';
 import { generate as generatePass } from 'generate-password';
 
 import { saltHash, generateRandomString, aesDecrypt, aesEncrypt } from '../utils';
-import { LetterStatus, ApiLetterCredentials, ReplyStatus } from '../../common/constants-common';
+import { LetterStatus, ApiLetterCredentials, ReplyStatus, ReadReceiptStatus } from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -18,6 +18,8 @@ export interface Letter {
   created: string;
   status: LetterStatus;
   replyStatus: ReplyStatus | null;
+  replyReadReceipt: ReadReceiptStatus | null;
+  replyReadTimestamp: string | null;
 }
 
 export interface LetterQueryResult {
@@ -36,6 +38,8 @@ export interface LetterQueryResult {
   assigned_responder_full_name?: string;
   title_iv: string;
   content_iv: string;
+  read_receipt?: ReadReceiptStatus;
+  read_timestamp?: string;
 }
 
 function queryResultToLetter(row: LetterQueryResult): Letter {
@@ -55,6 +59,8 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     assignedResponderEmail: row.assigned_responder_email || null,
     assignedResponderFullName: row.assigned_responder_full_name || null,
     replyStatus: row.reply_status || null,
+    replyReadReceipt: row.read_receipt || null,
+    replyReadTimestamp: row.read_timestamp || null, 
   };
 }
 
@@ -66,7 +72,9 @@ export async function getAssignedLetters(userUuid: string): Promise<Array<Letter
          letters.*,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
-         replies.status as reply_status
+         replies.status as reply_status,
+         replies.read_receipt,
+         replies.read_timestamp
        FROM letters
        LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
        LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
@@ -95,7 +103,9 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
          letters.*,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
-         replies.status as reply_status
+         replies.status as reply_status,
+         replies.read_receipt,
+         replies.read_timestamp
        FROM letters
        LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
        LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
@@ -114,29 +124,30 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
   }
 }
 
-export async function getLetters(): Promise<Array<Letter> | null> {
-  try {
-    // Fetch the letter using the unique accessKeyHash
-    const queryText = `
-       SELECT
-         letters.*,
-         users.email as assigned_responder_email,
-         users.full_name as assigned_responder_full_name
-       FROM letters
-       LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
-       ORDER BY id DESC;
-    `;
-    const result = await db.query<LetterQueryResult>(queryText, []);
-    if (result.rows.length < 1) {
-      return null;
-    }
-    return result.rows.map((r) => queryResultToLetter(r));
-  } catch (err) {
-    console.error('Failed to fetch letter by accessKey');
-    console.error(err);
-    return null;
-  }
-}
+// TODO: remove this
+// export async function getLetters(): Promise<Array<Letter> | null> {
+//   try {
+//     // Fetch the letter using the unique accessKeyHash
+//     const queryText = `
+//        SELECT
+//          letters.*,
+//          users.email as assigned_responder_email,
+//          users.full_name as assigned_responder_full_name
+//        FROM letters
+//        LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
+//        ORDER BY id DESC;
+//     `;
+//     const result = await db.query<LetterQueryResult>(queryText, []);
+//     if (result.rows.length < 1) {
+//       return null;
+//     }
+//     return result.rows.map((r) => queryResultToLetter(r));
+//   } catch (err) {
+//     console.error('Failed to fetch letter by accessKey');
+//     console.error(err);
+//     return null;
+//   }
+// }
 
 // Generate a new letter with random accessKey and accessPassword
 // Returning the original form of both keys

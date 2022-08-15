@@ -13,10 +13,10 @@ import {
   updateLettersReply,
 } from '../controllers/replyControllers';
 import {
-  ApiLetterAdmin,
   UserRole,
   ResponderType,
   ReplyStatus,
+  ApiLetterWithReadStatus,
 } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
 
@@ -44,7 +44,7 @@ router.get(
     }
 
     const result = letters
-      .map((letter): ApiLetterAdmin => {
+      .map((letter): ApiLetterWithReadStatus => {
         const {
           created,
           uuid,
@@ -55,6 +55,8 @@ router.get(
           assignedResponderFullName,
           status,
           replyStatus,
+          replyReadReceipt,
+          replyReadTimestamp
         } = letter;
         return {
           uuid,
@@ -66,6 +68,8 @@ router.get(
           assignedResponderFullName,
           status,
           replyStatus,
+          replyReadReceipt,
+          replyReadTimestamp
         };
       })
       .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
