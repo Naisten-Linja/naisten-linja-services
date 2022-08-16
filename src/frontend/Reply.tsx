@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from "rehype-sanitize";
 
 import { useRequest } from './http';
 import { ApiLetterAdmin, ApiReplyAdmin, UserRole, ReplyStatus } from '../common/constants-common';
@@ -117,6 +118,9 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           }}
           onChange={(val) => {
             if (val) setContent(val);
+          }}
+          previewOptions={{
+            rehypePlugins: [[rehypeSanitize]],
           }}
         />
       </div>
