@@ -64,7 +64,7 @@ router.post('/read', async (req, res) => {
     content: letter.content,
     created: letter.created,
     replyContent: reply ? reply.content : null,
-    replyUpdated: reply ? reply.updated : null,
+    replyUpdated: reply ? reply.statusTimestamp : null, // Status timestamp reflects the time when the content gets updated
   };
   res.status(200).json({ data: letterContent });
 });
