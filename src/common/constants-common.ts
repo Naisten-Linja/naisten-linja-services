@@ -43,6 +43,7 @@ export interface ApiLetterAdmin {
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;
+  replyStatusTimestamp: string | null;
 }
 
 export interface ApiLetterContent {
@@ -93,6 +94,7 @@ export interface ApiReplyAdmin {
   updated: string;
   readReceipt: ReadReceiptStatus;
   readTimestamp: string | null;
+  statusTimestamp: string | null;
 }
 
 export interface ApiLetterWithReadStatus extends ApiLetterAdmin {

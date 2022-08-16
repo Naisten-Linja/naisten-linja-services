@@ -14,6 +14,7 @@ export interface Reply {
   updated: string;
   readReceipt: ReadReceiptStatus;
   readTimestamp: Date | null;
+  statusTimestamp: Date | null;
 }
 
 export interface ReplyQueryResult {
@@ -28,6 +29,7 @@ export interface ReplyQueryResult {
   content_iv: string;
   read_receipt: ReadReceiptStatus;
   read_timestamp: Date | null;
+  status_timestamp: Date | null;
 }
 
 function queryResultToReply(row: ReplyQueryResult): Reply {
@@ -42,15 +44,16 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     authorType: row.author_type,
     internalAuthorUuid: row.internal_author_uuid || null,
     readReceipt: row.read_receipt,
-    readTimestamp: row.read_timestamp
+    readTimestamp: row.read_timestamp,
+    statusTimestamp: row.status_timestamp,
   };
 }
 
 export async function getReply(letterUuid: string): Promise<Reply | null> {
   try {
     const queryText = `
-       SELECT * from replies
-       WHERE letter_uuid = $1::text;
+      SELECT * from replies
+      WHERE letter_uuid = $1::text;
     `;
     const queryValues = [letterUuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
@@ -69,10 +72,12 @@ export async function updateReply({
   uuid,
   content,
   status,
+  statusTimestamp,
 }: {
   uuid: string;
   content: string;
   status: ReplyStatus;
+  statusTimestamp: Date;
 }): Promise<Reply | null> {
   try {
     const { encryptedData, iv } = aesEncrypt(content);
@@ -81,11 +86,12 @@ export async function updateReply({
        SET
          content = $1::text,
          content_iv=$2::text,
-         status = $3::text
-       WHERE uuid = $4::text
+         status = $3::text,
+         status_timestamp = $4::timestamp
+       WHERE uuid = $5::text
        RETURNING *;
     `;
-    const queryValues = [encryptedData, iv, status, uuid];
+    const queryValues = [encryptedData, iv, status, statusTimestamp, uuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
@@ -101,7 +107,7 @@ export async function updateReply({
 export async function updateReplyReadReceipt({
   uuid,
   readReceipt,
-  readTimestamp
+  readTimestamp,
 }: {
   uuid: string;
   readReceipt: ReadReceiptStatus;
@@ -133,21 +139,31 @@ export async function createReply({
   internalAuthorUuid,
   authorType,
   status,
+  statusTimestamp,
 }: {
   letterUuid: string;
   content: string;
   internalAuthorUuid: string | null;
   authorType: ResponderType;
   status: ReplyStatus;
+  statusTimestamp: Date | null;
 }): Promise<Reply | null> {
   try {
     const { encryptedData, iv } = aesEncrypt(content);
     const queryText = `
-       INSERT INTO replies (letter_uuid, content, internal_author_uuid, author_type, status, content_iv)
-       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::text)
+       INSERT INTO replies (letter_uuid, content, internal_author_uuid, author_type, status, status_timestamp, content_iv)
+       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::text)
        RETURNING *;
     `;
-    const queryValues = [letterUuid, encryptedData, internalAuthorUuid, authorType, status, iv];
+    const queryValues = [
+      letterUuid,
+      encryptedData,
+      internalAuthorUuid,
+      authorType,
+      status,
+      statusTimestamp,
+      iv,
+    ];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
