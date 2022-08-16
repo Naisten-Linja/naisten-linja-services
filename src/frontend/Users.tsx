@@ -4,6 +4,8 @@ import { Formik, Field, Form } from 'formik';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
 import Select from 'react-select';
+import { IoMdCopy } from 'react-icons/io';
+import copy from 'copy-to-clipboard';
 
 import {
   ApiBooking,
@@ -15,7 +17,7 @@ import {
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
-import { OverrideTurretInputHeightForReactSelectDiv } from './utils-frontend';
+import { OverrideTurretInputHeightForReactSelectDiv, StyledDataTableWrapperDiv } from './utils-frontend';
 
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
@@ -151,6 +153,18 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     setUsersWithBookings(userStats);
   }, [users, bookingStats]);
 
+  const copyEmailsToClipboard = useCallback(() => {
+    const success = copy(
+      usersWithBookings.map(u => u.email).join(","),
+      { format: 'text/plain' }
+    );
+    if (success) {
+      addNotification({ type: 'success', message: 'Emails of all users copied to your clipboard' });
+    } else {
+      addNotification({ type: 'error', message: 'Failed to copy user emails' });
+    }
+  }, [usersWithBookings]);
+
   const bookingTypeOptions: Array<BookingTypeOption> = [
     ALL_TYPES_OPTION,
     ...bookingTypes.map((b) => ({
@@ -184,7 +198,13 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const columns: TableColumn<UserDataStats>[] = [
     {
       id: 1,
-      name: 'Email',
+      name: <>
+        <span style={{ flex: 1 }}>Email</span>
+        <button onClick={copyEmailsToClipboard} className="button button-square button-xxs button-icon">
+          <span>Copy all emails</span>
+          <IoMdCopy aria-hidden={true}></IoMdCopy>
+        </button>
+      </>,
       selector: (row: UserDataStats) => row.email,
       format: (row: UserDataStats) => <Link to={row.uuid}>{row.email}</Link>,
       wrap: true,
@@ -280,7 +300,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
           />
         </OverrideTurretInputHeightForReactSelectDiv>
       </div>
-      <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive/>
+      <StyledDataTableWrapperDiv>
+        <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive/>
+      </StyledDataTableWrapperDiv>
     </>
   );
 };
