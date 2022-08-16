@@ -19,7 +19,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const { user } = useAuth();
   const [letter, setLetter] = useState<ApiLetterAdmin | null>(null);
   const [reply, setReply] = useState<ApiReplyAdmin | null>(null);
-  const [content, setContent] = useState<string | null>(null);
+  const [content, setContent] = useState<string>('');
   const disableReplyEdit =
     user && user.role === UserRole.volunteer && reply && reply.status !== ReplyStatus.draft;
   const showSendForReviewBtn = !reply || reply.status === ReplyStatus.draft;
@@ -72,11 +72,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
 
   const fetchReply = useCallback(async () => {
     try {
-      const result = await getRequest<{ data: ApiReplyAdmin }>(`/api/letters/${letterUuid}/reply`, {
+      const result = await getRequest<{ data: ApiReplyAdmin | null}>(`/api/letters/${letterUuid}/reply`, {
         useJwt: true,
       });
       setReply(result.data.data || null);
-      setContent(result.data.data.content);
+      if (result.data.data) setContent(result.data.data.content);
     } catch (err) {
       console.log(err);
       addNotification({
@@ -107,7 +107,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && <input type="hidden" value={reply.uuid} id="replyUuid" disabled />}
       <div className="field">
         <MDEditor
-          value={content ? content : ''}
+          value={content}
           height={500}
           textareaProps={{
             id: 'replyContent',
@@ -116,8 +116,9 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
             style: { '-webkit-text-fill-color': 'inherit' },
             minHeight: '300px',
           }}
-          onChange={(val) => {
+          onChange={(val = '') => {
             if (val) setContent(val);
+            else setContent('');
           }}
           previewOptions={{
             rehypePlugins: [[rehypeSanitize]],
