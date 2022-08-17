@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from 'rehype-sanitize';
 
 import { ApiPage } from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
@@ -42,7 +43,7 @@ export const ContentPage: React.FC<{ slug: string }> = ({ slug }) => {
     <div className="width-100">
       <h1>{page.title}</h1>
       <div className="width-100">
-        <MDEditor.Markdown source={page.content} />
+        <MDEditor.Markdown source={page.content} rehypePlugins={[[rehypeSanitize]]} />
       </div>
     </div>
   );

@@ -93,6 +93,9 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
         {user && (
           <li>
             {user.email} ({user.role}) {` `}
+            <a href="/api/auth/profile-redirect" target="_blank" className="button button-secondary button-xxs">
+              Edit profile
+            </a>
             <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
               Logout
             </ButtonSmall>
