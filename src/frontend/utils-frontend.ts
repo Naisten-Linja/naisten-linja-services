@@ -1,4 +1,3 @@
-import DataTable, { TableProps } from "react-data-table-component";
 import styled from "styled-components";
 
 // Return an objects with values mapping from a get query string

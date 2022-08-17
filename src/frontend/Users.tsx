@@ -163,7 +163,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     } else {
       addNotification({ type: 'error', message: 'Failed to copy user emails' });
     }
-  }, [usersWithBookings]);
+  }, [usersWithBookings, addNotification]);
 
   const bookingTypeOptions: Array<BookingTypeOption> = [
     ALL_TYPES_OPTION,

@@ -167,7 +167,7 @@ export const AuthContextWrapper: React.FunctionComponent = ({ children }) => {
         clearInterval(renewSessionTicker);
       }
     };
-  }, [token, tokenExpirationTime, logout, setToken]);
+  }, [token, tokenExpirationTime, logout, setToken, getLastActiveTime]);
 
   return (
     <AuthContext.Provider value={{ token, user, logout, login, setToken, tokenExpirationTime }}>

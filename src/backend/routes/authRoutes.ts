@@ -197,7 +197,7 @@ router.post<
  *
  * THIS ROUTE IS NOT PROTECTED BY ANY AUTHENTICATION
  */
-router.get('/profile-redirect', async (req, res) => {
+router.get('/profile-redirect', async (_, res) => {
   const { discourseUrl } = getConfig();
   res.redirect(`${discourseUrl}/my/preferences/account`, 302);
 });
