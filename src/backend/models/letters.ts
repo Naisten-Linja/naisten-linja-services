@@ -76,9 +76,9 @@ export async function getAssignedLetters(userUuid: string): Promise<Array<Letter
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
          replies.status as reply_status,
-         replies.read_receipt,
-         replies.read_timestamp,
-         replies.status_timestamp
+         replies.read_receipt as reply_read_receipt,
+         replies.read_timestamp as reply_read_timestamp,
+         replies.status_timestamp as reply_status_timestamp
        FROM letters
        LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
        LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
@@ -108,9 +108,9 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
          replies.status as reply_status,
-         replies.read_receipt,
-         replies.read_timestamp,
-         replies.status_timestamp
+         replies.read_receipt as reply_read_receipt,
+         replies.read_timestamp as reply_read_timestamp,
+         replies.status_timestamp as reply_status_timestamp
        FROM letters
        LEFT OUTER JOIN users ON letters.assigned_responder_uuid = users.uuid
        LEFT OUTER JOIN replies ON letters.uuid = replies.letter_uuid
