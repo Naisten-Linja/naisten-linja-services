@@ -25,14 +25,12 @@ export async function replyToLetter({
   internalAuthorUuid,
   authorType,
   status,
-  statusTimestamp,
 }: {
   letterUuid: string;
   content: string;
   internalAuthorUuid: string;
   authorType: ResponderType;
   status: ReplyStatus;
-  statusTimestamp: Date;
 }): Promise<ApiReplyAdmin | null> {
   const reply = await createReply({
     letterUuid,
@@ -40,12 +38,11 @@ export async function replyToLetter({
     internalAuthorUuid,
     authorType,
     status,
-    statusTimestamp,
   });
   if (!reply) {
     return null;
   }
-  const { uuid, created, updated, readReceipt, readTimestamp } = reply;
+  const { uuid, created, updated, readReceipt, readTimestamp, statusTimestamp } = reply;
   return {
     uuid,
     authorType,
@@ -97,9 +94,8 @@ export async function updateLettersReply(
   replyUuid: string,
   content: string,
   status: ReplyStatus,
-  statusTimestamp: Date,
 ): Promise<ApiReplyAdmin | null> {
-  const reply = await updateReply({ uuid: replyUuid, content, status, statusTimestamp });
+  const reply = await updateReply({ uuid: replyUuid, content, status });
   if (!reply) {
     return null;
   }
@@ -114,7 +110,7 @@ export async function updateLettersReply(
     content: updatedContent,
     readReceipt,
     readTimestamp,
-    statusTimestamp: updatedStatusTimeStamp,
+    statusTimestamp,
   } = reply;
   return {
     uuid,
@@ -127,7 +123,7 @@ export async function updateLettersReply(
     content: updatedContent,
     readReceipt,
     readTimestamp: readTimestamp ? readTimestamp.toString() : null,
-    statusTimestamp: updatedStatusTimeStamp ? updatedStatusTimeStamp.toString() : null,
+    statusTimestamp: statusTimestamp ? statusTimestamp.toString() : null,
   };
 }
 

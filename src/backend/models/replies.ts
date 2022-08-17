@@ -72,12 +72,10 @@ export async function updateReply({
   uuid,
   content,
   status,
-  statusTimestamp,
 }: {
   uuid: string;
   content: string;
   status: ReplyStatus;
-  statusTimestamp: Date;
 }): Promise<Reply | null> {
   try {
     const { encryptedData, iv } = aesEncrypt(content);
@@ -87,11 +85,11 @@ export async function updateReply({
          content = $1::text,
          content_iv=$2::text,
          status = $3::text,
-         status_timestamp = $4::timestamp
-       WHERE uuid = $5::text
+         status_timestamp = now()
+       WHERE uuid = $4::text
        RETURNING *;
     `;
-    const queryValues = [encryptedData, iv, status, statusTimestamp, uuid];
+    const queryValues = [encryptedData, iv, status, uuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
@@ -139,20 +137,18 @@ export async function createReply({
   internalAuthorUuid,
   authorType,
   status,
-  statusTimestamp,
 }: {
   letterUuid: string;
   content: string;
   internalAuthorUuid: string | null;
   authorType: ResponderType;
   status: ReplyStatus;
-  statusTimestamp: Date | null;
 }): Promise<Reply | null> {
   try {
     const { encryptedData, iv } = aesEncrypt(content);
     const queryText = `
        INSERT INTO replies (letter_uuid, content, internal_author_uuid, author_type, status, status_timestamp, content_iv)
-       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::timestamp, $7::text)
+       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, now(), $6::text)
        RETURNING *;
     `;
     const queryValues = [
@@ -161,7 +157,6 @@ export async function createReply({
       internalAuthorUuid,
       authorType,
       status,
-      statusTimestamp,
       iv,
     ];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);

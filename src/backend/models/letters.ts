@@ -39,9 +39,9 @@ export interface LetterQueryResult {
   assigned_responder_full_name?: string;
   title_iv: string;
   content_iv: string;
-  read_receipt?: ReadReceiptStatus;
-  read_timestamp?: string;
-  status_timestamp?: string;
+  reply_read_receipt?: ReadReceiptStatus;
+  reply_read_timestamp?: string;
+  reply_status_timestamp?: string;
 }
 
 function queryResultToLetter(row: LetterQueryResult): Letter {
@@ -61,9 +61,9 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     assignedResponderEmail: row.assigned_responder_email || null,
     assignedResponderFullName: row.assigned_responder_full_name || null,
     replyStatus: row.reply_status || null,
-    replyReadReceipt: row.read_receipt || null,
-    replyReadTimestamp: row.read_timestamp || null, 
-    replyStatusTimestamp: row.status_timestamp || null, 
+    replyReadReceipt: row.reply_read_receipt || null,
+    replyReadTimestamp: row.reply_read_timestamp || null, 
+    replyStatusTimestamp: row.reply_status_timestamp || null, 
   };
 }
 

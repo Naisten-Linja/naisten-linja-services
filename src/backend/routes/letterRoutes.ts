@@ -153,7 +153,6 @@ router.post(
       status,
       internalAuthorUuid: user.uuid,
       authorType: ResponderType.internal,
-      statusTimestamp: new Date()
     });
     if (!reply) {
       res.status(400).json({ error: 'Unable to response to letter' });
@@ -196,7 +195,7 @@ router.post(
       return;
     }
     // @ts-ignore
-    const { content, status, statusTimestamp } = req.body;
+    const { content, status } = req.body;
     if (!content || !status) {
       res.status(400).json({ error: 'Missing content or status in request' });
       return;
@@ -205,7 +204,7 @@ router.post(
       res.status(401).json({ error: 'Non staff users are not allowed to publish a response' });
       return;
     }
-    const reply = await updateLettersReply(replyUuid, content, status, statusTimestamp);
+    const reply = await updateLettersReply(replyUuid, content, status);
     if (!reply) {
       res.status(400).json({ error: 'Unable to update reply' });
       return;

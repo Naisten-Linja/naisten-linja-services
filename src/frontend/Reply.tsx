@@ -36,7 +36,6 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               letterUuid: letter.uuid,
               content: replyContent.value,
               status,
-              statusTimestamp: new Date(),
             },
             { useJwt: true },
           );
@@ -51,7 +50,6 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               status,
               letterUuid: letter.uuid,
               content: replyContent.value,
-              statusTimestamp: new Date(),
             },
             { useJwt: true },
           );

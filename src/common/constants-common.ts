@@ -46,6 +46,11 @@ export interface ApiLetterAdmin {
   replyStatusTimestamp: string | null;
 }
 
+export interface ApiLetterWithRespoder extends ApiLetterAdmin {
+  replyReadReceipt: ReadReceiptStatus | null;
+  replyReadTimestamp: string | null;
+}
+
 export interface ApiLetterContent {
   title: string;
   content: string;
