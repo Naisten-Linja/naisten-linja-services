@@ -87,6 +87,7 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
           fetchBookings={fetchBookings}
           setBookings={setBookings}
           handleDeleteBooking={handleDeleteBooking}
+          defaultSortAsc={false}
         />
       </div>
     </div>
@@ -185,6 +186,7 @@ type BookingListProps = {
   fetchBookings: (callback: (bookings: Array<ApiBooking>) => void) => Promise<void>;
   setBookings: (bookings: Array<ApiBooking>) => void;
   handleDeleteBooking: (bookingUuid: string) => () => Promise<void>;
+  defaultSortAsc?: boolean;
 };
 
 const BookingList: React.FC<BookingListProps> = ({
@@ -192,6 +194,7 @@ const BookingList: React.FC<BookingListProps> = ({
   fetchBookings,
   setBookings,
   handleDeleteBooking,
+  defaultSortAsc,
 }) => {
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
@@ -284,7 +287,14 @@ const BookingList: React.FC<BookingListProps> = ({
 
   return (
     <StyledDataTableWrapperDiv>
-      <DataTable columns={columns} data={bookings} defaultSortFieldId={2} pagination responsive />
+      <DataTable
+        columns={columns}
+        data={bookings}
+        defaultSortFieldId={2}
+        defaultSortAsc={defaultSortAsc}
+        pagination
+        responsive
+      />
     </StyledDataTableWrapperDiv>
   );
 };
