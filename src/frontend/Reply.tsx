@@ -35,7 +35,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         if (!reply) {
           const result = await postRequest<{ data: ApiReplyAdmin }>(
             `/api/letters/${letter.uuid}/reply`,
-            { letterUuid: letter.uuid, content: replyContent.value, status },
+            {
+              letterUuid: letter.uuid,
+              content: replyContent.value,
+              status,
+            },
             { useJwt: true },
           );
           setReply(result.data.data);
@@ -182,15 +186,23 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         <p>
           <i>
             <b>Updated on:</b>{' '}
-            {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
+            {reply.statusTimestamp
+              ? moment(reply.statusTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+              : 'never'}
           </i>
           <br />
           <i>
             <b>Status:</b> {reply.status}
           </i>
+          <br />
+          <i>
+            <b>Read on:</b>{' '}
+            {reply?.readTimestamp
+              ? moment(reply?.readTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+              : '-'}
+          </i>
         </p>
       )}
-
       {disableReplyEdit ? replyContent : editForm}
     </>
   );

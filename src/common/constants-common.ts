@@ -43,6 +43,12 @@ export interface ApiLetterAdmin {
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;
+  replyStatusTimestamp: string | null;
+}
+
+export interface ApiLetterWithRespoder extends ApiLetterAdmin {
+  replyReadReceipt: ReadReceiptStatus | null;
+  replyReadTimestamp: string | null;
 }
 
 export interface ApiLetterContent {
@@ -71,6 +77,11 @@ export enum ReplyStatus {
   published = 'published',
 }
 
+export enum ReadReceiptStatus {
+  unread = 'unread',
+  read = 'read',
+}
+
 export interface ApiReplyParamsAdmin {
   letterUuid: string;
   content: string;
@@ -86,6 +97,14 @@ export interface ApiReplyAdmin {
   content: string;
   created: string;
   updated: string;
+  readReceipt: ReadReceiptStatus;
+  readTimestamp: string | null;
+  statusTimestamp: string | null;
+}
+
+export interface ApiLetterWithReadStatus extends ApiLetterAdmin {
+  replyReadReceipt: ReadReceiptStatus | null;
+  replyReadTimestamp: string | null;
 }
 
 export const weekDays = [

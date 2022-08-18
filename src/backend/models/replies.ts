@@ -1,7 +1,7 @@
 import db from '../db';
 
 import { aesEncrypt, aesDecrypt } from '../utils';
-import { ReplyStatus, ResponderType } from '../../common/constants-common';
+import { ReadReceiptStatus, ReplyStatus, ResponderType } from '../../common/constants-common';
 
 export interface Reply {
   uuid: string;
@@ -12,6 +12,9 @@ export interface Reply {
   content: string;
   created: string;
   updated: string;
+  readReceipt: ReadReceiptStatus;
+  readTimestamp: Date | null;
+  statusTimestamp: Date | null;
 }
 
 export interface ReplyQueryResult {
@@ -24,6 +27,9 @@ export interface ReplyQueryResult {
   internal_author_uuid?: string;
   content: string;
   content_iv: string;
+  read_receipt: ReadReceiptStatus;
+  read_timestamp: Date | null;
+  status_timestamp: Date | null;
 }
 
 function queryResultToReply(row: ReplyQueryResult): Reply {
@@ -37,14 +43,17 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     content,
     authorType: row.author_type,
     internalAuthorUuid: row.internal_author_uuid || null,
+    readReceipt: row.read_receipt,
+    readTimestamp: row.read_timestamp,
+    statusTimestamp: row.status_timestamp,
   };
 }
 
 export async function getReply(letterUuid: string): Promise<Reply | null> {
   try {
     const queryText = `
-       SELECT * from replies
-       WHERE letter_uuid = $1::text;
+      SELECT * from replies
+      WHERE letter_uuid = $1::text;
     `;
     const queryValues = [letterUuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
@@ -75,7 +84,8 @@ export async function updateReply({
        SET
          content = $1::text,
          content_iv=$2::text,
-         status = $3::text
+         status = $3::text,
+         status_timestamp = now()
        WHERE uuid = $4::text
        RETURNING *;
     `;
@@ -87,6 +97,35 @@ export async function updateReply({
     return queryResultToReply(result.rows[0]);
   } catch (err) {
     console.error(`Failed update reply ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateReplyReadReceipt({
+  uuid,
+  readReceipt,
+  readTimestamp,
+}: {
+  uuid: string;
+  readReceipt: ReadReceiptStatus;
+  readTimestamp: Date | null;
+}): Promise<Reply | null> {
+  try {
+    const queryText = `
+       UPDATE replies
+       SET read_receipt = $1::text, read_timestamp = $2::timestamp
+       WHERE uuid = $3::text
+       RETURNING *;
+    `;
+    const queryValues = [readReceipt, readTimestamp, uuid];
+    const result = await db.query<ReplyQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToReply(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed update read receipt for reply ${uuid}`);
     console.error(err);
     return null;
   }
@@ -108,11 +147,18 @@ export async function createReply({
   try {
     const { encryptedData, iv } = aesEncrypt(content);
     const queryText = `
-       INSERT INTO replies (letter_uuid, content, internal_author_uuid, author_type, status, content_iv)
-       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, $6::text)
+       INSERT INTO replies (letter_uuid, content, internal_author_uuid, author_type, status, status_timestamp, content_iv)
+       VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, now(), $6::text)
        RETURNING *;
     `;
-    const queryValues = [letterUuid, encryptedData, internalAuthorUuid, authorType, status, iv];
+    const queryValues = [
+      letterUuid,
+      encryptedData,
+      internalAuthorUuid,
+      authorType,
+      status,
+      iv,
+    ];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
