@@ -86,7 +86,7 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
  * If same volunteer has multiple bookings for the same day, they will
  * get multiple notifications sent at the same time.
  */
-export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | undefined> {
+export async function sendBookingRemindersToVolunteers(bookingReminderDaysBefore: number): Promise<boolean[] | undefined> {
   const { sendGridFromEmailAddress, sendGridVolunteerBookingReminderTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
@@ -108,9 +108,6 @@ export async function sendBookingRemindersToVolunteers(): Promise<boolean[] | un
   // Find which bookings we want to send a reminder for
   const bookingsToRemindAbout = bookings
     .filter(booking => {
-      const bookingReminderDaysBefore: number | null = 3; // remind 3 days before booking
-      if (bookingReminderDaysBefore === null) return false; // user does not want a reminder
-
       const slotDay = new Date(booking.start);
       const today = new Date();
 
