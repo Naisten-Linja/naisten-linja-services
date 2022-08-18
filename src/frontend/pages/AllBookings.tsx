@@ -6,9 +6,14 @@ import moment from 'moment-timezone';
 import { ApiBooking } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
+import DataTable from 'react-data-table-component';
+import { StyledDataTableWrapperDiv } from '../utils-frontend';
 
 export const AllBookings: React.FC<RouteComponentProps> = () => {
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
+  const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
+  const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
+
   const { getRequest, deleteRequest } = useRequest();
 
   const { addNotification } = useNotifications();
@@ -66,82 +71,23 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
       <p>
         <b>Please note booking times are in Europe/Helsinki timezone</b>
       </p>
+      <h2>Upcoming Bookings</h2>
       <div className="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Date</th>
-              <th>Slot time</th>
-              <th>Booking details</th>
-              <th style={{ width: '18rem' }}>Note</th>
-              <th>User email</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map(
-              ({
-                uuid,
-                end,
-                start,
-                fullName,
-                phone,
-                email,
-                bookingType,
-                bookingNote,
-                user,
-                workingRemotely,
-              }) => {
-                return (
-                  <tr key={uuid}>
-                    <td>{bookingType.name}</td>
-                    <td>{moment(start).format('ddd Do MMM YYYY')}</td>
-                    <td>
-                      {moment(start).format('HH:mm')} - {moment(end).format('HH:mm')}
-                    </td>
-                    <td>
-                      {fullName}
-                      <br />
-                      {email}
-                      <br />
-                      {phone}
-                      <br />
-                      Work location: {workingRemotely ? 'Remote' : 'Office'}
-                    </td>
-                    <td>
-                      <UpdateBookingNoteForm
-                        fetchBookings={fetchBookings}
-                        setBookings={setBookings}
-                        booking={{
-                          uuid,
-                          end,
-                          start,
-                          fullName,
-                          phone,
-                          email,
-                          bookingType,
-                          bookingNote,
-                          user,
-                          workingRemotely,
-                        }}
-                      />
-                    </td>
-                    <td>{user.email}</td>
-                    <td>
-                      <button
-                        className="button button-xxs button-border button-error"
-                        onClick={handleDeleteBooking(uuid)}
-                      >
-                        Delete
-                      </button>{' '}
-                    </td>
-                  </tr>
-                );
-              },
-            )}
-          </tbody>
-        </table>
+        <BookingList
+          bookings={upcomingBookings}
+          fetchBookings={fetchBookings}
+          setBookings={setBookings}
+          handleDeleteBooking={handleDeleteBooking}
+        />
+      </div>
+      <h2>Past Bookings</h2>
+      <div className="table-responsive">
+        <BookingList
+          bookings={pastBookings}
+          fetchBookings={fetchBookings}
+          setBookings={setBookings}
+          handleDeleteBooking={handleDeleteBooking}
+        />
       </div>
     </div>
   );
@@ -231,5 +177,114 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
         </button>
       </Form>
     </Formik>
+  );
+};
+
+type BookingListProps = {
+  bookings: Array<ApiBooking>;
+  fetchBookings: (callback: (bookings: Array<ApiBooking>) => void) => Promise<void>;
+  setBookings: (bookings: Array<ApiBooking>) => void;
+  handleDeleteBooking: (bookingUuid: string) => () => Promise<void>;
+};
+
+const BookingList: React.FC<BookingListProps> = ({
+  bookings,
+  fetchBookings,
+  setBookings,
+  handleDeleteBooking,
+}) => {
+  const dateSort = (a: { start: string }, b: { start: string }) => {
+    return new Date(a.start) > new Date(b.start) ? 1 : -1;
+  };
+
+  const columns = [
+    {
+      id: 1,
+      name: 'Type',
+      selector: (row: ApiBooking) => row.bookingType.name,
+      wrap: true,
+    },
+    {
+      id: 2,
+      name: 'Date',
+      selector: (row: ApiBooking) => `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
+      sortable: true,
+      sortFunction: dateSort,
+      wrap: true,
+      format: (row: ApiBooking) => {
+        return (
+          <>
+            {moment(row.start).format('ddd Do MMM YYYY')}
+            <br />
+            {moment(row.start).format('HH:mm')} - {moment(row.end).format('HH:mm')}
+          </>
+        );
+      },
+    },
+    {
+      id: 3,
+      name: 'Personal Detail',
+      selector: (row: ApiBooking) => row.fullName,
+      format: (row: ApiBooking) => (
+        <div className="flex flex-column">
+          <span>{row.fullName}</span>
+          <span>{row.email}</span>
+          <span>{row.phone}</span>
+          <span>Work location: {row.workingRemotely ? 'Remote' : 'Office'}</span>
+        </div>
+      ),
+      wrap: true,
+      grow: 2,
+    },
+    {
+      id: 4,
+      name: 'User Email',
+      selector: (row: ApiBooking) => row.user.email,
+      wrap: true,
+      grow: 2,
+    },
+    {
+      id: 5,
+      name: 'Note',
+      selector: (row: ApiBooking) => row.bookingNote,
+      format: (row: ApiBooking) => (
+        <UpdateBookingNoteForm
+          fetchBookings={fetchBookings}
+          setBookings={setBookings}
+          booking={{
+            uuid: row.uuid,
+            end: row.end,
+            start: row.start,
+            fullName: row.fullName,
+            phone: row.phone,
+            email: row.email,
+            bookingType: row.bookingType,
+            bookingNote: row.bookingNote,
+            user: row.user,
+            workingRemotely: row.workingRemotely,
+          }}
+        />
+      ),
+      grow: 2,
+    },
+    {
+      id: 6,
+      name: '',
+      selector: () => '',
+      format: (row: ApiBooking) => (
+        <button
+          className="button button-xxs button-border button-error"
+          onClick={handleDeleteBooking(row.uuid)}
+        >
+          Delete
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <StyledDataTableWrapperDiv>
+      <DataTable columns={columns} data={bookings} defaultSortFieldId={2} pagination responsive />
+    </StyledDataTableWrapperDiv>
   );
 };
