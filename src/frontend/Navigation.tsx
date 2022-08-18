@@ -7,6 +7,7 @@ import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
 import ResponsiveMenu from 'react-responsive-navbar';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
+import { StyledNav } from './utils-frontend';
 
 export const Navigation = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +35,7 @@ export const Navigation = () => {
 const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
   const { user, logout, login } = useAuth();
   return (
-    <nav className="group group-m group-space-between" onClick={afterMenuClicked}>
+    <StyledNav onClick={afterMenuClicked}>
       <ul>
         <li>
           <Link to="/" style={{ fontWeight: 'bold' }}>Naisten Linja</Link>
@@ -102,7 +103,7 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
           </li>
         )}
       </ul>
-    </nav>
+    </StyledNav>
   );
 };
 
