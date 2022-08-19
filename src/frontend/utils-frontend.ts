@@ -38,38 +38,3 @@ export const StyledDataTableWrapperDiv = styled.div`
     // overflow: hidden; definitions.
   }
 `;
-
-export const StyledNav = styled.nav`
-  ul {
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    list-style: none;
-  }
-  li {
-    flex: none;
-    margin: 0;
-    padding-right: 1rem;
-    padding-top: .4rem;
-    padding-bottom: .4rem;
-  }
-  a {
-    text-decoration: underline;
-  }
-  @media (max-width: 500px) {
-    padding: 10px 0;
-
-    ul {
-      display: inline-block;
-    }
-
-    li {
-      text-align: center;
-      padding: 10px 0;
-      display: block;
-      margin-left: 0;
-    }
-  }
-`;

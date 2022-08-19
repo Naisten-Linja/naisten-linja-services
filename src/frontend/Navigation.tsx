@@ -7,7 +7,6 @@ import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
 import ResponsiveMenu from 'react-responsive-navbar';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
-import { StyledNav } from './utils-frontend';
 
 export const Navigation = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,4 +113,39 @@ const NavigationWrapper = styled.div`
   top: 0;
   background: #2e0556;
   color: var(--white);
+`;
+
+const StyledNav = styled.nav`
+  ul {
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+  }
+  li {
+    flex: none;
+    margin: 0;
+    padding-right: 1rem;
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+  }
+  a {
+    text-decoration: underline;
+  }
+  @media (max-width: 500px) {
+    padding: 10px 0;
+
+    ul {
+      display: inline-block;
+    }
+
+    li {
+      text-align: center;
+      padding: 10px 0;
+      display: block;
+      margin-left: 0;
+    }
+  }
 `;

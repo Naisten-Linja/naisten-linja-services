@@ -25,7 +25,6 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
         useJwt: true,
       });
       if (result.data.data && updateStateAfterFetch) {
-        console.log('user:', result.data.data);
         setUser(result.data.data);
       }
     };
