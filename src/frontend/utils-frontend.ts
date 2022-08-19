@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 // Return an objects with values mapping from a get query string
 // param1=first&param2=second -> { param1: first, param2: second }
@@ -26,14 +26,15 @@ export const OverrideTurretInputHeightForReactSelectDiv = styled.div`
   input {
     height: auto;
   }
-`
+`;
 
 export const StyledDataTableWrapperDiv = styled.div`
-  .rdt_TableCell :focus, .rdt_TableCol_Sortable:focus {
+  .rdt_TableCell :focus,
+  .rdt_TableCol_Sortable:focus {
     outline: 0.125rem solid #08c;
     outline-offset: -0.125rem; // this overrides the normal offset to avoid
-                               // drawing the outline outside of the parent
-                               // which would cause it to disappear because of
-                               // overflow: hidden; definitions.
+    // drawing the outline outside of the parent
+    // which would cause it to disappear because of
+    // overflow: hidden; definitions.
   }
-`
+`;

@@ -34,7 +34,7 @@ export const Navigation = () => {
 const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
   const { user, logout, login } = useAuth();
   return (
-    <nav className="group group-m group-space-between" onClick={afterMenuClicked}>
+    <StyledNav onClick={afterMenuClicked}>
       <ul>
         <li>
           <Link to="/" style={{ fontWeight: 'bold' }}>Naisten Linja</Link>
@@ -102,7 +102,7 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
           </li>
         )}
       </ul>
-    </nav>
+    </StyledNav>
   );
 };
 
@@ -113,4 +113,39 @@ const NavigationWrapper = styled.div`
   top: 0;
   background: #2e0556;
   color: var(--white);
+`;
+
+const StyledNav = styled.nav`
+  ul {
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+  }
+  li {
+    flex: none;
+    margin: 0;
+    padding-right: 1rem;
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+  }
+  a {
+    text-decoration: underline;
+  }
+  @media (max-width: 500px) {
+    padding: 10px 0;
+
+    ul {
+      display: inline-block;
+    }
+
+    li {
+      text-align: center;
+      padding: 10px 0;
+      display: block;
+      margin-left: 0;
+    }
+  }
 `;
