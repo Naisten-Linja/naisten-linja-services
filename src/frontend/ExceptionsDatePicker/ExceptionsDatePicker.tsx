@@ -92,7 +92,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
  * in the local timezone of the browser. This function converts a
  * string in form "2022-01-30" into a Date object.
  */
-function storedDateToLocalNoon(dateString: string): Date {
+export function storedDateToLocalNoon(dateString: string): Date {
   const dateSplit = (/^(\d\d\d\d)-(\d\d)-(\d\d)$/).exec(dateString);
   if (!dateSplit) {
     throw new Error("Invalid exception date " + dateString);

@@ -6,12 +6,14 @@ export async function addBookingType({
   name,
   rules,
   exceptions,
+  dateRanges,
   additionalInformation,
 }: model.CreateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.createBookingType({
     name,
     rules,
     exceptions,
+    dateRanges,
     additionalInformation,
   });
   return bookingType
@@ -20,6 +22,7 @@ export async function addBookingType({
         name: bookingType.name,
         rules: bookingType.rules,
         exceptions: bookingType.exceptions,
+        dateRanges: bookingType.dateRanges,
         additionalInformation: bookingType.additionalInformation,
       }
     : null;
@@ -33,6 +36,7 @@ export async function getBookingTypes(): Promise<Array<ApiBookingType> | null> {
         name: b.name,
         rules: b.rules,
         exceptions: b.exceptions,
+        dateRanges: b.dateRanges,
         additionalInformation: b.additionalInformation,
       }))
     : null;
@@ -45,8 +49,8 @@ export async function getBookingTypeByUuid(
   if (bookingType === null) {
     return null;
   }
-  const { uuid, name, rules, exceptions, additionalInformation } = bookingType;
-  return { uuid, name, rules, exceptions, additionalInformation };
+  const { uuid, name, rules, exceptions, dateRanges, additionalInformation } = bookingType;
+  return { uuid, name, rules, exceptions, dateRanges, additionalInformation };
 }
 
 export async function updateBookingType({
@@ -54,6 +58,7 @@ export async function updateBookingType({
   name,
   rules,
   exceptions,
+  dateRanges,
   additionalInformation,
 }: model.UpdateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.updateBookingType({
@@ -61,6 +66,7 @@ export async function updateBookingType({
     name,
     rules,
     exceptions,
+    dateRanges,
     additionalInformation,
   });
   return bookingType !== null
@@ -69,6 +75,7 @@ export async function updateBookingType({
         name: bookingType.name,
         rules: bookingType.rules,
         exceptions: bookingType.exceptions,
+        dateRanges: bookingType.dateRanges,
         additionalInformation: bookingType.additionalInformation,
       }
     : null;

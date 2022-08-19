@@ -4,7 +4,7 @@ import { RouteComponentProps } from '@reach/router';
 import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
-import { BookingTypeForm } from './BookingTypeForm';
+import { BookingTypeDateRangeBadge, BookingTypeForm } from './BookingTypeForm';
 import moment from 'moment-timezone';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
@@ -74,7 +74,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
-        const { rules, uuid, name, exceptions, additionalInformation } = bookingType;
+        const { rules, uuid, name, exceptions, dateRanges, additionalInformation } = bookingType;
         return (
           <div className="margin-bottom-l" key={uuid}>
             {isEditing ? (
@@ -119,6 +119,32 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                   )}
                   <tr>
                     <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                      Active date ranges
+                    </th>
+                    <td className="font-weight-semibold font-size-s">
+                      {(dateRanges.length === 0)
+                        ? <p className="font-size-xs color-error">No date ranges selected, this booking type is never available.</p>
+                        : (
+                          <ul className="list-unstyled">
+                            {dateRanges.map((range, idx) => (
+                              <li
+                                className="display-inline-block margin-right-xxs"
+                                key={`exception.${idx}`}
+                              >
+                                <div
+                                  key={`exception-${idx}`}
+                                  className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+                                >
+                                  <BookingTypeDateRangeBadge range={range} />
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
                       Exceptions
                     </th>
                     <td className="font-weight-semibold font-size-s">
@@ -153,13 +179,13 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                       <td key={idx}>
                         {slots.length > 0
                           ? slots.map((slot, idx) => (
-                              <div
-                                key={`slot-${idx}`}
-                                className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
-                              >
-                                {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
-                              </div>
-                            ))
+                            <div
+                              key={`slot-${idx}`}
+                              className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
+                            >
+                              {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                            </div>
+                          ))
                           : ''}
                       </td>
                     </tr>

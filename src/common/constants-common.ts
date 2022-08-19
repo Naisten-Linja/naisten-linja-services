@@ -138,18 +138,17 @@ export type BookingTypeDailyRules = [
   SlotBookingRules,
 ];
 
+export type BookingTypeDateRange = {
+  start: string | null,
+  end: string | null,
+}
+
 export interface ApiBookingType {
   uuid: string;
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
-  additionalInformation: string | null;
-}
-
-export interface ApiBookingTypeParamsAdmin {
-  name: string;
-  rules: BookingTypeDailyRules;
-  exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string | null;
 }
 

@@ -1,20 +1,30 @@
 import React, { useState, useCallback } from 'react';
-import { Formik, Form, Field, FieldArray } from 'formik';
+import { Formik, Form, Field, FieldArray, useField, FieldHookConfig } from 'formik';
 
 import {
   ApiBookingType,
-  // TODO: move ApiBookingTYpeParamsAdmin from constant-common to this be used internally in this file.
-  // Also renaming to BookingTypeFormValue would make more sense
-  ApiBookingTypeParamsAdmin,
   weekDays,
   BookingTypeDailyRules,
   BookingSlot,
+  BookingTypeDateRange,
+  SlotBookingRules,
 } from '../../common/constants-common';
 
 import { useNotifications } from '../NotificationsContext';
 import ExceptionsDatePicker from '../ExceptionsDatePicker/ExceptionsDatePicker';
 import { useRequest } from '../http';
 import moment from 'moment-timezone';
+import BookingTypeDateRangePicker from '../BookingTypeDateRangePicker/BookingTypeDateRangePicker';
+import { IoMdCreate, IoMdTrain, IoMdTrash } from 'react-icons/io';
+
+
+export interface BookingTypeFormValue {
+  name: string;
+  rules: BookingTypeDailyRules;
+  exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
+  additionalInformation: string | null;
+}
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -31,24 +41,26 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   const { postRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
 
-  const initialFormValue: ApiBookingTypeParamsAdmin = bookingType
+  const initialFormValue: BookingTypeFormValue = bookingType
     ? {
-        name: bookingType.name,
-        rules: bookingType.rules,
-        exceptions: bookingType.exceptions,
-        additionalInformation: bookingType.additionalInformation || '',
-      }
+      name: bookingType.name,
+      rules: bookingType.rules,
+      exceptions: bookingType.exceptions,
+      dateRanges: bookingType.dateRanges,
+      additionalInformation: bookingType.additionalInformation || '',
+    }
     : {
-        name: '',
-        rules: [0, 1, 2, 3, 4, 5, 6].map(() => ({
-          enabled: true,
-          slots: [] as Array<BookingSlot>,
-        })) as BookingTypeDailyRules,
-        exceptions: [] as Array<string>,
-        additionalInformation: '',
-      };
+      name: '',
+      rules: [0, 1, 2, 3, 4, 5, 6].map((): SlotBookingRules => ({
+        enabled: true,
+        slots: [],
+      })) as BookingTypeDailyRules,
+      exceptions: [],
+      dateRanges: [],
+      additionalInformation: '',
+    };
 
-  const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
+  const createNewBookingType = async (bookingType: BookingTypeFormValue) => {
     try {
       await postRequest(
         '/api/booking-types',
@@ -69,15 +81,16 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       name,
       rules,
       exceptions,
+      dateRanges,
       additionalInformation,
-    }: ApiBookingTypeParamsAdmin & { uuid: string }) => {
+    }: BookingTypeFormValue & { uuid: string }) => {
       if (!uuid) {
         return;
       }
       try {
-        await putRequest(
+        await putRequest<{}>(
           `/api/booking-types/${uuid}`,
-          { name, rules, exceptions, additionalInformation },
+          { name, rules, exceptions, dateRanges, additionalInformation },
           {
             useJwt: true,
           },
@@ -105,7 +118,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       }}
     >
       {({ values }) => {
-        const { rules, exceptions } = values;
+        const { rules, exceptions, dateRanges } = values;
         const filledRules = rules.filter(({ slots }) => {
           const filledSlots = slots.filter(
             ({ start, end, seats }) => start !== '' && end !== '' && seats > 0,
@@ -147,21 +160,15 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </td>
                 </tr>
                 <tr>
-                  <th className="font-weight-semibold font-size-s">Exceptions</th>
-                  <td className="flex flex-column font-weight-semibold font-size-s">
-                    <div>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowDatePicker(!showDatePicker);
-                        }}
-                        className="button-xxs success"
-                        disabled={filledRules.length === 0}
-                      >
-                        Add exceptions
-                      </button>
-                    </div>
+                  <th className="font-weight-semibold font-size-s">Active date ranges</th>
+                  <td className="font-weight-semibold font-size-s">
+                    <BookingTypeDateRangesField />
+                  </td>
+                </tr>
 
+                <tr>
+                  <th className="font-weight-semibold font-size-s">Exceptions</th>
+                  <td className="font-weight-semibold font-size-s">
                     {exceptions.length > 0 && (
                       <ul className="list-unstyled">
                         <FieldArray
@@ -190,12 +197,24 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         />
                       </ul>
                     )}
+                    <div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowDatePicker(!showDatePicker);
+                        }}
+                        className="button-xxs success"
+                        disabled={filledRules.length === 0}
+                      >
+                        Add exceptions
+                      </button>
+                    </div>
                   </td>
                 </tr>
 
                 <tr>
                   <th className="font-weight-semibold font-size-s">Additional information</th>
-                  <td className="flex flex-column font-weight-semibold font-size-s">
+                  <td className="font-weight-semibold font-size-s">
                     <Field
                       aria-label="additional information"
                       placeholder="Additional information"
@@ -313,3 +332,134 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
     </Formik>
   );
 };
+
+interface BookingTypeDateRangesFieldProps {
+
+};
+
+const BookingTypeDateRangesField = (props: BookingTypeDateRangesFieldProps) => {
+  const [{ value: dateRanges }, meta, helpers] = useField<Array<BookingTypeDateRange>>("dateRanges");
+  const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
+
+  const closePickerModal = () => {
+    setEditRangeIndex(null);
+  }
+
+  return <>
+    <FieldArray
+      name="dateRanges"
+      render={(arrayHelpers) => <>
+        {(dateRanges.length === 0)
+          ? <p className="font-size-xs color-error">No date ranges selected, this booking type is never available.</p>
+          : (
+            <ul className="list-unstyled">
+              {
+                dateRanges.map((range, idx) => (
+                  <li
+                    className="display-inline-block margin-right-xxs"
+                    key={`exception.${idx}`}
+                  >
+                    <p className="font-size-m no-margin padding-right-s">
+                      <BookingTypeDateRangeBadge
+                        range={range}
+                        onEdit={() => setEditRangeIndex(idx)}
+                        onDelete={() => arrayHelpers.remove(idx)}
+                      />
+                    </p>
+                  </li>
+                ))
+              }
+              <BookingTypeDateRangePicker
+                value={(editRangeIndex !== null)
+                  ? dateRanges[editRangeIndex]
+                  : null
+                }
+                onChange={(newValue) => {
+                  if (editRangeIndex !== null) {
+                    arrayHelpers.replace(editRangeIndex, newValue)
+                  }
+                }}
+                onClose={() => {
+                  setEditRangeIndex(null);
+                }}
+              />
+            </ul>
+          )}
+        <div>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              const prevLength = dateRanges.length;
+              arrayHelpers.push({ start: null, end: null });
+              setEditRangeIndex(prevLength);
+            }}
+            className="button-xxs success"
+          >
+            Add date range
+          </button>
+        </div>
+      </>}
+    />
+  </>;
+}
+
+interface BookingTypeDateRangeBadgeProps {
+  range: BookingTypeDateRange;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}
+
+export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps) => {
+  const { start, end } = props.range;
+  const { onEdit, onDelete } = props;
+
+  const startFormatted = moment(start).format('DD.MM.yyyy');
+  const endFormatted = moment(end).format('DD.MM.yyyy');
+
+  const getText = () => {
+    if (start === null && end === null) {
+      return "Always";
+    } else if (start === null) {
+      return `Always until ${endFormatted}`;
+    } else if (end === null) {
+      return `Forever after ${startFormatted}`;
+    } else if (start === end) {
+      return `Only on ${startFormatted}`;
+    } else {
+      return `From ${startFormatted} to ${endFormatted}`;
+    }
+  }
+
+  // className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
+  return (
+    <p className="font-weight-semibold no-margin no-padding background-info-100 border-radius" style={{ fontSize: '0.8em' }}>
+      <span className="padding-xxs padding-right-s">
+        {getText()}
+      </span>
+      {onEdit &&
+        <button
+          className="button button-xs button-primary button button-icon no-margin no-border-radius"
+          onClick={(e) => {
+            e.preventDefault();
+            onEdit();
+          }}
+        >
+          <IoMdCreate />
+          <span>EDIT</span>
+        </button>
+      }
+      {onDelete &&
+        <button
+          className="button button-xs button-error button-square button button-icon no-margin"
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          onClick={(e) => {
+            e.preventDefault();
+            onDelete();
+          }}
+        >
+          <IoMdTrash />
+        </button>
+      }
+    </p>
+  )
+}

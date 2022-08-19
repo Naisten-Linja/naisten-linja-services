@@ -1,11 +1,12 @@
 import db from '../db';
 
-import { BookingTypeDailyRules } from '../../common/constants-common';
+import { BookingTypeDailyRules, BookingTypeDateRange } from '../../common/constants-common';
 
 export interface CreateBookingTypeParams {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string;
 }
 
@@ -14,6 +15,7 @@ export interface UpdateBookingTypeParams {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string;
 }
 
@@ -23,6 +25,7 @@ export interface BookingType {
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
   created: number;
   additionalInformation: string | null;
 }
@@ -45,6 +48,7 @@ function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
     created: row.created,
     rules: row.rules,
     exceptions: row.exceptions,
+    dateRanges: [],
     additionalInformation: row.additional_information || null,
   };
 }
@@ -53,6 +57,7 @@ export async function createBookingType({
   name,
   rules,
   exceptions = [],
+  dateRanges = [],
   additionalInformation,
 }: CreateBookingTypeParams): Promise<BookingType | null> {
   try {
