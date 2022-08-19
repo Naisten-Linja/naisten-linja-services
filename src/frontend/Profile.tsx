@@ -72,7 +72,7 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
       {pastBookings.length > 0 && (
         <>
           <h1>Past bookings</h1>
-          <BookingList bookings={pastBookings} />
+          <BookingList bookings={pastBookings} defaultSortAsc={false} />
         </>
       )}
     </div>
@@ -107,7 +107,10 @@ const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserD
   );
 };
 
-const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) => {
+const BookingList: React.FC<{ bookings: Array<ApiBooking>; defaultSortAsc?: boolean }> = ({
+  bookings,
+  defaultSortAsc,
+}) => {
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
@@ -168,6 +171,13 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
   ];
 
   return (
-    <DataTable columns={columns} data={bookings} defaultSortFieldId={2} pagination responsive />
+    <DataTable
+      columns={columns}
+      data={bookings}
+      defaultSortFieldId={2}
+      defaultSortAsc={defaultSortAsc}
+      pagination
+      responsive
+    />
   );
 };
