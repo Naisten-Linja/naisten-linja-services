@@ -37,6 +37,7 @@ export interface BookingTypeQueryResult {
   created: number;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  date_ranges: Array<BookingTypeDateRange>;
   additional_information?: string | null;
 }
 
@@ -48,7 +49,7 @@ function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
     created: row.created,
     rules: row.rules,
     exceptions: row.exceptions,
-    dateRanges: [],
+    dateRanges: row.date_ranges,
     additionalInformation: row.additional_information || null,
   };
 }
@@ -57,16 +58,16 @@ export async function createBookingType({
   name,
   rules,
   exceptions = [],
-  dateRanges = [],
+  dateRanges,
   additionalInformation,
 }: CreateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
-        INSERT INTO booking_types (name, rules, exceptions, additional_information)
-        VALUES ($1::text, $2::jsonb[], $3::text[], $4::text)
+        INSERT INTO booking_types (name, rules, exceptions, date_ranges additional_information)
+        VALUES ($1::text, $2::jsonb[], $3::text[], $4::jsonb[], $5::text)
         RETURNING *;
     `;
-    const queryValues = [name, rules, exceptions, additionalInformation];
+    const queryValues = [name, rules, exceptions, dateRanges, additionalInformation];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
@@ -113,17 +114,23 @@ export async function updateBookingType({
   name,
   rules,
   exceptions,
+  dateRanges,
   uuid,
   additionalInformation,
 }: UpdateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
         UPDATE booking_types
-        SET name = $1::text, rules = $2::jsonb[], exceptions = $3::text[], additional_information = $4::text
-        WHERE uuid = $5::text
+        SET
+          name = $1::text,
+          rules = $2::jsonb[],
+          exceptions = $3::text[],
+          date_ranges = $4::jsonb[],
+          additional_information = $5::text
+        WHERE uuid = $6::text
         RETURNING *;
     `;
-    const queryValues = [name, rules, exceptions, additionalInformation, uuid];
+    const queryValues = [name, rules, exceptions, dateRanges, additionalInformation, uuid];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

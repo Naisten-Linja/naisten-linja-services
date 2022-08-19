@@ -433,7 +433,7 @@ export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps)
   // className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
   return (
     <p className="font-weight-semibold no-margin no-padding background-info-100 border-radius" style={{ fontSize: '0.8em' }}>
-      <span className="padding-xxs padding-right-s">
+      <span className="padding-xxs padding-right-s" style={{ verticalAlign: 'middle' }}>
         {getText()}
       </span>
       {onEdit &&
