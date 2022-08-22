@@ -188,4 +188,18 @@ router.post<
   }
 });
 
+/**
+ * Redirect the user to their Discourse profile information.
+ *
+ * This can not be done on frontend because it does not know the
+ * Discourse server address, because the address is only specified
+ * in the environment variables.
+ *
+ * THIS ROUTE IS NOT PROTECTED BY ANY AUTHENTICATION
+ */
+router.get('/profile-redirect', async (_, res) => {
+  const { discourseUrl } = getConfig();
+  res.redirect(`${discourseUrl}/my/preferences/account`, 302);
+});
+
 export default router;

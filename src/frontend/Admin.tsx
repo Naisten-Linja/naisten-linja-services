@@ -4,6 +4,7 @@ import { Router, Redirect, RouteComponentProps } from '@reach/router';
 import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { Users } from './Users';
+import { Profile } from './Profile';
 import { Letters } from './Letters';
 import { Reply } from './Reply';
 import { BookingTypes } from './pages/BookingTypes';
@@ -21,6 +22,7 @@ export const Admin: React.FunctionComponent<RouteComponentProps> = () => {
   ) : (
     <Router>
       <Users path="users" />
+      <Profile path="users/:userUuid" />
       <Letters path="letters" />
       <Reply path="letters/:letterUuid" />
       <BookingTypes path="booking-types" />

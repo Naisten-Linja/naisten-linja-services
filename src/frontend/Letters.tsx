@@ -3,12 +3,18 @@ import { RouteComponentProps, Link } from '@reach/router';
 import styled from 'styled-components';
 import Select from 'react-select';
 
-import { ApiLetterAdmin, ApiUserData, UserRole } from '../common/constants-common';
+import {
+  ApiLetterAdmin,
+  ApiLetterWithReadStatus,
+  ApiUserData,
+  UserRole,
+} from '../common/constants-common';
 import { useNotifications } from './NotificationsContext';
 import { useAuth } from './AuthContext';
 import { useRequest } from './http';
 
 import moment from 'moment-timezone';
+import { OverrideTurretInputHeightForReactSelectDiv } from './utils-frontend';
 
 const LettersTable = styled.table`
   tr {
@@ -19,7 +25,7 @@ const LettersTable = styled.table`
 `;
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
-  const [letters, setLetters] = useState<Array<ApiLetterAdmin>>([]);
+  const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
@@ -41,7 +47,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
   const fetchLetters = useCallback(async () => {
     try {
-      const result = await getRequest<{ data: Array<ApiLetterAdmin> }>(`/api/letters`, {
+      const result = await getRequest<{ data: Array<ApiLetterWithReadStatus> }>(`/api/letters`, {
         useJwt: true,
       });
       setLetters(
@@ -122,6 +128,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
             <th>Created</th>
             <th>Title</th>
             <th>Reply status</th>
+            <th>Read receipt</th>
             {isStaff && <th>Assigned to</th>}
           </tr>
         </thead>
@@ -134,24 +141,31 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                   <Link to={letter.uuid}>{letter.title}</Link>
                 </td>
                 <td>{letter.replyStatus || ''}</td>
+                <td>
+                  {letter.replyReadTimestamp
+                    ? moment(letter.replyReadTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+                    : '-'}
+                </td>
                 {isStaff && (
                   <td style={{ maxWidth: 200 }}>
-                    <Select
-                      value={
-                        assigneeOptions
-                          ? assigneeOptions.find(
-                              (option) => option.value === letter.assignedResponderUuid,
-                            )
-                          : null
-                      }
-                      placeholder="Assign to a user"
-                      options={assigneeOptions}
-                      isSearchable
-                      isClearable
-                      onChange={(selected) => {
-                        handleUserSelection(letter, selected);
-                      }}
-                    />
+                    <OverrideTurretInputHeightForReactSelectDiv>
+                      <Select
+                        value={
+                          assigneeOptions
+                            ? assigneeOptions.find(
+                                (option) => option.value === letter.assignedResponderUuid,
+                              )
+                            : null
+                        }
+                        placeholder="Assign to a user"
+                        options={assigneeOptions}
+                        isSearchable
+                        isClearable
+                        onChange={(selected) => {
+                          handleUserSelection(letter, selected);
+                        }}
+                      />
+                    </OverrideTurretInputHeightForReactSelectDiv>
                   </td>
                 )}
               </tr>

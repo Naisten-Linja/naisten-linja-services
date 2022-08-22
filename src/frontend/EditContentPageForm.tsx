@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from "rehype-sanitize";
 import { Formik, Form, Field } from 'formik';
 
 import { ApiPage, ApiUpdatePageParams } from '../common/constants-common';
@@ -100,6 +101,9 @@ export const EditContentPageForm: React.FC<{ slug: string, afterSubmit: () => vo
               }}
               onChange={(content = '') => {
                 setFieldValue('content', content);
+              }}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
               }}
             />
             <button

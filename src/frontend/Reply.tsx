@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
+import MDEditor from '@uiw/react-md-editor';
+import rehypeSanitize from "rehype-sanitize";
 
 import { useRequest } from './http';
 import { ApiLetterAdmin, ApiReplyAdmin, UserRole, ReplyStatus } from '../common/constants-common';
@@ -17,6 +19,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const { user } = useAuth();
   const [letter, setLetter] = useState<ApiLetterAdmin | null>(null);
   const [reply, setReply] = useState<ApiReplyAdmin | null>(null);
+  const [content, setContent] = useState<string>('');
   const disableReplyEdit =
     user && user.role === UserRole.volunteer && reply && reply.status !== ReplyStatus.draft;
   const showSendForReviewBtn = !reply || reply.status === ReplyStatus.draft;
@@ -32,7 +35,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         if (!reply) {
           const result = await postRequest<{ data: ApiReplyAdmin }>(
             `/api/letters/${letter.uuid}/reply`,
-            { letterUuid: letter.uuid, content: replyContent.value, status },
+            {
+              letterUuid: letter.uuid,
+              content: replyContent.value,
+              status,
+            },
             { useJwt: true },
           );
           setReply(result.data.data);
@@ -69,10 +76,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
 
   const fetchReply = useCallback(async () => {
     try {
-      const result = await getRequest<{ data: ApiReplyAdmin }>(`/api/letters/${letterUuid}/reply`, {
+      const result = await getRequest<{ data: ApiReplyAdmin | null}>(`/api/letters/${letterUuid}/reply`, {
         useJwt: true,
       });
       setReply(result.data.data || null);
+      if (result.data.data) setContent(result.data.data.content);
     } catch (err) {
       console.log(err);
       addNotification({
@@ -101,9 +109,26 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const editForm = (
     <form ref={formRef} onSubmit={submitReply}>
       {reply && <input type="hidden" value={reply.uuid} id="replyUuid" disabled />}
-      <p className="field">
-        <textarea required id="replyContent" rows={10} defaultValue={reply ? reply.content : ''} />
-      </p>
+      <div className="field">
+        <MDEditor
+          value={content}
+          height={500}
+          textareaProps={{
+            id: 'replyContent',
+            // Disable transparent text fill color upon focusing on the text area
+            // @ts-ignore
+            style: { '-webkit-text-fill-color': 'inherit' },
+            minHeight: '300px',
+          }}
+          onChange={(val = '') => {
+            if (val) setContent(val);
+            else setContent('');
+          }}
+          previewOptions={{
+            rehypePlugins: [[rehypeSanitize]],
+          }}
+        />
+      </div>
       <p className="field">
         {showSendForReviewBtn && (
           <Button
@@ -160,15 +185,24 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b> {reply.updated ? moment(reply.updated).format('dddd DD/MM/YYYY, HH:mm') : 'never'}
+            <b>Updated on:</b>{' '}
+            {reply.statusTimestamp
+              ? moment(reply.statusTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+              : 'never'}
           </i>
           <br />
           <i>
             <b>Status:</b> {reply.status}
           </i>
+          <br />
+          <i>
+            <b>Read on:</b>{' '}
+            {reply?.readTimestamp
+              ? moment(reply?.readTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+              : '-'}
+          </i>
         </p>
       )}
-
       {disableReplyEdit ? replyContent : editForm}
     </>
   );

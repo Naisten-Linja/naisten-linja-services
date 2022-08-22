@@ -116,6 +116,7 @@ export function createApp() {
       path: [
         '/api/auth/sso',
         '/api/auth/sso/verify',
+        '/api/auth/profile-redirect',
         /^\/api\/auth\/token\/.*/,
         '/api/online-letter/start',
         '/api/online-letter/send',
@@ -207,14 +208,23 @@ export function createApp() {
 function activateNotificationCronJobs() {
   // Send booking notifications to volunteers
   // some days before the booking they had made.
-  const hour = getConfig().bookingReminderSendingHour
+  const hour = getConfig().bookingReminderSendingHour;
+  const daysBeforeString = getConfig().bookingReminderDaysBefore;
   if (!hour) {
-    console.log("Env BOOKING_REMINDER_SENDING_HOUR was not set, not sending any booking reminders")
+    console.warn("Env BOOKING_REMINDER_SENDING_HOUR was not set, not sending any booking reminders");
     return;
+  }
+  if (!daysBeforeString) {
+    console.warn("Env BOOKING_REMINDER_DAYS_BEFORE was not set, not sending any booking reminders");
+    return;
+  }
+  const daysBefore = parseInt(daysBeforeString, 10);
+  if (isNaN(daysBefore)) {
+    console.warn(`Env BOOKING_REMINDER_DAYS_BEFORE was set to an invalid value "${daysBefore}", not a single number`);
   }
 
   cron.schedule(`0 ${hour} * * *`, async () => {
-    const results = await sendBookingRemindersToVolunteers();
+    const results = await sendBookingRemindersToVolunteers(daysBefore);
 
     if (typeof results === 'undefined') {
       console.log("Failed to run sendBookingRemindersToVolunteers");

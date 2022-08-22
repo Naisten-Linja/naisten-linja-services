@@ -33,6 +33,13 @@ export SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID=
 # In production this should be a single number to avoid sending same email multiple times a day.
 export BOOKING_REMINDER_SENDING_HOUR=9
 
+# How many days before the day the booking starts we send the reminder email?
+# If set to zero, reminders will be sent at "BOOKING_REMINDER_SENDING_HOUR" on
+# the exact day when the booking starts, if set to 1 the day before that etc.
+# Unset/comment this to disable the reminders.
+export BOOKING_REMINDER_DAYS_BEFORE=3
+
+
 # The list of allowed CORS origins requests to the backend API.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.
 # For example: http://domain1.com,http://domain2.com
