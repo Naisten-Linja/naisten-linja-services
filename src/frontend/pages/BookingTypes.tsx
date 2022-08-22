@@ -4,8 +4,7 @@ import { RouteComponentProps } from '@reach/router';
 import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
-import { BookingTypeDateRangeBadge, BookingTypeForm } from './BookingTypeForm';
-import moment from 'moment-timezone';
+import { BookingTypeDateRangeBadge, BookingTypeExceptionBadge, BookingTypeForm } from './BookingTypeForm';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -131,12 +130,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                                 className="display-inline-block margin-right-xxs"
                                 key={`exception.${idx}`}
                               >
-                                <div
-                                  key={`exception-${idx}`}
-                                  className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
-                                >
-                                  <BookingTypeDateRangeBadge range={range} />
-                                </div>
+                                <BookingTypeDateRangeBadge range={range} />
                               </li>
                             ))}
                           </ul>
@@ -154,12 +148,9 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                             className="display-inline-block margin-right-xxs"
                             key={`exception.${idx}`}
                           >
-                            <div
-                              key={`exception-${idx}`}
-                              className="border-radius background-error-50 padding-xxs font-size-xxs font-weight-semibold"
-                            >
-                              {moment(exceptionDateString).format('DD.MM.yyyy')}
-                            </div>
+                            <BookingTypeExceptionBadge
+                              dateString={exceptionDateString}
+                            />
                           </li>
                         ))}
                       </ul>

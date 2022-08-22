@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import DayPicker, { DayModifiers } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 import { format } from 'date-fns';
@@ -9,16 +9,21 @@ import Modal from '../ui-components/Modal/Modal';
 import { storedDateToLocalNoon } from '../ExceptionsDatePicker/ExceptionsDatePicker';
 import { BookingTypeDateRangeBadge } from '../pages/BookingTypeForm';
 
-interface ExceptionsDatePickerProps {
-  value: BookingTypeDateRange | null;
+interface BookingTypeDateRangePickerProps {
+  currentRange: BookingTypeDateRange | null;
   onChange: (value: BookingTypeDateRange) => void;
   onClose: () => void;
 }
 
-const BookingTypeDateRangePicker: React.FC<ExceptionsDatePickerProps> = (props) => {
+/**
+ * Modal for picking optional start and end date.
+ * 
+ * See the actual logic in a subcomponent below.
+ */
+const BookingTypeDateRangePicker: React.FC<BookingTypeDateRangePickerProps> = (props) => {
   return (
     <Modal
-      isOpen={props.value !== null}
+      isOpen={props.currentRange !== null}
       label="Select date range"
       closeModal={props.onClose}
       testId="booking-type-date-range-picker"
@@ -28,9 +33,9 @@ const BookingTypeDateRangePicker: React.FC<ExceptionsDatePickerProps> = (props) 
         }
       }}
     >
-      {props.value !== null
+      {props.currentRange !== null
         ? <BookingTypeDateRangePickerInside
-          value={props.value}
+          currentRange={props.currentRange}
           onChange={props.onChange}
           onClose={props.onClose}
         />
@@ -41,21 +46,19 @@ const BookingTypeDateRangePicker: React.FC<ExceptionsDatePickerProps> = (props) 
 };
 
 
-const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { value: BookingTypeDateRange }> = ({
-  value: initialValue,
+const BookingTypeDateRangePickerInside: React.FC<BookingTypeDateRangePickerProps & { currentRange: BookingTypeDateRange }> = ({
+  currentRange,
   onChange,
   onClose,
 }) => {
-  const [currValue, setCurrValue] = useState(initialValue);
-
-  useEffect(() => {
-    setCurrValue(initialValue);
-  }, [initialValue]);
+  const setRangeValue = (key: 'start' | 'end', newValue: string | null) => {
+    onChange({ ...currentRange, [key]: newValue });
+  };
 
   const getDateInLocalNoon = (name: 'start' | 'end'): Date | undefined => {
-    const value = currValue[name];
-    if (value === null) return undefined;
-    return storedDateToLocalNoon(value);
+    const v = currentRange[name];
+    if (v === null) return undefined;
+    return storedDateToLocalNoon(v);
   }
 
   const dates = {
@@ -63,30 +66,20 @@ const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { v
     end: getDateInLocalNoon('end'),
   };
 
-  const isValid = (dates.start === undefined || dates.end === undefined) || (dates.start <= dates.end);
-
-  useEffect(() => {
-    if (isValid) onChange(currValue);
-  }, [currValue, isValid])
-
   const handleDayClick = (name: 'start' | 'end') => (day: Date, { selected, disabled }: DayModifiers) => {
     if (disabled) {
       return;
     }
-    setCurrValue(range => {
-      if (selected) {
-        return { ...range, [name]: null };
-      } else {
-        // day points to the local noon of the correct date
-        return { ...range, [name]: format(day, 'yyyy-MM-dd') };
-      }
-    });
+    if (selected) {
+      setRangeValue(name, null);
+    } else {
+      // day points to the local noon of the correct date
+      setRangeValue(name, format(day, 'yyyy-MM-dd'));
+    }
   };
 
   const handleClear = (name: 'start' | 'end') => () => {
-    setCurrValue(range => {
-      return { ...range, [name]: null };
-    });
+    setRangeValue(name, null);
   };
 
   const today = new Date(Date.now());
@@ -97,7 +90,7 @@ const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { v
 
       <div className="margin-top-s font-weight-medium font-size-s color-dark-300">Current selection</div>
       <div className="font-size-xxl margin-top-xxs margin-bottom-m display-inline-block">
-        <BookingTypeDateRangeBadge range={currValue} />
+        <BookingTypeDateRangeBadge range={currentRange} />
       </div>
 
       <div className="flex flex-row flex-wrap">
@@ -113,9 +106,9 @@ const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { v
             disabled: dates['start'] ? { before: dates['start'] } : undefined
           },
         ] as const).map(({ key, title, disabled }) => (
-          <div style={{ flex: 1 }} className="padding-xs margin-xs border border-color-light">
+          <div style={{ flex: 1 }} className="padding-xs margin-xs border border-color-light" key={key}>
             <h2>{title}</h2>
-            <div className="font-size-s font-weight-bold margin-top-s margin-bottom-m">{currValue[key] ? currValue[key] : 'Not specified'}</div>
+            <div className="font-size-s font-weight-bold margin-top-s margin-bottom-m">{currentRange[key] ? currentRange[key] : 'Not specified'}</div>
             <div>
               <DayPicker
                 month={dates[key] || today}
@@ -126,8 +119,8 @@ const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { v
             </div>
             <button
               className="button button-s button-error button-icon"
-              disabled={currValue[key] === null}
-              style={{ opacity: currValue[key] === null ? 0.1 : 1 }}
+              disabled={currentRange[key] === null}
+              style={{ opacity: currentRange[key] === null ? 0.1 : 1 }}
               onClick={handleClear(key)}
             >
               <IoMdClose aria-hidden={true}></IoMdClose>
@@ -137,12 +130,14 @@ const BookingTypeDateRangePickerInside: React.FC<ExceptionsDatePickerProps & { v
         ))}
       </div>
 
-      <button
-        className="position-fixed position-bottom-right margin-m button-primary"
-        onClick={onClose}
-      >
-        Close
-      </button>
+      <div className="text-align-right">
+        <button
+          className="margin-m button-primary"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 };

@@ -75,12 +75,14 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
             />
           </div>
 
-          <button
-            className="position-fixed position-bottom-right margin-m"
-            onClick={() => closeModal(!showDatePicker)}
-          >
-            Close
-          </button>
+          <div className="text-align-right">
+            <button
+              className="margin-m"
+              onClick={() => closeModal(!showDatePicker)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </Modal>
