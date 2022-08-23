@@ -4,11 +4,9 @@ import { RouteComponentProps } from '@reach/router';
 import { ApiBookingType, weekDays } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
-import {
-  BookingTypeDateRangeBadge,
-  BookingTypeExceptionBadge,
-  BookingTypeForm,
-} from './BookingTypeForm';
+import { BookingTypeForm } from './BookingTypeForm';
+import { BookingTypeBadgeDateRange } from './BookingTypeBadgeDateRange';
+import { BookingTypeBadgeException } from './BookingTypeBadgeException';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -136,7 +134,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                               className="display-inline-block margin-right-xxs"
                               key={`exception.${idx}`}
                             >
-                              <BookingTypeDateRangeBadge range={range} />
+                              <BookingTypeBadgeDateRange range={range} />
                             </li>
                           ))}
                         </ul>
@@ -154,7 +152,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                             className="display-inline-block margin-right-xxs"
                             key={`exception.${idx}`}
                           >
-                            <BookingTypeExceptionBadge dateString={exceptionDateString} />
+                            <BookingTypeBadgeException dateString={exceptionDateString} />
                           </li>
                         ))}
                       </ul>

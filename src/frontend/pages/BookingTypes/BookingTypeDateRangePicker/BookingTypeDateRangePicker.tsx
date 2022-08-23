@@ -7,7 +7,7 @@ import { IoMdClose } from 'react-icons/io';
 import { BookingTypeDateRange } from '../../../../common/constants-common';
 import Modal from '../../../ui-components/Modal/Modal';
 import { storedDateToLocalNoon } from '../ExceptionsDatePicker/ExceptionsDatePicker';
-import { BookingTypeDateRangeBadge } from '../BookingTypeForm';
+import { BookingTypeBadgeDateRange } from '../BookingTypeBadgeDateRange';
 
 interface BookingTypeDateRangePickerProps {
   currentRange: BookingTypeDateRange | null;
@@ -92,7 +92,7 @@ const BookingTypeDateRangePickerInside: React.FC<
         Current selection
       </div>
       <div className="font-size-xxl margin-top-xxs margin-bottom-m display-inline-block">
-        <BookingTypeDateRangeBadge range={currentRange} />
+        <BookingTypeBadgeDateRange range={currentRange} />
       </div>
 
       <div className="flex flex-row flex-wrap">

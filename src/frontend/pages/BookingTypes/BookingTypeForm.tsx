@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Formik, Form, Field, FieldArray, useField } from 'formik';
+import { Formik, Form, Field, FieldArray } from 'formik';
 
 import {
   ApiBookingType,
@@ -12,9 +12,8 @@ import {
 import { useNotifications } from '../../NotificationsContext';
 import ExceptionsDatePicker from './ExceptionsDatePicker/ExceptionsDatePicker';
 import { useRequest } from '../../shared/http';
-import moment from 'moment-timezone';
-import BookingTypeDateRangePicker from './BookingTypeDateRangePicker/BookingTypeDateRangePicker';
-import { IoMdCreate, IoMdTrash } from 'react-icons/io';
+import { BookingTypeDateRangesField } from './BookingTypeDateRangesField';
+import { BookingTypeBadgeException } from './BookingTypeBadgeException';
 
 export interface BookingTypeFormValue {
   name: string;
@@ -179,7 +178,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                 className="display-inline-block margin-right-xxs"
                                 key={`exception.${idx}`}
                               >
-                                <BookingTypeExceptionBadge
+                                <BookingTypeBadgeException
                                   dateString={exceptionDateString}
                                   onDelete={() => {
                                     arrayHelpers.remove(idx);
@@ -324,162 +323,5 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
         );
       }}
     </Formik>
-  );
-};
-
-export const BookingTypeDateRangesField = () => {
-  const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>('dateRanges');
-  const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
-
-  return (
-    <>
-      <FieldArray
-        name="dateRanges"
-        render={(arrayHelpers) => (
-          <>
-            {dateRanges.length === 0 ? (
-              <p className="font-size-xs color-error">
-                No date ranges selected, this booking type is never available.
-              </p>
-            ) : (
-              <ul className="list-unstyled">
-                {dateRanges.map((range, idx) => (
-                  <li className="display-inline-block margin-right-xxs" key={`exception.${idx}`}>
-                    <BookingTypeDateRangeBadge
-                      range={range}
-                      onEdit={() => setEditRangeIndex(idx)}
-                      onDelete={() => arrayHelpers.remove(idx)}
-                    />
-                  </li>
-                ))}
-                <BookingTypeDateRangePicker
-                  currentRange={editRangeIndex !== null ? dateRanges[editRangeIndex] : null}
-                  onChange={(newValue) => {
-                    if (editRangeIndex !== null) {
-                      arrayHelpers.replace(editRangeIndex, newValue);
-                    }
-                  }}
-                  onClose={() => {
-                    setEditRangeIndex(null);
-                  }}
-                />
-              </ul>
-            )}
-            <div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  const prevLength = dateRanges.length;
-                  arrayHelpers.push({ start: null, end: null });
-                  setEditRangeIndex(prevLength);
-                }}
-                className="button-xxs success"
-              >
-                Add date range
-              </button>
-            </div>
-          </>
-        )}
-      />
-    </>
-  );
-};
-
-interface BookingTypeDateRangeBadgeProps {
-  range: BookingTypeDateRange;
-  onEdit?: () => void;
-  onDelete?: () => void;
-}
-
-export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps) => {
-  const { start, end } = props.range;
-  const { onEdit, onDelete } = props;
-
-  const startFormatted = moment(start).format('DD.MM.yyyy');
-  const endFormatted = moment(end).format('DD.MM.yyyy');
-
-  const getText = () => {
-    if (start === null && end === null) {
-      return 'Always';
-    } else if (start === null) {
-      return `Always until ${endFormatted}`;
-    } else if (end === null) {
-      return `Forever after ${startFormatted}`;
-    } else if (start === end) {
-      return `Only on ${startFormatted}`;
-    } else {
-      return `From ${startFormatted} to ${endFormatted}`;
-    }
-  };
-
-  return (
-    <p
-      className="font-weight-semibold no-margin no-padding background-info-100 border-radius"
-      style={{ fontSize: '0.75em' }}
-    >
-      <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
-        {getText()}
-      </span>
-      {onEdit && (
-        <button
-          className="button button-xs button-primary button button-icon no-margin no-border-radius"
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit();
-          }}
-        >
-          <IoMdCreate />
-          <span>EDIT</span>
-        </button>
-      )}
-      {onDelete && (
-        <button
-          className="button button-xs button-error button-square button button-icon no-margin"
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          title="Delete this date range"
-          onClick={(e) => {
-            e.preventDefault();
-            onDelete();
-          }}
-        >
-          <IoMdTrash />
-        </button>
-      )}
-    </p>
-  );
-};
-
-interface BookingTypeExceptionBadgeProps {
-  dateString: string;
-  onDelete?: () => void;
-}
-
-export const BookingTypeExceptionBadge = (props: BookingTypeExceptionBadgeProps) => {
-  const { dateString, onDelete } = props;
-
-  const formatted = moment(dateString).format('DD.MM.yyyy');
-
-  return (
-    <p
-      className="font-weight-semibold no-margin no-padding background-error-50 border-radius"
-      style={{ fontSize: '0.75em' }}
-    >
-      <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
-        {formatted}
-      </span>
-      {onDelete && (
-        <button
-          className="button button-xs button-error button-square button button-icon no-margin"
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          title="Delete this exception"
-          onClick={(e) => {
-            e.preventDefault();
-            onDelete();
-          }}
-        >
-          <IoMdTrash />
-        </button>
-      )}
-    </p>
   );
 };

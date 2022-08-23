@@ -1,8 +1,10 @@
-import { BookingTypeDateRangesField, BookingTypeFormValue } from './BookingTypeForm';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { Formik, Form } from 'formik';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { BookingTypeDateRangesField } from './BookingTypeDateRangesField';
+import { BookingTypeFormValue } from './BookingTypeForm';
 
 afterEach(() => {
   cleanup();
