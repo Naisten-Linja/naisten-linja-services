@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import MDEditor from '@uiw/react-md-editor';
-import rehypeSanitize from "rehype-sanitize";
+import rehypeSanitize from 'rehype-sanitize';
 
 import { useRequest } from './http';
 import { ApiLetterAdmin, ApiReplyAdmin, UserRole, ReplyStatus } from '../common/constants-common';
@@ -76,9 +76,12 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
 
   const fetchReply = useCallback(async () => {
     try {
-      const result = await getRequest<{ data: ApiReplyAdmin | null}>(`/api/letters/${letterUuid}/reply`, {
-        useJwt: true,
-      });
+      const result = await getRequest<{ data: ApiReplyAdmin | null }>(
+        `/api/letters/${letterUuid}/reply`,
+        {
+          useJwt: true,
+        },
+      );
       setReply(result.data.data || null);
       if (result.data.data) setContent(result.data.data.content);
     } catch (err) {

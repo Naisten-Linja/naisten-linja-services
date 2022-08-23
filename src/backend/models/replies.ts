@@ -151,14 +151,7 @@ export async function createReply({
        VALUES ($1::text, $2::text, $3::text, $4::text, $5::text, now(), $6::text)
        RETURNING *;
     `;
-    const queryValues = [
-      letterUuid,
-      encryptedData,
-      internalAuthorUuid,
-      authorType,
-      status,
-      iv,
-    ];
+    const queryValues = [letterUuid, encryptedData, internalAuthorUuid, authorType, status, iv];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

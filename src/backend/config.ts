@@ -39,13 +39,22 @@ export function getConfig() {
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
     throw 'Variable SENDGRID_FROM_EMAIL_ADDRESS is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID) {
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID) {
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID) {
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID is missing from your environment';
   }
   if (process.env.ENVIRONMENT === 'production' && !process.env.BOOKING_REMINDER_SENDING_HOUR) {
@@ -93,9 +102,12 @@ export function getConfig() {
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
-    sendGridStaffBookingConfirmationTemplate: process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
-    sendGridVolunteerBookingConfirmationTemplate: process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
-    sendGridVolunteerBookingReminderTemplate: process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID || null,
+    sendGridStaffBookingConfirmationTemplate:
+      process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
+    sendGridVolunteerBookingConfirmationTemplate:
+      process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
+    sendGridVolunteerBookingReminderTemplate:
+      process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID || null,
     bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR || null,
     bookingReminderDaysBefore: process.env.BOOKING_REMINDER_DAYS_BEFORE || null,
   };

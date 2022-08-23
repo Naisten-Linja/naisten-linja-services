@@ -140,8 +140,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   const unreservedUsers = users
     .filter((u) => !reservedUserUuids.includes(u.uuid))
-    .map(u => { // attach phone number for each user, fetched from their next booking
-      const bookingsByUser = allBookings.filter(b => b.user.uuid === u.uuid);
+    .map((u) => {
+      // attach phone number for each user, fetched from their next booking
+      const bookingsByUser = allBookings.filter((b) => b.user.uuid === u.uuid);
       return {
         ...u,
         phone: findPhoneNumberFromClosestBooking(bookingsByUser),
@@ -155,7 +156,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     .sort((a, b) => a.label.localeCompare(b.label));
 
   // If the login user is already reserved, then default the dropdown to the first user on the list.
-  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0]
+  const unreservedUser = unreservedUsers.find((u) => u.uuid === user.uuid) || unreservedUsers[0];
 
   let initialFormValues: Omit<ApiCreateBookingParams, 'workingRemotely'> & {
     workingRemotely: 'true' | 'false';
@@ -179,11 +180,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       fullName: unreservedUser.fullName || '',
       phone: unreservedUser.phone || '',
       userUuid: unreservedUser.uuid,
-    }
+    };
   }
 
   const isPastSlot = moment().isAfter(end);
-  
+
   return (
     <>
       <h2>Reserve a slot</h2>
@@ -242,7 +243,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                         {...field}
                         isSearchable
                         value={
-                          unreservedUserOptions ? unreservedUserOptions.find((option) => option.value === field.value) : ''
+                          unreservedUserOptions
+                            ? unreservedUserOptions.find((option) => option.value === field.value)
+                            : ''
                         }
                         options={unreservedUserOptions}
                         onChange={(opt: { value: string; key: string }) => {
@@ -310,7 +313,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           ))}
         </>
       )}
-      
+
       <button className="button width-100 margin-top-l" type="button" onClick={dismissModal}>
         Close
       </button>
@@ -319,8 +322,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 };
 
 function findPhoneNumberFromClosestBooking(bookingsByUser: ApiBooking[]): string | null {
-  bookingsByUser.sort((a, b) => (new Date(a.start) < new Date(b.start)) ? 1 : -1);
-  const nextUpcoming = bookingsByUser.find(b => new Date(b.start) > new Date())
+  bookingsByUser.sort((a, b) => (new Date(a.start) < new Date(b.start) ? 1 : -1));
+  const nextUpcoming = bookingsByUser.find((b) => new Date(b.start) > new Date());
   if (typeof nextUpcoming !== 'undefined') {
     return nextUpcoming.phone;
   } else if (bookingsByUser.length > 0) {

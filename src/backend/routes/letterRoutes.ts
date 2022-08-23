@@ -57,7 +57,7 @@ router.get(
           replyStatus,
           replyReadReceipt,
           replyReadTimestamp,
-          replyStatusTimestamp
+          replyStatusTimestamp,
         } = letter;
         return {
           uuid,
@@ -71,7 +71,7 @@ router.get(
           replyStatus,
           replyReadReceipt,
           replyReadTimestamp,
-          replyStatusTimestamp
+          replyStatusTimestamp,
         };
       })
       .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());

@@ -2,7 +2,12 @@ import db from '../db';
 import { generate as generatePass } from 'generate-password';
 
 import { saltHash, generateRandomString, aesDecrypt, aesEncrypt } from '../utils';
-import { LetterStatus, ApiLetterCredentials, ReplyStatus, ReadReceiptStatus } from '../../common/constants-common';
+import {
+  LetterStatus,
+  ApiLetterCredentials,
+  ReplyStatus,
+  ReadReceiptStatus,
+} from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -62,8 +67,8 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     assignedResponderFullName: row.assigned_responder_full_name || null,
     replyStatus: row.reply_status || null,
     replyReadReceipt: row.reply_read_receipt || null,
-    replyReadTimestamp: row.reply_read_timestamp || null, 
-    replyStatusTimestamp: row.reply_status_timestamp || null, 
+    replyReadTimestamp: row.reply_read_timestamp || null,
+    replyStatusTimestamp: row.reply_status_timestamp || null,
   };
 }
 

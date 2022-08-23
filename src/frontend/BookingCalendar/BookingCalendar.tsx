@@ -7,7 +7,12 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookingType, ApiBookedSlot, ApiBooking, BookingTypeDateRange } from '../../common/constants-common';
+import {
+  ApiBookingType,
+  ApiBookedSlot,
+  ApiBooking,
+  BookingTypeDateRange,
+} from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { CalendarColumn } from './CalendarColumn';
@@ -139,7 +144,9 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
       ref={bookingWrapper}
       className="flex flex-wrap align-items-flex-start overflow-auto"
       style={{ height: 'calc(100vh - 5vh - 2rem - 6rem)', marginBottom: '-5rem' }}
-    > {/*
+    >
+      {' '}
+      {/*
         -5vh: space for multiline header
         -2rem: container top padding
         -6rem: estimated normal header bar
@@ -183,14 +190,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
           </div>
         ))}
       </section>
-
-      <div className="flex-1" style={{ marginLeft: "3rem" }}>
+      <div className="flex-1" style={{ marginLeft: '3rem' }}>
         <CalendarHeader startDate={startDate} setStartDate={setStartDate} />
 
-        <section className="flex" >
+        <section className="flex">
           {weekDays.map((currentDate) => {
-            const bookingTypesInCurrentDay = bookingTypes
-              .filter(({ rules, uuid, exceptions, dateRanges }) => {
+            const bookingTypesInCurrentDay = bookingTypes.filter(
+              ({ rules, uuid, exceptions, dateRanges }) => {
                 const ruleOnCurrentDay = rules[currentDate.weekday()];
                 return (
                   !exceptions.find((exceptionDate) => moment(exceptionDate).isSame(currentDate)) &&
@@ -199,7 +205,8 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                   ruleOnCurrentDay.slots.length > 0 &&
                   selectedBookingTypes.includes(uuid)
                 );
-              });
+              },
+            );
 
             const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(
               ({ rules, uuid, name, additionalInformation }) =>
@@ -238,7 +245,6 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
           })}
         </section>
       </div>
-
       {bookingDetails && (
         <DialogOverlay onDismiss={() => setBookingDetails(null)}>
           <DialogContent aria-label="Make a new booking">
@@ -313,8 +319,8 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
             {startDate.year() !== endDate.year()
               ? `${startDate.format('MMMM YYYY')} - ${endDate.format('MMMM YYYY')}`
               : startDate.month() !== endDate.month()
-                ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
-                : startDate.format('MMMM YYYY')}
+              ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
+              : startDate.format('MMMM YYYY')}
           </h2>
         </section>
         <p>
@@ -329,9 +335,10 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
                 text-align-center
                 padding-vertical-xxs
                 position-relative
-                ${currentDate.clone().startOf('day').diff(moment().startOf('day'), 'days') === 0
-                  ? 'background-light-50'
-                  : 'background-white'
+                ${
+                  currentDate.clone().startOf('day').diff(moment().startOf('day'), 'days') === 0
+                    ? 'background-light-50'
+                    : 'background-white'
                 }
               `}
             >
@@ -345,7 +352,6 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
   );
 };
 
-
 /**
  * Check if a date is included in some of the dateRanges.
  *
@@ -354,12 +360,14 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
  * @param currentMomentDate Date to check as Moment object, pointing to beginning of a day in Finnish time zone.
  * @param dateRanges Date ranges, it is enough that one of these matches. Returns false if empty.
  */
-export function isDateInActiveDateRanges(currentMomentDate: Moment, dateRanges: Array<BookingTypeDateRange>): boolean {
+export function isDateInActiveDateRanges(
+  currentMomentDate: Moment,
+  dateRanges: Array<BookingTypeDateRange>,
+): boolean {
   for (const { start, end } of dateRanges) {
     const isStartSameOrBeforeCurrent =
       start === null || moment(start).isSameOrBefore(currentMomentDate);
-    const isEndSameOrAfterCurrent =
-      end === null || moment(end).isSameOrAfter(currentMomentDate);
+    const isEndSameOrAfterCurrent = end === null || moment(end).isSameOrAfter(currentMomentDate);
     if (isStartSameOrBeforeCurrent && isEndSameOrAfterCurrent) {
       return true;
     }

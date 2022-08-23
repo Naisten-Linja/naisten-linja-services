@@ -132,14 +132,16 @@ async function bookingModelToApiBooking(
   };
 }
 
-export async function getBookingUserStats(bookingType: string | undefined): Promise<ApiBookingUserStats[] | null> {
+export async function getBookingUserStats(
+  bookingType: string | undefined,
+): Promise<ApiBookingUserStats[] | null> {
   const bookings = await getAllBookings();
   if (bookings === null) {
     return null;
   }
   const bookingsByUser = bookings
-    .filter(booking =>
-      typeof bookingType === 'undefined' || booking.bookingType.uuid === bookingType
+    .filter(
+      (booking) => typeof bookingType === 'undefined' || booking.bookingType.uuid === bookingType,
     )
     .reduce<Record<string, ApiBooking[]>>((obj, booking) => {
       const u_uuid = booking.user.uuid;
@@ -152,14 +154,17 @@ export async function getBookingUserStats(bookingType: string | undefined): Prom
   const now = new Date();
 
   return Object.entries(bookingsByUser).map(([uuid, bookings]) => {
-    const [previous, upcoming] = bookings
-      .reduce<[ApiBooking[], ApiBooking[]]>(([previous, upcoming], booking) => {
-        if (new Date(booking.end) > now) { // ongoing bookings are upcoming bookings
+    const [previous, upcoming] = bookings.reduce<[ApiBooking[], ApiBooking[]]>(
+      ([previous, upcoming], booking) => {
+        if (new Date(booking.end) > now) {
+          // ongoing bookings are upcoming bookings
           return [previous, [...upcoming, booking]];
         } else {
           return [[...previous, booking], upcoming];
         }
-      }, [[], []]);
+      },
+      [[], []],
+    );
     previous.sort((a, b) => new Date(b.end).getTime() - new Date(a.end).getTime());
     upcoming.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
     return {

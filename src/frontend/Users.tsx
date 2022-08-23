@@ -17,7 +17,10 @@ import {
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationsContext';
 import { useRequest } from './http';
-import { OverrideTurretInputHeightForReactSelectDiv, StyledDataTableWrapperDiv } from './utils-frontend';
+import {
+  OverrideTurretInputHeightForReactSelectDiv,
+  StyledDataTableWrapperDiv,
+} from './utils-frontend';
 
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
@@ -154,10 +157,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   }, [users, bookingStats]);
 
   const copyEmailsToClipboard = useCallback(() => {
-    const success = copy(
-      usersWithBookings.map(u => u.email).join(","),
-      { format: 'text/plain' }
-    );
+    const success = copy(usersWithBookings.map((u) => u.email).join(','), { format: 'text/plain' });
     if (success) {
       addNotification({ type: 'success', message: 'Emails of all users copied to your clipboard' });
     } else {
@@ -186,10 +186,12 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     );
   };
 
-  const sortDate = (a: ApiBooking | null, b: ApiBooking | null, showNullValuesIn: 'history' | 'future') => {
-    const nullFallback = (showNullValuesIn === 'history')
-      ? new Date(0)
-      : new Date(10000000000000);
+  const sortDate = (
+    a: ApiBooking | null,
+    b: ApiBooking | null,
+    showNullValuesIn: 'history' | 'future',
+  ) => {
+    const nullFallback = showNullValuesIn === 'history' ? new Date(0) : new Date(10000000000000);
     const dateA = a ? new Date(a.start) : nullFallback;
     const dateB = b ? new Date(b.start) : nullFallback;
     return dateA > dateB ? 1 : -1;
@@ -198,13 +200,18 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const columns: TableColumn<UserDataStats>[] = [
     {
       id: 1,
-      name: <>
-        <span style={{ flex: 1 }}>Email</span>
-        <button onClick={copyEmailsToClipboard} className="button button-square button-xxs button-icon">
-          <span>Copy all emails</span>
-          <IoMdCopy aria-hidden={true}></IoMdCopy>
-        </button>
-      </>,
+      name: (
+        <>
+          <span style={{ flex: 1 }}>Email</span>
+          <button
+            onClick={copyEmailsToClipboard}
+            className="button button-square button-xxs button-icon"
+          >
+            <span>Copy all emails</span>
+            <IoMdCopy aria-hidden={true}></IoMdCopy>
+          </button>
+        </>
+      ),
       selector: (row: UserDataStats) => row.email,
       format: (row: UserDataStats) => <Link to={row.uuid}>{row.email}</Link>,
       wrap: true,
@@ -301,7 +308,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
         </OverrideTurretInputHeightForReactSelectDiv>
       </div>
       <StyledDataTableWrapperDiv>
-        <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive/>
+        <DataTable columns={columns} data={usersWithBookings} defaultSortFieldId={2} responsive />
       </StyledDataTableWrapperDiv>
     </>
   );
@@ -378,11 +385,7 @@ const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
     >
       <Form>
         <Field type="text" name="userNote" as="textarea" aria-label="User note" />
-        <input
-          type="submit"
-          className="button button-xxs button-primary"
-          value="Save"
-        />
+        <input type="submit" className="button button-xxs button-primary" value="Save" />
         <button type="button" className="button button-xxs" onClick={() => setIsEditing(false)}>
           Cancel
         </button>

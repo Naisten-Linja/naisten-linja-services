@@ -94,9 +94,12 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
           const availableSeats = seats - bookedSlotCount;
 
           // Assign background color for a booking slot. If it's an old booking, grey out
-          const bgColor = end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor; 
+          const bgColor = end.isBefore(moment()) ? '#8c8c8c' : bookingTypeColor;
           // Add diagonal pattern to the background if the seats are fully booked
-          const slotBackground = (availableSeats > 0) ? bgColor : `repeating-linear-gradient(
+          const slotBackground =
+            availableSeats > 0
+              ? bgColor
+              : `repeating-linear-gradient(
             45deg,
             ${bgColor} 0px,
             #000 0px,

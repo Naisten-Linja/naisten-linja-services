@@ -6,10 +6,9 @@ import userEvent from '@testing-library/user-event';
 
 afterEach(() => {
   cleanup();
-})
+});
 
 describe('BookingTypeDateRangesField', () => {
-
   const initialValues: Partial<BookingTypeFormValue> = {
     name: '',
     dateRanges: [],
@@ -23,7 +22,9 @@ describe('BookingTypeDateRangesField', () => {
       </Formik>,
     );
 
-    expect(screen.getByText('No date ranges selected, this booking type is never available.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No date ranges selected, this booking type is never available.'),
+    ).toBeInTheDocument();
   });
 
   it('when a date range is chosen and the form is submitted, submits the exception', async () => {
@@ -40,7 +41,9 @@ describe('BookingTypeDateRangesField', () => {
     userEvent.click(screen.getByRole('button', { name: 'Add date range' }));
 
     // `find` because waiting for the modal to open, check the header text
-    expect(await screen.findByText('Select range of dates when this booking type needs to be active')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Select range of dates when this booking type needs to be active'),
+    ).toBeInTheDocument();
 
     //Choose start and end date in the future (Tuesday, Thursday) from the calendar, mocked date for today is Monday 2019-04-22"
     userEvent.click(screen.getAllByText('23')[0]);
@@ -65,7 +68,7 @@ describe('BookingTypeDateRangesField', () => {
   it('shows correct initial value, supports clearing date selection', async () => {
     const initialValues2: Partial<BookingTypeFormValue> = {
       name: '',
-      dateRanges: [{ start: null, end: '2019-04-15'}],
+      dateRanges: [{ start: null, end: '2019-04-15' }],
     };
 
     render(
@@ -81,7 +84,9 @@ describe('BookingTypeDateRangesField', () => {
     userEvent.click(screen.getByRole('button', { name: 'EDIT' }));
 
     // `find` because waiting for the modal to open, check the header text
-    expect(await screen.findByText('Select range of dates when this booking type needs to be active')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Select range of dates when this booking type needs to be active'),
+    ).toBeInTheDocument();
 
     expect(screen.getAllByText('Always until 15.04.2019')[0]).toBeInTheDocument();
 
@@ -118,8 +123,8 @@ describe('BookingTypeDateRangesField', () => {
     const initialValues: Partial<BookingTypeFormValue> = {
       name: '',
       dateRanges: [
-        { start: null, end: '2019-04-15'},
-        { start: '2019-04-20', end: '2019-04-20'},
+        { start: null, end: '2019-04-15' },
+        { start: '2019-04-20', end: '2019-04-20' },
       ],
     };
 
@@ -141,14 +146,14 @@ describe('BookingTypeDateRangesField', () => {
     await waitFor(() =>
       expect(onSubmitMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          dateRanges: [{ start: null, end: '2019-04-15'},],
+          dateRanges: [{ start: null, end: '2019-04-15' }],
         }),
         expect.anything(),
       ),
     );
 
     // Delete the first date range
-    userEvent.click(screen.getAllByRole('button', { name:'Delete this date range' })[0]);
+    userEvent.click(screen.getAllByRole('button', { name: 'Delete this date range' })[0]);
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));

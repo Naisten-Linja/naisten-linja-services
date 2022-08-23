@@ -6,7 +6,12 @@ import {
   updateBookingType,
   deleteBookingType,
 } from '../controllers/bookingTypeControllers';
-import { UserRole, BookingTypeDailyRules, ApiBookingType, BookingTypeDateRange } from '../../common/constants-common';
+import {
+  UserRole,
+  BookingTypeDailyRules,
+  ApiBookingType,
+  BookingTypeDateRange,
+} from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
@@ -45,7 +50,13 @@ router.post<
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { name, rules, exceptions, dateRanges, additionalInformation } = req.body;
-    const bookingType = await addBookingType({ name, rules, exceptions, dateRanges, additionalInformation });
+    const bookingType = await addBookingType({
+      name,
+      rules,
+      exceptions,
+      dateRanges,
+      additionalInformation,
+    });
     if (!bookingType) {
       res.status(400).json({ error: 'unable to create new booking rule' });
       return;

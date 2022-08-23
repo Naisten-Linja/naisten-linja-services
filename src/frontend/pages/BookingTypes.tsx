@@ -4,7 +4,11 @@ import { RouteComponentProps } from '@reach/router';
 import { ApiBookingType, weekDays } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
-import { BookingTypeDateRangeBadge, BookingTypeExceptionBadge, BookingTypeForm } from './BookingTypeForm';
+import {
+  BookingTypeDateRangeBadge,
+  BookingTypeExceptionBadge,
+  BookingTypeForm,
+} from './BookingTypeForm';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -121,20 +125,22 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                       Active date ranges
                     </th>
                     <td className="font-weight-semibold font-size-s">
-                      {(dateRanges.length === 0)
-                        ? <p className="font-size-xs color-error">No date ranges selected, this booking type is never available.</p>
-                        : (
-                          <ul className="list-unstyled">
-                            {dateRanges.map((range, idx) => (
-                              <li
-                                className="display-inline-block margin-right-xxs"
-                                key={`exception.${idx}`}
-                              >
-                                <BookingTypeDateRangeBadge range={range} />
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                      {dateRanges.length === 0 ? (
+                        <p className="font-size-xs color-error">
+                          No date ranges selected, this booking type is never available.
+                        </p>
+                      ) : (
+                        <ul className="list-unstyled">
+                          {dateRanges.map((range, idx) => (
+                            <li
+                              className="display-inline-block margin-right-xxs"
+                              key={`exception.${idx}`}
+                            >
+                              <BookingTypeDateRangeBadge range={range} />
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </td>
                   </tr>
                   <tr>
@@ -148,9 +154,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                             className="display-inline-block margin-right-xxs"
                             key={`exception.${idx}`}
                           >
-                            <BookingTypeExceptionBadge
-                              dateString={exceptionDateString}
-                            />
+                            <BookingTypeExceptionBadge dateString={exceptionDateString} />
                           </li>
                         ))}
                       </ul>
@@ -170,13 +174,13 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                       <td key={idx}>
                         {slots.length > 0
                           ? slots.map((slot, idx) => (
-                            <div
-                              key={`slot-${idx}`}
-                              className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
-                            >
-                              {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
-                            </div>
-                          ))
+                              <div
+                                key={`slot-${idx}`}
+                                className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
+                              >
+                                {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                              </div>
+                            ))
                           : ''}
                       </td>
                     </tr>

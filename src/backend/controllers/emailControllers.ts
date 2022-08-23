@@ -72,7 +72,7 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
       startDay,
       startTime,
       endTime,
-      booking
+      booking,
     },
   });
 }
@@ -86,7 +86,9 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
  * If same volunteer has multiple bookings for the same day, they will
  * get multiple notifications sent at the same time.
  */
-export async function sendBookingRemindersToVolunteers(bookingReminderDaysBefore: number): Promise<boolean[] | undefined> {
+export async function sendBookingRemindersToVolunteers(
+  bookingReminderDaysBefore: number,
+): Promise<boolean[] | undefined> {
   const { sendGridFromEmailAddress, sendGridVolunteerBookingReminderTemplate } = getConfig();
   if (!sendGridFromEmailAddress) {
     console.log('No From email adress was set');
@@ -99,30 +101,29 @@ export async function sendBookingRemindersToVolunteers(bookingReminderDaysBefore
 
   console.log(`Starting to send booking reminders at ${new Date().toISOString()}`);
 
-  const bookings = await getAllBookings()
+  const bookings = await getAllBookings();
   if (!bookings) {
-    console.log("Failed to fetch bookings");
+    console.log('Failed to fetch bookings');
     return;
   }
 
   // Find which bookings we want to send a reminder for
-  const bookingsToRemindAbout = bookings
-    .filter(booking => {
-      const slotDay = new Date(booking.start);
-      const today = new Date();
+  const bookingsToRemindAbout = bookings.filter((booking) => {
+    const slotDay = new Date(booking.start);
+    const today = new Date();
 
-      // Always use the beginning of the day slot for comparison.
-      slotDay.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-      const bookingDaysInAdvance = (slotDay.getTime() - today.getTime()) / (1000 * 3600 * 24);
+    // Always use the beginning of the day slot for comparison.
+    slotDay.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const bookingDaysInAdvance = (slotDay.getTime() - today.getTime()) / (1000 * 3600 * 24);
 
-      const daysToTargetSendingTime = Math.abs(bookingDaysInAdvance - bookingReminderDaysBefore);
-      return daysToTargetSendingTime < 0.5; // should take rounding errors and leap days/seconds into account
-    });
+    const daysToTargetSendingTime = Math.abs(bookingDaysInAdvance - bookingReminderDaysBefore);
+    return daysToTargetSendingTime < 0.5; // should take rounding errors and leap days/seconds into account
+  });
 
-  console.log(`Found ${bookingsToRemindAbout.length} bookings to remind about.`)
+  console.log(`Found ${bookingsToRemindAbout.length} bookings to remind about.`);
 
-  const results = bookingsToRemindAbout.map(booking => {
+  const results = bookingsToRemindAbout.map((booking) => {
     const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
 
     return sendEmailWithDynamicTemplate({
@@ -136,7 +137,7 @@ export async function sendBookingRemindersToVolunteers(bookingReminderDaysBefore
         startDay,
         startTime,
         endTime,
-        booking
+        booking,
       },
     });
   });
@@ -191,12 +192,14 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
       startDay,
       startTime,
       endTime,
-      booking
+      booking,
     },
   });
 }
 
-export async function sendEmailWithDynamicTemplate(messageData: SendDynamicEmailParams): Promise<boolean> {
+export async function sendEmailWithDynamicTemplate(
+  messageData: SendDynamicEmailParams,
+): Promise<boolean> {
   const { sendGridApiKey } = getConfig();
   if (!sendGridApiKey) {
     console.log('No SendGridApi key was provided');

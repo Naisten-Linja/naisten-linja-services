@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import MDEditor from '@uiw/react-md-editor';
-import rehypeSanitize from "rehype-sanitize";
+import rehypeSanitize from 'rehype-sanitize';
 import { Formik, Form, Field } from 'formik';
 
 import { ApiPage, ApiUpdatePageParams } from '../common/constants-common';
 import { useRequest } from './http';
 import { useNotifications } from './NotificationsContext';
 
-export const EditContentPageForm: React.FC<{ slug: string, afterSubmit: () => void; afterCancel: () => void }> = ({
-  slug: pageSlug,
-  afterSubmit,
-  afterCancel,
-}) => {
+export const EditContentPageForm: React.FC<{
+  slug: string;
+  afterSubmit: () => void;
+  afterCancel: () => void;
+}> = ({ slug: pageSlug, afterSubmit, afterCancel }) => {
   const [page, setPage] = useState<ApiPage | null>(null);
   const { getRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();

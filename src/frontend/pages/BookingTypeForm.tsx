@@ -16,7 +16,6 @@ import moment from 'moment-timezone';
 import BookingTypeDateRangePicker from '../BookingTypeDateRangePicker/BookingTypeDateRangePicker';
 import { IoMdCreate, IoMdTrash } from 'react-icons/io';
 
-
 export interface BookingTypeFormValue {
   name: string;
   rules: BookingTypeDailyRules;
@@ -42,22 +41,24 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
 
   const initialFormValue: BookingTypeFormValue = bookingType
     ? {
-      name: bookingType.name,
-      rules: bookingType.rules,
-      exceptions: bookingType.exceptions,
-      dateRanges: bookingType.dateRanges,
-      additionalInformation: bookingType.additionalInformation || '',
-    }
+        name: bookingType.name,
+        rules: bookingType.rules,
+        exceptions: bookingType.exceptions,
+        dateRanges: bookingType.dateRanges,
+        additionalInformation: bookingType.additionalInformation || '',
+      }
     : {
-      name: '',
-      rules: [0, 1, 2, 3, 4, 5, 6].map((): SlotBookingRules => ({
-        enabled: true,
-        slots: [],
-      })) as BookingTypeDailyRules,
-      exceptions: [],
-      dateRanges: [],
-      additionalInformation: '',
-    };
+        name: '',
+        rules: [0, 1, 2, 3, 4, 5, 6].map(
+          (): SlotBookingRules => ({
+            enabled: true,
+            slots: [],
+          }),
+        ) as BookingTypeDailyRules,
+        exceptions: [],
+        dateRanges: [],
+        additionalInformation: '',
+      };
 
   const createNewBookingType = async (bookingType: BookingTypeFormValue) => {
     try {
@@ -326,67 +327,63 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   );
 };
 
-
 export const BookingTypeDateRangesField = () => {
-  const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>("dateRanges");
+  const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>('dateRanges');
   const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
 
-  return <>
-    <FieldArray
-      name="dateRanges"
-      render={(arrayHelpers) => <>
-        {(dateRanges.length === 0)
-          ? <p className="font-size-xs color-error">No date ranges selected, this booking type is never available.</p>
-          : (
-            <ul className="list-unstyled">
-              {
-                dateRanges.map((range, idx) => (
-                  <li
-                    className="display-inline-block margin-right-xxs"
-                    key={`exception.${idx}`}
-                  >
-                      <BookingTypeDateRangeBadge
-                        range={range}
-                        onEdit={() => setEditRangeIndex(idx)}
-                        onDelete={() => arrayHelpers.remove(idx)}
-                      />
-
+  return (
+    <>
+      <FieldArray
+        name="dateRanges"
+        render={(arrayHelpers) => (
+          <>
+            {dateRanges.length === 0 ? (
+              <p className="font-size-xs color-error">
+                No date ranges selected, this booking type is never available.
+              </p>
+            ) : (
+              <ul className="list-unstyled">
+                {dateRanges.map((range, idx) => (
+                  <li className="display-inline-block margin-right-xxs" key={`exception.${idx}`}>
+                    <BookingTypeDateRangeBadge
+                      range={range}
+                      onEdit={() => setEditRangeIndex(idx)}
+                      onDelete={() => arrayHelpers.remove(idx)}
+                    />
                   </li>
-                ))
-              }
-              <BookingTypeDateRangePicker
-                currentRange={(editRangeIndex !== null)
-                  ? dateRanges[editRangeIndex]
-                  : null
-                }
-                onChange={(newValue) => {
-                  if (editRangeIndex !== null) {
-                    arrayHelpers.replace(editRangeIndex, newValue)
-                  }
+                ))}
+                <BookingTypeDateRangePicker
+                  currentRange={editRangeIndex !== null ? dateRanges[editRangeIndex] : null}
+                  onChange={(newValue) => {
+                    if (editRangeIndex !== null) {
+                      arrayHelpers.replace(editRangeIndex, newValue);
+                    }
+                  }}
+                  onClose={() => {
+                    setEditRangeIndex(null);
+                  }}
+                />
+              </ul>
+            )}
+            <div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  const prevLength = dateRanges.length;
+                  arrayHelpers.push({ start: null, end: null });
+                  setEditRangeIndex(prevLength);
                 }}
-                onClose={() => {
-                  setEditRangeIndex(null);
-                }}
-              />
-            </ul>
-          )}
-        <div>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              const prevLength = dateRanges.length;
-              arrayHelpers.push({ start: null, end: null });
-              setEditRangeIndex(prevLength);
-            }}
-            className="button-xxs success"
-          >
-            Add date range
-          </button>
-        </div>
-      </>}
-    />
-  </>;
-}
+                className="button-xxs success"
+              >
+                Add date range
+              </button>
+            </div>
+          </>
+        )}
+      />
+    </>
+  );
+};
 
 interface BookingTypeDateRangeBadgeProps {
   range: BookingTypeDateRange;
@@ -403,7 +400,7 @@ export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps)
 
   const getText = () => {
     if (start === null && end === null) {
-      return "Always";
+      return 'Always';
     } else if (start === null) {
       return `Always until ${endFormatted}`;
     } else if (end === null) {
@@ -413,14 +410,17 @@ export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps)
     } else {
       return `From ${startFormatted} to ${endFormatted}`;
     }
-  }
+  };
 
   return (
-    <p className="font-weight-semibold no-margin no-padding background-info-100 border-radius" style={{ fontSize: '0.75em' }}>
+    <p
+      className="font-weight-semibold no-margin no-padding background-info-100 border-radius"
+      style={{ fontSize: '0.75em' }}
+    >
       <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
         {getText()}
       </span>
-      {onEdit &&
+      {onEdit && (
         <button
           className="button button-xs button-primary button button-icon no-margin no-border-radius"
           onClick={(e) => {
@@ -431,8 +431,8 @@ export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps)
           <IoMdCreate />
           <span>EDIT</span>
         </button>
-      }
-      {onDelete &&
+      )}
+      {onDelete && (
         <button
           className="button button-xs button-error button-square button button-icon no-margin"
           style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
@@ -444,10 +444,10 @@ export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps)
         >
           <IoMdTrash />
         </button>
-      }
+      )}
     </p>
-  )
-}
+  );
+};
 
 interface BookingTypeExceptionBadgeProps {
   dateString: string;
@@ -460,11 +460,14 @@ export const BookingTypeExceptionBadge = (props: BookingTypeExceptionBadgeProps)
   const formatted = moment(dateString).format('DD.MM.yyyy');
 
   return (
-    <p className="font-weight-semibold no-margin no-padding background-error-50 border-radius" style={{ fontSize: '0.75em' }}>
+    <p
+      className="font-weight-semibold no-margin no-padding background-error-50 border-radius"
+      style={{ fontSize: '0.75em' }}
+    >
       <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
         {formatted}
       </span>
-      {onDelete &&
+      {onDelete && (
         <button
           className="button button-xs button-error button-square button button-icon no-margin"
           style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
@@ -476,7 +479,7 @@ export const BookingTypeExceptionBadge = (props: BookingTypeExceptionBadgeProps)
         >
           <IoMdTrash />
         </button>
-      }
+      )}
     </p>
-  )
-}
+  );
+};

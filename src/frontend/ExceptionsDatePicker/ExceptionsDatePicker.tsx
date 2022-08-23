@@ -76,10 +76,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
           </div>
 
           <div className="text-align-right">
-            <button
-              className="margin-m"
-              onClick={() => closeModal(!showDatePicker)}
-            >
+            <button className="margin-m" onClick={() => closeModal(!showDatePicker)}>
               Close
             </button>
           </div>
@@ -95,9 +92,9 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
  * string in form "2022-01-30" into a Date object.
  */
 export function storedDateToLocalNoon(dateString: string): Date {
-  const dateSplit = (/^(\d\d\d\d)-(\d\d)-(\d\d)$/).exec(dateString);
+  const dateSplit = /^(\d\d\d\d)-(\d\d)-(\d\d)$/.exec(dateString);
   if (!dateSplit) {
-    throw new Error("Invalid exception date " + dateString);
+    throw new Error('Invalid exception date ' + dateString);
   }
   const year = parseInt(dateSplit[1]);
   const month = parseInt(dateSplit[2]);

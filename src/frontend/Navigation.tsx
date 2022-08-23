@@ -10,11 +10,11 @@ import { IoMdMenu, IoMdClose } from 'react-icons/io';
 
 export const Navigation = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const responsiveMenu= useRef<any>(null);
+  const responsiveMenu = useRef<any>(null);
 
   const handleMenuItemClicked = () => {
     if (responsiveMenu.current) responsiveMenu.current?.handleClick();
-  }
+  };
 
   return (
     <NavigationWrapper>
@@ -25,7 +25,7 @@ export const Navigation = () => {
         changeMenuOn="600px"
         largeMenuClassName="padding-m container"
         smallMenuClassName="padding-m"
-        menu={<MainMenu afterMenuClicked={handleMenuItemClicked}/>}
+        menu={<MainMenu afterMenuClicked={handleMenuItemClicked} />}
       />
     </NavigationWrapper>
   );
@@ -37,7 +37,9 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
     <StyledNav onClick={afterMenuClicked}>
       <ul>
         <li>
-          <Link to="/" style={{ fontWeight: 'bold' }}>Naisten Linja</Link>
+          <Link to="/" style={{ fontWeight: 'bold' }}>
+            Naisten Linja
+          </Link>
         </li>
         {user && user.role === UserRole.staff && (
           <>
@@ -93,7 +95,11 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
         {user && (
           <li>
             {user.email} ({user.role}) {` `}
-            <a href="/api/auth/profile-redirect" target="_blank" className="button button-secondary button-xxs">
+            <a
+              href="/api/auth/profile-redirect"
+              target="_blank"
+              className="button button-secondary button-xxs"
+            >
               Edit profile
             </a>
             <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
@@ -128,8 +134,8 @@ const StyledNav = styled.nav`
     flex: none;
     margin: 0;
     padding-right: 1rem;
-    padding-top: .4rem;
-    padding-bottom: .4rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
   a {
     text-decoration: underline;
