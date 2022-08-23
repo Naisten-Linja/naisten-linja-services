@@ -1,6 +1,10 @@
 import * as model from '../models/bookingTypes';
 
-import { ApiBookingType } from '../../common/constants-common';
+import {
+  ApiBookingType,
+  ApiBookingTypeWithColor,
+  BookingTypeColors,
+} from '../../common/constants-common';
 
 export async function addBookingType({
   name,
@@ -25,28 +29,43 @@ export async function addBookingType({
     : null;
 }
 
-export async function getBookingTypes(): Promise<Array<ApiBookingType> | null> {
+export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> | null> {
   const allBookingTypes = await model.getAllBookingTypes();
   return allBookingTypes !== null
-    ? allBookingTypes.map((b) => ({
-        uuid: b.uuid,
-        name: b.name,
-        rules: b.rules,
-        exceptions: b.exceptions,
-        additionalInformation: b.additionalInformation,
-      }))
+    ? allBookingTypes
+        .sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1))
+        .map((b, index) => ({
+          uuid: b.uuid,
+          name: b.name,
+          rules: b.rules,
+          exceptions: b.exceptions,
+          additionalInformation: b.additionalInformation,
+          color: BookingTypeColors[index % Object.keys(BookingTypeColors).length],
+        }))
     : null;
 }
 
 export async function getBookingTypeByUuid(
   bookingTypeUuid: string,
-): Promise<ApiBookingType | null> {
-  const bookingType = await model.getBookingTypeByUuid(bookingTypeUuid);
-  if (bookingType === null) {
+): Promise<ApiBookingTypeWithColor | null> {
+  // const bookingType = await model.getBookingTypeByUuid(bookingTypeUuid);
+  // if (bookingType === null) {
+  //   return null;
+  // }
+  // const { uuid, name, rules, exceptions, additionalInformation } = bookingType;
+  // return {
+  //   uuid,
+  //   name,
+  //   rules,
+  //   exceptions,
+  //   additionalInformation,
+  // };
+  const bookingTypes = await getBookingTypes();
+  if (bookingTypes === null) {
     return null;
   }
-  const { uuid, name, rules, exceptions, additionalInformation } = bookingType;
-  return { uuid, name, rules, exceptions, additionalInformation };
+  const result = bookingTypes.find((b) => b.uuid === bookingTypeUuid) || null;
+  return result;
 }
 
 export async function updateBookingType({
