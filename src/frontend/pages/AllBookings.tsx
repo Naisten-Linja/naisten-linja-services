@@ -3,20 +3,41 @@ import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 import moment from 'moment-timezone';
 
-import { ApiBooking } from '../../common/constants-common';
+import { ApiBooking, ApiBookingType, BookingTypeColors } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import DataTable from 'react-data-table-component';
 import { StyledDataTableWrapperDiv } from '../utils-frontend';
 
 export const AllBookings: React.FC<RouteComponentProps> = () => {
+  const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
   const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
 
   const { getRequest, deleteRequest } = useRequest();
-
   const { addNotification } = useNotifications();
+
+  const fetchBookingTypes = useCallback(async () => {
+    try {
+      const bookingTypesResult = await getRequest<{ data: Array<ApiBookingType> }>(
+        '/api/booking-types',
+        { useJwt: true },
+      );
+      setBookingTypes(
+        bookingTypesResult.data.data.sort((a, b) =>
+          a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+        ),
+      );
+    } catch (err) {
+      console.log(err);
+      addNotification({ type: 'error', message: 'Unable to get all booking types' });
+    }
+  }, [addNotification, setBookingTypes, getRequest]);
+
+  useEffect(() => {
+    fetchBookingTypes();
+  }, [fetchBookingTypes]);
 
   const fetchBookings = useCallback(
     async (callback: (allBookings: Array<ApiBooking>) => void) => {
@@ -74,6 +95,7 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
       <h2>Upcoming Bookings</h2>
       <div className="table-responsive">
         <BookingList
+          bookingTypes={bookingTypes}
           bookings={upcomingBookings}
           fetchBookings={fetchBookings}
           setBookings={setBookings}
@@ -83,6 +105,7 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
       <h2>Past Bookings</h2>
       <div className="table-responsive">
         <BookingList
+          bookingTypes={bookingTypes}
           bookings={pastBookings}
           fetchBookings={fetchBookings}
           setBookings={setBookings}
@@ -182,6 +205,7 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
 };
 
 type BookingListProps = {
+  bookingTypes: Array<ApiBookingType>;
   bookings: Array<ApiBooking>;
   fetchBookings: (callback: (bookings: Array<ApiBooking>) => void) => Promise<void>;
   setBookings: (bookings: Array<ApiBooking>) => void;
@@ -190,6 +214,7 @@ type BookingListProps = {
 };
 
 const BookingList: React.FC<BookingListProps> = ({
+  bookingTypes,
   bookings,
   fetchBookings,
   setBookings,
@@ -200,11 +225,28 @@ const BookingList: React.FC<BookingListProps> = ({
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
 
+  const getBookingTypeColor = useCallback(
+    (id) => {
+      return BookingTypeColors[
+        bookingTypes.findIndex(({ uuid }) => uuid === id) % Object.keys(BookingTypeColors).length
+      ];
+    },
+    [bookingTypes],
+  );
+
   const columns = [
     {
       id: 1,
       name: 'Type',
       selector: (row: ApiBooking) => row.bookingType.name,
+      format: (row: ApiBooking) => (
+        <div
+          className="padding-xxs border-radius color-white font-weight-bold"
+          style={{ background: getBookingTypeColor(row.bookingType.uuid) }}
+        >
+          {row.bookingType.name}
+        </div>
+      ),
       wrap: true,
     },
     {

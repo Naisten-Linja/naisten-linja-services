@@ -7,7 +7,7 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookingType, ApiBookedSlot, ApiBooking } from '../../common/constants-common';
+import { ApiBookingType, ApiBookedSlot, ApiBooking, BookingTypeColors } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { CalendarColumn } from './CalendarColumn';
@@ -28,15 +28,6 @@ const DialogContent = styled(ReachDialogContent)`
 type BookingCalendarProps = {
   bookingTypes: Array<ApiBookingType>;
 };
-
-const bookingTypeColors = [
-  'rgba(192, 46, 29, 0.9)',
-  'rgba(13, 84, 73, 0.9)',
-  'rgba(13, 60, 85, 0.9)',
-  'rgba(84, 38, 13, 0.9)',
-  'rgba(81, 84, 10, 0.9)',
-  'rgba(34, 34, 51, 0.9)',
-];
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   // Give current date in Finnish (since default timezone was already set in App.tsx)
@@ -123,8 +114,8 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
   const getBookingTypeColor = useCallback(
     (id) => {
-      return bookingTypeColors[
-        bookingTypes.findIndex(({ uuid }) => uuid === id) % bookingTypeColors.length
+      return BookingTypeColors[
+        bookingTypes.findIndex(({ uuid }) => uuid === id) % Object.keys(BookingTypeColors).length
       ];
     },
     [bookingTypes],

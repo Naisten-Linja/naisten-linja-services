@@ -214,3 +214,12 @@ export interface ApiUpdateUserSettingsParams {
 }
 
 export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;
+
+export enum BookingTypeColors {
+  'rgba(192, 46, 29, 0.9)',
+  'rgba(13, 84, 73, 0.9)',
+  'rgba(13, 60, 85, 0.9)',
+  'rgba(84, 38, 13, 0.9)',
+  'rgba(81, 84, 10, 0.9)',
+  'rgba(34, 34, 51, 0.9)',
+}
