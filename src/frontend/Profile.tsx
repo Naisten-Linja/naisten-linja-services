@@ -1,22 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import DataTable from 'react-data-table-component';
 
 import { useRequest } from './http';
-import { ApiBooking, ApiUserData, TokenUserData, UserRole } from '../common/constants-common';
+import {
+  ApiBooking,
+  ApiBookingType,
+  ApiUserData,
+  BookingTypeColors,
+  TokenUserData,
+  UserRole,
+} from '../common/constants-common';
 import moment from 'moment';
 import { useAuth } from './AuthContext';
+import { useNotifications } from './NotificationsContext';
 
 export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: string }>> = ({
   userUuid,
 }) => {
   const { user: loggedInUser } = useAuth();
 
+  const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
   const [user, setUser] = useState<ApiUserData>();
-  const { getRequest } = useRequest();
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
   const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
+
+  const { getRequest } = useRequest();
+  const { addNotification } = useNotifications();
+
+  const fetchBookingTypes = useCallback(async () => {
+    try {
+      const bookingTypesResult = await getRequest<{ data: Array<ApiBookingType> }>(
+        '/api/booking-types',
+        { useJwt: true },
+      );
+      setBookingTypes(
+        bookingTypesResult.data.data.sort((a, b) =>
+          a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+        ),
+      );
+    } catch (err) {
+      console.log(err);
+      addNotification({ type: 'error', message: 'Unable to get all booking types' });
+    }
+  }, [addNotification, setBookingTypes, getRequest]);
+
+  useEffect(() => {
+    fetchBookingTypes();
+  }, [fetchBookingTypes]);
 
   useEffect(() => {
     let updateStateAfterFetch = true;
@@ -65,13 +97,13 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
           <p>
             <b>Please note booking times are in Europe/Helsinki timezone</b>
           </p>
-          <BookingList bookings={upcomingBookings} />
+          <BookingList bookingTypes={bookingTypes} bookings={upcomingBookings} />
         </>
       )}
       {pastBookings.length > 0 && (
         <>
           <h1>Past bookings</h1>
-          <BookingList bookings={pastBookings} defaultSortAsc={false} />
+          <BookingList bookingTypes={bookingTypes} bookings={pastBookings} defaultSortAsc={false} />
         </>
       )}
     </div>
@@ -106,19 +138,37 @@ const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserD
   );
 };
 
-const BookingList: React.FC<{ bookings: Array<ApiBooking>; defaultSortAsc?: boolean }> = ({
-  bookings,
-  defaultSortAsc,
-}) => {
+const BookingList: React.FC<{
+  bookingTypes: Array<ApiBookingType>;
+  bookings: Array<ApiBooking>;
+  defaultSortAsc?: boolean;
+}> = ({ bookingTypes, bookings, defaultSortAsc }) => {
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
 
+  const getBookingTypeColor = useCallback(
+    (id) => {
+      return BookingTypeColors[
+        bookingTypes.findIndex(({ uuid }) => uuid === id) % Object.keys(BookingTypeColors).length
+      ];
+    },
+    [bookingTypes],
+  );
+
   const columns = [
     {
       id: 1,
-      name: 'Title',
+      name: 'Type',
       selector: (row: ApiBooking) => row.bookingType.name,
+      format: (row: ApiBooking) => (
+        <div
+          className="padding-xxs border-radius color-white font-weight-bold"
+          style={{ background: getBookingTypeColor(row.bookingType.uuid) }}
+        >
+          {row.bookingType.name}
+        </div>
+      ),
       wrap: true,
     },
     {
