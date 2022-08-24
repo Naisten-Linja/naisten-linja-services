@@ -33,7 +33,7 @@ export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> 
   const allBookingTypes = await model.getAllBookingTypes();
   return allBookingTypes !== null
     ? allBookingTypes
-        .sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1))
+        .sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime())
         .map((b, index) => ({
           uuid: b.uuid,
           name: b.name,
