@@ -1,20 +1,29 @@
 import React, { useState, useCallback } from 'react';
-import { Formik, Form, Field, FieldArray } from 'formik';
+import { Formik, Form, Field, FieldArray, useField } from 'formik';
 
 import {
   ApiBookingType,
-  // TODO: move ApiBookingTYpeParamsAdmin from constant-common to this be used internally in this file.
-  // Also renaming to BookingTypeFormValue would make more sense
-  ApiBookingTypeParamsAdmin,
   weekDays,
   BookingTypeDailyRules,
-  BookingSlot,
+  BookingTypeDateRange,
+  SlotBookingRules,
 } from '../../common/constants-common';
 
 import { useNotifications } from '../NotificationsContext';
 import ExceptionsDatePicker from '../ExceptionsDatePicker/ExceptionsDatePicker';
 import { useRequest } from '../http';
 import moment from 'moment-timezone';
+import BookingTypeDateRangePicker from '../BookingTypeDateRangePicker/BookingTypeDateRangePicker';
+import { IoMdCreate, IoMdTrash } from 'react-icons/io';
+
+
+export interface BookingTypeFormValue {
+  name: string;
+  rules: BookingTypeDailyRules;
+  exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
+  additionalInformation: string | null;
+}
 
 interface BookingTypeFormProps {
   bookingType?: ApiBookingType;
@@ -31,24 +40,26 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   const { postRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
 
-  const initialFormValue: ApiBookingTypeParamsAdmin = bookingType
+  const initialFormValue: BookingTypeFormValue = bookingType
     ? {
-        name: bookingType.name,
-        rules: bookingType.rules,
-        exceptions: bookingType.exceptions,
-        additionalInformation: bookingType.additionalInformation || '',
-      }
+      name: bookingType.name,
+      rules: bookingType.rules,
+      exceptions: bookingType.exceptions,
+      dateRanges: bookingType.dateRanges,
+      additionalInformation: bookingType.additionalInformation || '',
+    }
     : {
-        name: '',
-        rules: [0, 1, 2, 3, 4, 5, 6].map(() => ({
-          enabled: true,
-          slots: [] as Array<BookingSlot>,
-        })) as BookingTypeDailyRules,
-        exceptions: [] as Array<string>,
-        additionalInformation: '',
-      };
+      name: '',
+      rules: [0, 1, 2, 3, 4, 5, 6].map((): SlotBookingRules => ({
+        enabled: true,
+        slots: [],
+      })) as BookingTypeDailyRules,
+      exceptions: [],
+      dateRanges: [],
+      additionalInformation: '',
+    };
 
-  const createNewBookingType = async (bookingType: ApiBookingTypeParamsAdmin) => {
+  const createNewBookingType = async (bookingType: BookingTypeFormValue) => {
     try {
       await postRequest(
         '/api/booking-types',
@@ -69,15 +80,16 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       name,
       rules,
       exceptions,
+      dateRanges,
       additionalInformation,
-    }: ApiBookingTypeParamsAdmin & { uuid: string }) => {
+    }: BookingTypeFormValue & { uuid: string }) => {
       if (!uuid) {
         return;
       }
       try {
-        await putRequest(
+        await putRequest<unknown>(
           `/api/booking-types/${uuid}`,
-          { name, rules, exceptions, additionalInformation },
+          { name, rules, exceptions, dateRanges, additionalInformation },
           {
             useJwt: true,
           },
@@ -147,8 +159,37 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </td>
                 </tr>
                 <tr>
+                  <th className="font-weight-semibold font-size-s">Active date ranges</th>
+                  <td className="font-weight-semibold font-size-s">
+                    <BookingTypeDateRangesField />
+                  </td>
+                </tr>
+
+                <tr>
                   <th className="font-weight-semibold font-size-s">Exceptions</th>
-                  <td className="flex flex-column font-weight-semibold font-size-s">
+                  <td className="font-weight-semibold font-size-s">
+                    {exceptions.length > 0 && (
+                      <ul className="list-unstyled">
+                        <FieldArray
+                          name="exceptions"
+                          render={(arrayHelpers) =>
+                            exceptions.map((exceptionDateString, idx) => (
+                              <li
+                                className="display-inline-block margin-right-xxs"
+                                key={`exception.${idx}`}
+                              >
+                                <BookingTypeExceptionBadge
+                                  dateString={exceptionDateString}
+                                  onDelete={() => {
+                                    arrayHelpers.remove(idx);
+                                  }}
+                                />
+                              </li>
+                            ))
+                          }
+                        />
+                      </ul>
+                    )}
                     <div>
                       <button
                         onClick={(e) => {
@@ -161,41 +202,12 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         Add exceptions
                       </button>
                     </div>
-
-                    {exceptions.length > 0 && (
-                      <ul className="list-unstyled">
-                        <FieldArray
-                          name="exceptions"
-                          render={(arrayHelpers) =>
-                            exceptions.map((exceptionDateString, idx) => (
-                              <li
-                                className="display-inline-block margin-right-xxs"
-                                key={`exception.${idx}`}
-                              >
-                                <p className="font-size-xs no-margin padding-right-s">
-                                  {moment(exceptionDateString).format('DD.MM.yyyy')}
-                                </p>
-                                <button
-                                  className="button button-tertiary button-text button-xxs"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    arrayHelpers.remove(idx);
-                                  }}
-                                >
-                                  Delete exception
-                                </button>
-                              </li>
-                            ))
-                          }
-                        />
-                      </ul>
-                    )}
                   </td>
                 </tr>
 
                 <tr>
                   <th className="font-weight-semibold font-size-s">Additional information</th>
-                  <td className="flex flex-column font-weight-semibold font-size-s">
+                  <td className="font-weight-semibold font-size-s">
                     <Field
                       aria-label="additional information"
                       placeholder="Additional information"
@@ -313,3 +325,164 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
     </Formik>
   );
 };
+
+
+export const BookingTypeDateRangesField = () => {
+  const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>("dateRanges");
+  const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
+
+  const hasOnlyDateRangeAlways = dateRanges.length === 1 &&
+    dateRanges[0].start === null &&
+    dateRanges[0].end === null;
+
+  return <>
+    <FieldArray
+      name="dateRanges"
+      render={(arrayHelpers) => <>
+        {(dateRanges.length === 0)
+          ? <p className="font-size-xs color-error">No date ranges selected, this booking type is never available.</p>
+          : (
+            <ul className="list-unstyled">
+              {
+                dateRanges.map((range, idx) => (
+                  <li
+                    className="display-inline-block margin-right-xxs"
+                    key={`exception.${idx}`}
+                  >
+                      <BookingTypeDateRangeBadge
+                        range={range}
+                        onEdit={() => setEditRangeIndex(idx)}
+                        onDelete={() => arrayHelpers.remove(idx)}
+                      />
+
+                  </li>
+                ))
+              }
+              <BookingTypeDateRangePicker
+                currentRange={(editRangeIndex !== null)
+                  ? dateRanges[editRangeIndex]
+                  : null
+                }
+                onChange={(newValue) => {
+                  if (editRangeIndex !== null) {
+                    arrayHelpers.replace(editRangeIndex, newValue)
+                  }
+                }}
+                onClose={() => {
+                  setEditRangeIndex(null);
+                }}
+              />
+            </ul>
+          )}
+        {!hasOnlyDateRangeAlways &&
+          <div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                const prevLength = dateRanges.length;
+                arrayHelpers.push({ start: null, end: null });
+                setEditRangeIndex(prevLength);
+              }}
+              className="button-xxs success"
+            >
+              Add date range
+            </button>
+          </div>
+        }
+      </>}
+    />
+  </>;
+}
+
+interface BookingTypeDateRangeBadgeProps {
+  range: BookingTypeDateRange;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}
+
+export const BookingTypeDateRangeBadge = (props: BookingTypeDateRangeBadgeProps) => {
+  const { start, end } = props.range;
+  const { onEdit, onDelete } = props;
+
+  const startFormatted = moment(start).format('DD.MM.yyyy');
+  const endFormatted = moment(end).format('DD.MM.yyyy');
+
+  const getText = () => {
+    if (start === null && end === null) {
+      return "Always";
+    } else if (start === null) {
+      return `Always until ${endFormatted}`;
+    } else if (end === null) {
+      return `Forever after ${startFormatted}`;
+    } else if (start === end) {
+      return `Only on ${startFormatted}`;
+    } else {
+      return `From ${startFormatted} to ${endFormatted}`;
+    }
+  }
+
+  return (
+    <p className="font-weight-semibold no-margin no-padding background-info-100 border-radius" style={{ fontSize: '0.75em' }}>
+      <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
+        {getText()}
+      </span>
+      {onEdit &&
+        <button
+          className="button button-xs button-primary button button-icon no-margin no-border-radius"
+          onClick={(e) => {
+            e.preventDefault();
+            onEdit();
+          }}
+        >
+          <IoMdCreate />
+          <span>EDIT</span>
+        </button>
+      }
+      {onDelete &&
+        <button
+          className="button button-xs button-error button-square button button-icon no-margin"
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          title="Delete this date range"
+          onClick={(e) => {
+            e.preventDefault();
+            onDelete();
+          }}
+        >
+          <IoMdTrash />
+        </button>
+      }
+    </p>
+  )
+}
+
+interface BookingTypeExceptionBadgeProps {
+  dateString: string;
+  onDelete?: () => void;
+}
+
+export const BookingTypeExceptionBadge = (props: BookingTypeExceptionBadgeProps) => {
+  const { dateString, onDelete } = props;
+
+  const formatted = moment(dateString).format('DD.MM.yyyy');
+
+  return (
+    <p className="font-weight-semibold no-margin no-padding background-error-50 border-radius" style={{ fontSize: '0.75em' }}>
+      <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
+        {formatted}
+      </span>
+      {onDelete &&
+        <button
+          className="button button-xs button-error button-square button button-icon no-margin"
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          title="Delete this exception"
+          onClick={(e) => {
+            e.preventDefault();
+            onDelete();
+          }}
+        >
+          <IoMdTrash />
+        </button>
+      }
+    </p>
+  )
+}

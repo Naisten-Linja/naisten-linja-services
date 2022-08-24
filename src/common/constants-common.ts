@@ -138,23 +138,22 @@ export type BookingTypeDailyRules = [
   SlotBookingRules,
 ];
 
+export type BookingTypeDateRange = {
+  start: string | null,
+  end: string | null,
+}
+
 export interface ApiBookingType {
   uuid: string;
   name: string;
   rules: BookingTypeDailyRules;
   exceptions: Array<string>;
+  dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string | null;
 }
 
 export interface ApiBookingTypeWithColor extends ApiBookingType {
   color: string;
-}
-
-export interface ApiBookingTypeParamsAdmin {
-  name: string;
-  rules: BookingTypeDailyRules;
-  exceptions: Array<string>;
-  additionalInformation: string | null;
 }
 
 export interface ApiCreateBookingParams {
@@ -182,6 +181,7 @@ export interface ApiBookingBase {
   start: string;
   end: string;
 }
+
 export interface ApiBooking extends ApiBookingBase {
   bookingType: ApiBookingType;
 }

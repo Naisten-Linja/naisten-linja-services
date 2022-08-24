@@ -10,12 +10,14 @@ export async function addBookingType({
   name,
   rules,
   exceptions,
+  dateRanges,
   additionalInformation,
 }: model.CreateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.createBookingType({
     name,
     rules,
     exceptions,
+    dateRanges,
     additionalInformation,
   });
   return bookingType
@@ -24,6 +26,7 @@ export async function addBookingType({
         name: bookingType.name,
         rules: bookingType.rules,
         exceptions: bookingType.exceptions,
+        dateRanges: bookingType.dateRanges,
         additionalInformation: bookingType.additionalInformation,
       }
     : null;
@@ -39,6 +42,7 @@ export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> 
           name: b.name,
           rules: b.rules,
           exceptions: b.exceptions,
+          dateRanges: b.dateRanges,
           additionalInformation: b.additionalInformation,
           color: BookingTypeColors[index % Object.keys(BookingTypeColors).length],
         }))
@@ -73,6 +77,7 @@ export async function updateBookingType({
   name,
   rules,
   exceptions,
+  dateRanges,
   additionalInformation,
 }: model.UpdateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.updateBookingType({
@@ -80,6 +85,7 @@ export async function updateBookingType({
     name,
     rules,
     exceptions,
+    dateRanges,
     additionalInformation,
   });
   return bookingType !== null
@@ -88,6 +94,7 @@ export async function updateBookingType({
         name: bookingType.name,
         rules: bookingType.rules,
         exceptions: bookingType.exceptions,
+        dateRanges: bookingType.dateRanges,
         additionalInformation: bookingType.additionalInformation,
       }
     : null;

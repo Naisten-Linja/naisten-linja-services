@@ -6,7 +6,7 @@ import {
   updateBookingType,
   deleteBookingType,
 } from '../controllers/bookingTypeControllers';
-import { UserRole, BookingTypeDailyRules, ApiBookingType } from '../../common/constants-common';
+import { UserRole, BookingTypeDailyRules, ApiBookingType, BookingTypeDateRange } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
 
 const router = express.Router();
@@ -36,6 +36,7 @@ router.post<
     name: string;
     rules: BookingTypeDailyRules;
     exceptions: Array<string>;
+    dateRanges: Array<BookingTypeDateRange>;
     additionalInformation: string;
   }
 >(
@@ -43,8 +44,8 @@ router.post<
   // Only allow staff members to create new booking types
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
-    const { name, rules, exceptions, additionalInformation } = req.body;
-    const bookingType = await addBookingType({ name, rules, exceptions, additionalInformation });
+    const { name, rules, exceptions, dateRanges, additionalInformation } = req.body;
+    const bookingType = await addBookingType({ name, rules, exceptions, dateRanges, additionalInformation });
     if (!bookingType) {
       res.status(400).json({ error: 'unable to create new booking rule' });
       return;
@@ -60,6 +61,7 @@ router.put<
     name: string;
     rules: BookingTypeDailyRules;
     exceptions: Array<string>;
+    dateRanges: Array<BookingTypeDateRange>;
     additionalInformation: string;
   }
 >(
@@ -67,7 +69,7 @@ router.put<
   // Only allow staff members to modify booking types
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
-    const { name, rules, exceptions, additionalInformation } = req.body;
+    const { name, rules, exceptions, dateRanges, additionalInformation } = req.body;
     const { uuid } = req.params;
     const allBookingTypes = await getBookingTypes();
     if (allBookingTypes === null || !allBookingTypes.map(({ uuid }) => uuid).includes(uuid)) {
@@ -79,6 +81,7 @@ router.put<
       name,
       rules,
       exceptions,
+      dateRanges,
       additionalInformation,
     });
     if (!bookingType) {

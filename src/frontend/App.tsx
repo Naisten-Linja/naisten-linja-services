@@ -16,6 +16,7 @@ import 'turretcss/turret/_color.css';
 import './assets/turret.css';
 
 // Set default timezone
+// THIS IS VERY IMPORTANT TO KEEP THE WHOLE APPLICATION WORKING AS EXPECTED IN THE SAME TIMEZONE.
 moment.tz.setDefault('Europe/Helsinki');
 
 // Theme placeholder in case there is a need for theme variables.

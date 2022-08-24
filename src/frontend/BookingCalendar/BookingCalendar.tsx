@@ -7,7 +7,7 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
-import { ApiBookedSlot, ApiBooking, ApiBookingTypeWithColor } from '../../common/constants-common';
+import { ApiBookedSlot, ApiBooking, ApiBookingTypeWithColor, BookingTypeDateRange } from '../../common/constants-common';
 import { useRequest } from '../http';
 import { useNotifications } from '../NotificationsContext';
 import { CalendarColumn } from './CalendarColumn';
@@ -171,15 +171,17 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
 
         <section className="flex" >
           {weekDays.map((currentDate) => {
-            const bookingTypesInCurrentDay = bookingTypes.filter(({ rules, uuid, exceptions }) => {
-              const ruleOnCurrentDay = rules[currentDate.weekday()];
-              return (
-                !exceptions.find((exceptionDate) => moment(exceptionDate).isSame(currentDate)) &&
-                ruleOnCurrentDay.enabled &&
-                ruleOnCurrentDay.slots.length > 0 &&
-                selectedBookingTypes.includes(uuid)
-              );
-            });
+            const bookingTypesInCurrentDay = bookingTypes
+              .filter(({ rules, uuid, exceptions, dateRanges }) => {
+                const ruleOnCurrentDay = rules[currentDate.weekday()];
+                return (
+                  !exceptions.find((exceptionDate) => moment(exceptionDate).isSame(currentDate)) &&
+                  isDateInActiveDateRanges(currentDate, dateRanges) &&
+                  ruleOnCurrentDay.enabled &&
+                  ruleOnCurrentDay.slots.length > 0 &&
+                  selectedBookingTypes.includes(uuid)
+                );
+              });
 
             const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(
               ({ rules, uuid, name, additionalInformation, color }) =>
@@ -293,8 +295,8 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
             {startDate.year() !== endDate.year()
               ? `${startDate.format('MMMM YYYY')} - ${endDate.format('MMMM YYYY')}`
               : startDate.month() !== endDate.month()
-              ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
-              : startDate.format('MMMM YYYY')}
+                ? ` ${startDate.format('MMMM ')} - ${endDate.format('MMMM YYYY')}`
+                : startDate.format('MMMM YYYY')}
           </h2>
         </section>
         <p>
@@ -309,10 +311,9 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
                 text-align-center
                 padding-vertical-xxs
                 position-relative
-                ${
-                  currentDate.clone().startOf('day').diff(moment().startOf('day'), 'days') === 0
-                    ? 'background-light-50'
-                    : 'background-white'
+                ${currentDate.clone().startOf('day').diff(moment().startOf('day'), 'days') === 0
+                  ? 'background-light-50'
+                  : 'background-white'
                 }
               `}
             >
@@ -325,3 +326,25 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
     </div>
   );
 };
+
+
+/**
+ * Check if a date is included in some of the dateRanges.
+ *
+ * All date processing here is done in Europe/Helsinki timezone, as specified in App.tsx.
+ *
+ * @param currentMomentDate Date to check as Moment object, pointing to beginning of a day in Finnish time zone.
+ * @param dateRanges Date ranges, it is enough that one of these matches. Returns false if empty.
+ */
+export function isDateInActiveDateRanges(currentMomentDate: Moment, dateRanges: Array<BookingTypeDateRange>): boolean {
+  for (const { start, end } of dateRanges) {
+    const isStartSameOrBeforeCurrent =
+      start === null || moment(start).isSameOrBefore(currentMomentDate);
+    const isEndSameOrAfterCurrent =
+      end === null || moment(end).isSameOrAfter(currentMomentDate);
+    if (isStartSameOrBeforeCurrent && isEndSameOrAfterCurrent) {
+      return true;
+    }
+  }
+  return false;
+}
