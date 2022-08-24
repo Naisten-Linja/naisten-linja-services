@@ -7,9 +7,10 @@ interface ModalProps {
   label: string;
   testId?: string;
   children: React.ReactNode;
+  style?: ReactModal.Styles;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, closeModal, label, testId, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, closeModal, label, testId, children, style }) => {
   const testEnv = process.env.NODE_ENV === 'test';
 
   if (!testEnv) {
@@ -31,6 +32,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal, label, testId, childr
           right: '0',
           bottom: '0',
           backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          zIndex: 200,
+          ...style?.overlay,
         },
         content: {
           position: 'fixed',
@@ -43,8 +46,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal, label, testId, childr
           borderRadius: '4px',
           outline: 'none',
           padding: '20px',
-          minHeight: '30rem',
-          maxWidth: '30rem',
+          height: 'fit-content',
+          maxHeight: 'calc(100% - 40px - 2rem)', // full height - padding - extra space around
+          width: 'calc(100% - 40px - 2rem)', // full width - padding - extra space around
+          maxWidth: '30rem', // Override this with style prop to modify the normal width
+          ...style?.content,
         },
       }}
     >
