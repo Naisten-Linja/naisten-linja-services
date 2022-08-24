@@ -9,6 +9,9 @@ export const BookingTypeDateRangesField = () => {
   const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>('dateRanges');
   const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
 
+  const hasOnlyDateRangeAlways =
+    dateRanges.length === 1 && dateRanges[0].start === null && dateRanges[0].end === null;
+
   return (
     <>
       <FieldArray
@@ -43,19 +46,21 @@ export const BookingTypeDateRangesField = () => {
                 />
               </ul>
             )}
-            <div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  const prevLength = dateRanges.length;
-                  arrayHelpers.push({ start: null, end: null });
-                  setEditRangeIndex(prevLength);
-                }}
-                className="button-xxs success"
-              >
-                Add date range
-              </button>
-            </div>
+            {!hasOnlyDateRangeAlways && (
+              <div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const prevLength = dateRanges.length;
+                    arrayHelpers.push({ start: null, end: null });
+                    setEditRangeIndex(prevLength);
+                  }}
+                  className="button-xxs success"
+                >
+                  Add date range
+                </button>
+              </div>
+            )}
           </>
         )}
       />

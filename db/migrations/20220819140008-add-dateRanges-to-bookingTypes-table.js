@@ -11,12 +11,9 @@ exports.setup = function (options, seedLink) {
   seed = seedLink;
 };
 
-// The "status_timestamp" will capture the time when the reply's status is changed 
-// while the "updated" will capture the time when the reply's record is updated.
 exports.up = function (db, callback) {
   async.series(
     [
-      //db.addColumn.bind(db, 'booking_types', 'date_ranges', { type: 'jsonb[]', notNull: true, defaultValue:  }),
       db.runSql.bind(
         db,
         `
