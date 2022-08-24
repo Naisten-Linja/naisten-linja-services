@@ -63,7 +63,7 @@ export async function createBookingType({
 }: CreateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
-        INSERT INTO booking_types (name, rules, exceptions, date_ranges additional_information)
+        INSERT INTO booking_types (name, rules, exceptions, date_ranges, additional_information)
         VALUES ($1::text, $2::jsonb[], $3::text[], $4::jsonb[], $5::text)
         RETURNING *;
     `;
