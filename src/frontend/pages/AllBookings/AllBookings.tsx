@@ -3,24 +3,23 @@ import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 import moment from 'moment-timezone';
 
-import { ApiBooking } from '../../../common/constants-common';
+import { ApiBooking, ApiBookingWithColor } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 import DataTable from 'react-data-table-component';
 import { StyledDataTableWrapperDiv } from '../../shared/utils-frontend';
 
 export const AllBookings: React.FC<RouteComponentProps> = () => {
-  const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
+  const [bookings, setBookings] = useState<Array<ApiBookingWithColor>>([]);
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
   const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
 
   const { getRequest, deleteRequest } = useRequest();
-
   const { addNotification } = useNotifications();
 
   const fetchBookings = useCallback(
-    async (callback: (allBookings: Array<ApiBooking>) => void) => {
-      const result = await getRequest<{ data: Array<ApiBooking> }>('/api/bookings/all', {
+    async (callback: (allBookings: Array<ApiBookingWithColor>) => void) => {
+      const result = await getRequest<{ data: Array<ApiBookingWithColor> }>('/api/bookings/all', {
         useJwt: true,
       });
       if (result.data.data) {
@@ -95,9 +94,9 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
 };
 
 type UpdateBookingNoteFormProps = {
-  booking: ApiBooking;
-  fetchBookings: (callback: (bookings: Array<ApiBooking>) => void) => Promise<void>;
-  setBookings: (bookings: Array<ApiBooking>) => void;
+  booking: ApiBookingWithColor;
+  fetchBookings: (callback: (bookings: Array<ApiBookingWithColor>) => void) => Promise<void>;
+  setBookings: (bookings: Array<ApiBookingWithColor>) => void;
 };
 
 const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
@@ -182,9 +181,9 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
 };
 
 type BookingListProps = {
-  bookings: Array<ApiBooking>;
-  fetchBookings: (callback: (bookings: Array<ApiBooking>) => void) => Promise<void>;
-  setBookings: (bookings: Array<ApiBooking>) => void;
+  bookings: Array<ApiBookingWithColor>;
+  fetchBookings: (callback: (bookings: Array<ApiBookingWithColor>) => void) => Promise<void>;
+  setBookings: (bookings: Array<ApiBookingWithColor>) => void;
   handleDeleteBooking: (bookingUuid: string) => () => Promise<void>;
   defaultSortAsc?: boolean;
 };
@@ -204,17 +203,26 @@ const BookingList: React.FC<BookingListProps> = ({
     {
       id: 1,
       name: 'Type',
-      selector: (row: ApiBooking) => row.bookingType.name,
+      selector: (row: ApiBookingWithColor) => row.bookingType.name,
+      format: (row: ApiBookingWithColor) => (
+        <div
+          className="padding-xxs border-radius color-white font-weight-bold"
+          style={{ background: row.bookingType.color }}
+        >
+          {row.bookingType.name}
+        </div>
+      ),
       wrap: true,
     },
     {
       id: 2,
       name: 'Date',
-      selector: (row: ApiBooking) => `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
+      selector: (row: ApiBookingWithColor) =>
+        `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
       sortable: true,
       sortFunction: dateSort,
       wrap: true,
-      format: (row: ApiBooking) => {
+      format: (row: ApiBookingWithColor) => {
         return (
           <>
             {moment(row.start).format('ddd Do MMM YYYY')}
@@ -227,8 +235,8 @@ const BookingList: React.FC<BookingListProps> = ({
     {
       id: 3,
       name: 'Personal Detail',
-      selector: (row: ApiBooking) => row.fullName,
-      format: (row: ApiBooking) => (
+      selector: (row: ApiBookingWithColor) => row.fullName,
+      format: (row: ApiBookingWithColor) => (
         <div className="flex flex-column">
           <span>{row.fullName}</span>
           <span>{row.email}</span>
@@ -242,15 +250,15 @@ const BookingList: React.FC<BookingListProps> = ({
     {
       id: 4,
       name: 'User Email',
-      selector: (row: ApiBooking) => row.user.email,
+      selector: (row: ApiBookingWithColor) => row.user.email,
       wrap: true,
       grow: 2,
     },
     {
       id: 5,
       name: 'Note',
-      selector: (row: ApiBooking) => row.bookingNote,
-      format: (row: ApiBooking) => (
+      selector: (row: ApiBookingWithColor) => row.bookingNote,
+      format: (row: ApiBookingWithColor) => (
         <UpdateBookingNoteForm
           fetchBookings={fetchBookings}
           setBookings={setBookings}
@@ -274,7 +282,7 @@ const BookingList: React.FC<BookingListProps> = ({
       id: 6,
       name: '',
       selector: () => '',
-      format: (row: ApiBooking) => (
+      format: (row: ApiBookingWithColor) => (
         <button
           className="button button-xxs button-border button-error"
           onClick={handleDeleteBooking(row.uuid)}

@@ -8,9 +8,9 @@ import {
 import '@reach/dialog/styles.css';
 
 import {
-  ApiBookingType,
   ApiBookedSlot,
   ApiBooking,
+  ApiBookingTypeWithColor,
   BookingTypeDateRange,
 } from '../../../../common/constants-common';
 import { useRequest } from '../../../shared/http';
@@ -31,17 +31,8 @@ const DialogContent = styled(ReachDialogContent)`
 `;
 
 type BookingCalendarProps = {
-  bookingTypes: Array<ApiBookingType>;
+  bookingTypes: Array<ApiBookingTypeWithColor>;
 };
-
-const bookingTypeColors = [
-  'rgba(192, 46, 29, 0.9)',
-  'rgba(13, 84, 73, 0.9)',
-  'rgba(13, 60, 85, 0.9)',
-  'rgba(84, 38, 13, 0.9)',
-  'rgba(81, 84, 10, 0.9)',
-  'rgba(34, 34, 51, 0.9)',
-];
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
   // Give current date in Finnish (since default timezone was already set in App.tsx)
@@ -126,15 +117,6 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
     startDate.clone().add(dayOffset, 'days'),
   );
 
-  const getBookingTypeColor = useCallback(
-    (id) => {
-      return bookingTypeColors[
-        bookingTypes.findIndex(({ uuid }) => uuid === id) % bookingTypeColors.length
-      ];
-    },
-    [bookingTypes],
-  );
-
   const openBookingForm = (details: BookingSlotDetails) => {
     setBookingDetails(details);
   };
@@ -157,7 +139,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
         style={{ width: '12rem', top: 0, marginRight: '3rem' }}
       >
         <h1 className="font-size-xxl">Book a slot</h1>
-        {bookingTypes.map(({ uuid, name }) => (
+        {bookingTypes.map(({ uuid, name, color }) => (
           <div key={uuid} className="flex align-items-center margin-vertical-1-4">
             <div
               aria-hidden={true}
@@ -167,7 +149,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                 borderRadius: '50%',
                 marginRight: 8,
                 flexShrink: 0,
-                background: getBookingTypeColor(uuid),
+                background: color,
               }}
             />
             <input
@@ -209,7 +191,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
             );
 
             const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(
-              ({ rules, uuid, name, additionalInformation }) =>
+              ({ rules, uuid, name, additionalInformation, color }) =>
                 rules[currentDate.weekday()].slots.map(({ start, end, seats }) => {
                   const [startHour, startMinute] = start.split(':');
                   const [endHour, endMinute] = end.split(':');
@@ -217,7 +199,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
                     seats,
                     bookingTypeUuid: uuid,
                     bookingTypeName: name,
-                    bookingTypeColor: getBookingTypeColor(uuid),
+                    bookingTypeColor: color,
                     bookingTypeAdditionalInformation: additionalInformation || '',
                     start: currentDate
                       .clone()
