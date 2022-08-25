@@ -35,7 +35,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
     e.preventDefault();
     if (formRef && letterCredentials) {
       // @ts-ignore
-      const { title, content } = formRef.current;
+      const { title, content, email } = formRef.current;
       const { accessKey, accessPassword } = letterCredentials;
       try {
         await postRequest<{ data: { success: boolean } }>('/api/online-letter/send', {
@@ -43,6 +43,7 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
           accessPassword,
           title: title.value,
           content: content.value,
+          email: email.value,
         });
         setIsLetterSent(true);
       } catch (err) {
@@ -103,6 +104,10 @@ export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
             <p className="field">
               <label htmlFor="content">Message</label>
               <textarea required id="content" placeholder="Your message" rows={10} />
+            </p>
+            <p className="field">
+              <label htmlFor="email">Email (optional)</label>
+              <input type="email" id="email" placeholder="Your email address" />
             </p>
             <p className="field">
               <button type="submit" className="button">

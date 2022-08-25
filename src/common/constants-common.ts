@@ -64,6 +64,7 @@ export interface ApiSendLetterParams {
   accessPassword: string;
   title: string;
   content: string;
+  email: string | null;
 }
 
 export interface ApiUpdateLetterContentParams {
