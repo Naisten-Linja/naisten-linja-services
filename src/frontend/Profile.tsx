@@ -3,7 +3,12 @@ import { RouteComponentProps, Link } from '@reach/router';
 import DataTable from 'react-data-table-component';
 
 import { useRequest } from './http';
-import { ApiBooking, ApiUserData, TokenUserData, UserRole } from '../common/constants-common';
+import {
+  ApiBookingWithColor,
+  ApiUserData,
+  TokenUserData,
+  UserRole,
+} from '../common/constants-common';
 import moment from 'moment';
 import { useAuth } from './AuthContext';
 
@@ -12,11 +17,12 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
 }) => {
   const { user: loggedInUser } = useAuth();
 
-  const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
+  const [bookings, setBookings] = useState<Array<ApiBookingWithColor>>([]);
   const [user, setUser] = useState<ApiUserData>();
-  const { getRequest } = useRequest();
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
   const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
+
+  const { getRequest } = useRequest();
 
   useEffect(() => {
     let updateStateAfterFetch = true;
@@ -37,7 +43,7 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
   useEffect(() => {
     let updateStateAfterFetch = true;
     const getBookings = async () => {
-      const result = await getRequest<{ data: Array<ApiBooking> }>(
+      const result = await getRequest<{ data: Array<ApiBookingWithColor> }>(
         `/api/bookings/user/${userUuid}`,
         {
           useJwt: true,
@@ -106,10 +112,10 @@ const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserD
   );
 };
 
-const BookingList: React.FC<{ bookings: Array<ApiBooking>; defaultSortAsc?: boolean }> = ({
-  bookings,
-  defaultSortAsc,
-}) => {
+const BookingList: React.FC<{
+  bookings: Array<ApiBookingWithColor>;
+  defaultSortAsc?: boolean;
+}> = ({ bookings, defaultSortAsc }) => {
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
@@ -117,18 +123,26 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking>; defaultSortAsc?: bool
   const columns = [
     {
       id: 1,
-      name: 'Title',
-      selector: (row: ApiBooking) => row.bookingType.name,
+      name: 'Type',
+      selector: (row: ApiBookingWithColor) => row.bookingType.name,
+      format: (row: ApiBookingWithColor) => (
+        <div
+          className="padding-xxs border-radius color-white font-weight-bold"
+          style={{ background: row.bookingType.color }}
+        >
+          {row.bookingType.name}
+        </div>
+      ),
       wrap: true,
     },
     {
       id: 2,
       name: 'Date',
-      selector: (row: ApiBooking) => `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
+      selector: (row: ApiBookingWithColor) => `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
       sortable: true,
       sortFunction: dateSort,
       wrap: true,
-      format: (row: ApiBooking) => {
+      format: (row: ApiBookingWithColor) => {
         return (
           <>
             {moment(row.start).format('ddd Do MMM YYYY')}
@@ -141,30 +155,30 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking>; defaultSortAsc?: bool
     {
       id: 3,
       name: 'Full Name',
-      selector: (row: ApiBooking) => row.fullName,
+      selector: (row: ApiBookingWithColor) => row.fullName,
     },
     {
       id: 4,
       name: 'Email',
-      selector: (row: ApiBooking) => row.email,
+      selector: (row: ApiBookingWithColor) => row.email,
       wrap: true,
       grow: 2,
     },
     {
       id: 5,
       name: 'Phone',
-      selector: (row: ApiBooking) => row.phone,
+      selector: (row: ApiBookingWithColor) => row.phone,
       wrap: true,
     },
     {
       id: 6,
       name: 'Work Location',
-      selector: (row: ApiBooking) => (row.workingRemotely ? 'Remote' : 'Office'),
+      selector: (row: ApiBookingWithColor) => (row.workingRemotely ? 'Remote' : 'Office'),
     },
     {
       id: 7,
       name: 'Note',
-      selector: (row: ApiBooking) => row.bookingNote,
+      selector: (row: ApiBookingWithColor) => row.bookingNote,
       wrap: true,
     },
   ];

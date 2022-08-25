@@ -15,6 +15,7 @@ import {
   ApiUpdateBookingParams,
   ApiBookedSlot,
   ApiBookingUserStats,
+  ApiBookingWithColor,
 } from '../../common/constants-common';
 import {
   sendBookingConfirmationEmail,
@@ -113,7 +114,7 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
   },
 );
 
-router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
+router.get<Record<string, never>, { data: Array<ApiBookingWithColor> } | { error: string }>(
   '/all',
   // Only allow staff to view all detailed booking information
   isAuthenticated([UserRole.staff]),

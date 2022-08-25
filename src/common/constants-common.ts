@@ -152,6 +152,10 @@ export interface ApiBookingType {
   additionalInformation: string | null;
 }
 
+export interface ApiBookingTypeWithColor extends ApiBookingType {
+  color: string;
+}
+
 export interface ApiCreateBookingParams {
   email: string;
   phone: string;
@@ -164,19 +168,26 @@ export interface ApiCreateBookingParams {
   workingRemotely: boolean;
 }
 
-export interface ApiBooking {
+export interface ApiBookingBase {
   uuid: string;
   email: string;
   phone: string;
   fullName: string;
   user: ApiUserData;
-  bookingType: ApiBookingType;
   bookingNote: string;
   workingRemotely: boolean;
   // These are stored separatedly in order to retain past booking information in cased the bookingType is deleted,
   // or slot timing changed.
   start: string;
   end: string;
+}
+
+export interface ApiBooking extends ApiBookingBase {
+  bookingType: ApiBookingType;
+}
+
+export interface ApiBookingWithColor extends ApiBookingBase {
+  bookingType: ApiBookingTypeWithColor;
 }
 
 export interface ApiUpdateBookingParams {
@@ -213,3 +224,12 @@ export interface ApiUpdateUserSettingsParams {
 }
 
 export type ApiUpdatePageParams = Omit<ApiPage, 'uuid'>;
+
+export const BookingTypeColors = [
+  'rgba(192, 46, 29, 0.9)',
+  'rgba(13, 84, 73, 0.9)',
+  'rgba(13, 60, 85, 0.9)',
+  'rgba(84, 38, 13, 0.9)',
+  'rgba(81, 84, 10, 0.9)',
+  'rgba(34, 34, 51, 0.9)',
+];
