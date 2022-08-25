@@ -44,7 +44,7 @@ export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> 
           exceptions: b.exceptions,
           dateRanges: b.dateRanges,
           additionalInformation: b.additionalInformation,
-          color: BookingTypeColors[index % Object.keys(BookingTypeColors).length],
+          color: BookingTypeColors[index % BookingTypeColors.length],
         }))
     : null;
 }
