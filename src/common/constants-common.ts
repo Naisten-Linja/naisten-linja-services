@@ -139,9 +139,9 @@ export type BookingTypeDailyRules = [
 ];
 
 export type BookingTypeDateRange = {
-  start: string | null,
-  end: string | null,
-}
+  start: string | null;
+  end: string | null;
+};
 
 export interface ApiBookingType {
   uuid: string;

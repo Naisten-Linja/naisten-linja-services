@@ -1,0 +1,13 @@
+# .git-blame-ignore-revs
+# https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+#
+# Usage with Git CLI:
+#   git blame --ignore-revs-file .git-blame-ignore-revs
+# or
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Run prettier for all files
+3897d1b4465ae8f45c62b2da88cf90033764226c
+
+# Refactor frontend folder structure
+83b25dcb0e8f2c361261a4757ff7ae392713c812

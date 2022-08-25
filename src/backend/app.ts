@@ -211,25 +211,29 @@ function activateNotificationCronJobs() {
   const hour = getConfig().bookingReminderSendingHour;
   const daysBeforeString = getConfig().bookingReminderDaysBefore;
   if (!hour) {
-    console.warn("Env BOOKING_REMINDER_SENDING_HOUR was not set, not sending any booking reminders");
+    console.warn(
+      'Env BOOKING_REMINDER_SENDING_HOUR was not set, not sending any booking reminders',
+    );
     return;
   }
   if (!daysBeforeString) {
-    console.warn("Env BOOKING_REMINDER_DAYS_BEFORE was not set, not sending any booking reminders");
+    console.warn('Env BOOKING_REMINDER_DAYS_BEFORE was not set, not sending any booking reminders');
     return;
   }
   const daysBefore = parseInt(daysBeforeString, 10);
   if (isNaN(daysBefore)) {
-    console.warn(`Env BOOKING_REMINDER_DAYS_BEFORE was set to an invalid value "${daysBefore}", not a single number`);
+    console.warn(
+      `Env BOOKING_REMINDER_DAYS_BEFORE was set to an invalid value "${daysBefore}", not a single number`,
+    );
   }
 
   cron.schedule(`0 ${hour} * * *`, async () => {
     const results = await sendBookingRemindersToVolunteers(daysBefore);
 
     if (typeof results === 'undefined') {
-      console.log("Failed to run sendBookingRemindersToVolunteers");
+      console.log('Failed to run sendBookingRemindersToVolunteers');
     } else {
-      const success = results.filter(res => res).length;
+      const success = results.filter((res) => res).length;
       const errors = results.length - success;
       console.log(`Sent ${success} emails, failed to send ${errors} emails`);
     }

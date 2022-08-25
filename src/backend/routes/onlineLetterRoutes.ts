@@ -52,7 +52,11 @@ router.post('/read', async (req, res) => {
 
   // When recipient opens the reply for the first time, it will update its read receipt to "read".
   if (reply?.readReceipt === ReadReceiptStatus.unread) {
-    const success = await updateLettersReplyReadReceipt(reply.uuid, ReadReceiptStatus.read, new Date());
+    const success = await updateLettersReplyReadReceipt(
+      reply.uuid,
+      ReadReceiptStatus.read,
+      new Date(),
+    );
     if (!success) {
       res.status(403).json({ error: 'Cannot update read receipt' });
       return;

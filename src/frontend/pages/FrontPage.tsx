@@ -3,8 +3,8 @@ import { RouteComponentProps } from '@reach/router';
 
 import { UserRole } from '../../common/constants-common';
 import { useAuth } from '../AuthContext';
-import { ContentPage } from '../ContentPage';
-import { EditContentPageForm } from '../EditContentPageForm';
+import { ContentPage } from '../ui-components/ContentPage/ContentPage';
+import { EditContentPageForm } from '../ui-components/ContentPage/EditContentPageForm';
 
 export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
   const [isEditing, setIsEditing] = useState(false);

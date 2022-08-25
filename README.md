@@ -90,6 +90,19 @@ To convert **all local user from volunteer to a staff member** in the database, 
 docker exec -it naisten_linja_db psql nl_dev nl_dev -c "update users set role='staff';"
 ```
 
+### Linting and formatting
+
+- ESLint for code quality
+- Prettier for code style
+
+You can run both with some of these commands:
+
+    npm run lint
+    npm run lint:fix
+    npm run lint:watch
+
+To make Visual Studio Code's auto format rules use Prettier, install extension `esbenp.prettier-vscode`.
+
 ### Making changes to the database schema
 
 We are using [db-migrate](https://github.com/db-migrate/node-db-migrate) to manage database schema changes. All

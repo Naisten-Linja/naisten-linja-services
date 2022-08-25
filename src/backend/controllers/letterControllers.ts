@@ -110,7 +110,7 @@ export async function assignLetter({
     assignedResponderFullName,
     status,
     replyStatus,
-    replyStatusTimestamp
+    replyStatusTimestamp,
   } = letter;
   return {
     uuid,
@@ -122,7 +122,7 @@ export async function assignLetter({
     assignedResponderFullName,
     status,
     replyStatus,
-    replyStatusTimestamp
+    replyStatusTimestamp,
   };
 }
 
