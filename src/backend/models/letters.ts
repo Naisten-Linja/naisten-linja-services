@@ -72,6 +72,14 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
   };
 }
 
+function emailQueryResultToEmailString(row: {
+  email: string | null;
+  email_iv: string | null;
+}): string | null {
+  if (row.email === null || row.email_iv === null) return null;
+  return aesDecrypt(row.email, row.email_iv);
+}
+
 export async function getAssignedLetters(userUuid: string): Promise<Array<Letter> | null> {
   try {
     // explicitly set all fields to avoid fetching too much (like email)
@@ -246,6 +254,29 @@ export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
       return null;
     }
     return queryResultToLetter(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed to get letter. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function getLetterCustomerEmailByUuid(uuid: string): Promise<string | null> {
+  try {
+    const queryText = `
+      SELECT email, email_iv
+      FROM letters
+      WHERE uuid=$1::text;
+    `;
+    const queryValues = [uuid];
+    const result = await db.query<{ email: string | null; email_iv: string | null }>(
+      queryText,
+      queryValues,
+    );
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return emailQueryResultToEmailString(result.rows[0]);
   } catch (err) {
     console.error(`Failed to get letter. uuid: ${uuid}`);
     console.error(err);

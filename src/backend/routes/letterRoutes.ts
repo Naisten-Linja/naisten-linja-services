@@ -23,6 +23,7 @@ import {
   ApiUpdateLetterContentParams,
 } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
+import { sendReplyNotificationToCustomer } from '../controllers/emailControllers';
 
 const router = express.Router();
 
@@ -212,6 +213,12 @@ router.post(
     if (!reply) {
       res.status(400).json({ error: 'Unable to update reply' });
       return;
+    }
+    if (status === ReplyStatus.published) {
+      const result = await sendReplyNotificationToCustomer(letterUuid);
+      if (!result.sent && result.reason !== 'no customer email') {
+        console.error(`Failed to send email notification to customer. reason: ${result.reason}`);
+      }
     }
     res.status(200).json({ data: reply });
   },

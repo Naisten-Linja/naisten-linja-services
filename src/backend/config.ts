@@ -63,6 +63,12 @@ export function getConfig() {
   if (process.env.ENVIRONMENT === 'production' && !process.env.BOOKING_REMINDER_DAYS_BEFORE) {
     throw 'Variable BOOKING_REMINDER_DAYS_BEFORE is missing from your environment';
   }
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID
+  ) {
+    throw 'Variable SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID is missing from your environment';
+  }
 
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
   // is not able to pick this up automatically. So disabling no-non-null-assertion eslint rule here.
@@ -110,5 +116,7 @@ export function getConfig() {
       process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID || null,
     bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR || null,
     bookingReminderDaysBefore: process.env.BOOKING_REMINDER_DAYS_BEFORE || null,
+    sendGridCustomerReplyNotificationTemplate:
+      process.env.SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID || null,
   };
 }

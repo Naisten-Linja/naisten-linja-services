@@ -25,6 +25,7 @@ export SENDGRID_FROM_EMAIL_ADDRESS=
 export SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID=
 export SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID=
 export SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID=
+export SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID=
 
 # The hour when booking reminder emails will be sent to volunteers
 # In development you can set this to "* *" to make the emails run every minute, but then you should also
