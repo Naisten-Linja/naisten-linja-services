@@ -3,6 +3,10 @@ import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 import moment from 'moment-timezone';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { ApiBooking, ApiBookingWithColor } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
@@ -10,6 +14,8 @@ import DataTable from 'react-data-table-component';
 import { StyledDataTableWrapperDiv } from '../../shared/utils-frontend';
 
 export const AllBookings: React.FC<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.allBookings);
+
   const [bookings, setBookings] = useState<Array<ApiBookingWithColor>>([]);
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
   const pastBookings = bookings.filter(({ end }) => new Date() >= new Date(end));
@@ -48,29 +54,29 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
 
   const handleDeleteBooking = useCallback(
     (bookingUuid: string) => async () => {
-      if (window.confirm('Are you sure to delete this booking slot?')) {
+      if (window.confirm(t('delete_booking.warning'))) {
         const deleteResult = await deleteRequest<{ data: { success: boolean } }>(
           `/api/bookings/booking/${bookingUuid}`,
           { useJwt: true },
         );
         if (deleteResult.data.data.success) {
-          addNotification({ type: 'success', message: 'Booking was successefully deleted' });
+          addNotification({ type: 'success', message: t('delete_booking.success') });
           fetchBookings((bookings) => {
             setBookings(bookings);
           });
         }
       }
     },
-    [fetchBookings, addNotification, deleteRequest],
+    [t, deleteRequest, addNotification, fetchBookings],
   );
 
   return (
     <div className="width-100">
-      <h1>Manage bookings</h1>
+      <h1>{t('title')}</h1>
       <p>
-        <b>Please note booking times are in Europe/Helsinki timezone</b>
+        <b>{t('p_1')}</b>
       </p>
-      <h2>Upcoming Bookings</h2>
+      <h2>{t('upcoming_bookings')}</h2>
       <div className="table-responsive">
         <BookingList
           bookings={upcomingBookings}
@@ -79,7 +85,7 @@ export const AllBookings: React.FC<RouteComponentProps> = () => {
           handleDeleteBooking={handleDeleteBooking}
         />
       </div>
-      <h2>Past Bookings</h2>
+      <h2>{t('past_bookings')}</h2>
       <div className="table-responsive">
         <BookingList
           bookings={pastBookings}
@@ -104,6 +110,8 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
   fetchBookings,
   setBookings,
 }) => {
+  const { t } = useTranslation(namespaces.pages.allBookings);
+
   const { uuid, fullName, email, phone, bookingNote } = booking;
   const [isEditing, setIsEditing] = useState(false);
   const { addNotification } = useNotifications();
@@ -123,18 +131,18 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
           { useJwt: true },
         );
         if (result.data.data) {
-          addNotification({ type: 'success', message: 'Booking note was updated' });
+          addNotification({ type: 'success', message: t('update_booking_success') });
           fetchBookings((bookings) => {
             setBookings(bookings);
           });
         }
       } catch (err) {
-        addNotification({ type: 'error', message: 'Failed to update booking note' });
+        addNotification({ type: 'error', message: t('update_booking_error') });
       } finally {
         setIsEditing(false);
       }
     },
-    [putRequest, fullName, email, phone, uuid, addNotification, fetchBookings, setBookings],
+    [putRequest, uuid, fullName, email, phone, addNotification, t, fetchBookings, setBookings],
   );
 
   const initialFormValues = {
@@ -151,7 +159,7 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
             setIsEditing(true);
           }}
         >
-          Edit
+          {t('button.edit')}
         </button>
       </>
     );
@@ -173,7 +181,7 @@ const UpdateBookingNoteForm: React.FC<UpdateBookingNoteFormProps> = ({
           value="Save"
         />
         <button type="button" className="button button-xxs" onClick={() => setIsEditing(false)}>
-          Cancel
+          {t('button.cancel')}
         </button>
       </Form>
     </Formik>
@@ -195,6 +203,8 @@ const BookingList: React.FC<BookingListProps> = ({
   handleDeleteBooking,
   defaultSortAsc,
 }) => {
+  const { t } = useTranslation(namespaces.pages.allBookings);
+
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
@@ -202,7 +212,7 @@ const BookingList: React.FC<BookingListProps> = ({
   const columns = [
     {
       id: 1,
-      name: 'Type',
+      name: t('booking.type'),
       selector: (row: ApiBookingWithColor) => row.bookingType.name,
       format: (row: ApiBookingWithColor) => (
         <div
@@ -216,7 +226,7 @@ const BookingList: React.FC<BookingListProps> = ({
     },
     {
       id: 2,
-      name: 'Date',
+      name: t('booking.date'),
       selector: (row: ApiBookingWithColor) =>
         `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
       sortable: true,
@@ -234,14 +244,17 @@ const BookingList: React.FC<BookingListProps> = ({
     },
     {
       id: 3,
-      name: 'Personal Detail',
+      name: t('booking.detail'),
       selector: (row: ApiBookingWithColor) => row.fullName,
       format: (row: ApiBookingWithColor) => (
         <div className="flex flex-column">
           <span>{row.fullName}</span>
           <span>{row.email}</span>
           <span>{row.phone}</span>
-          <span>Work location: {row.workingRemotely ? 'Remote' : 'Office'}</span>
+          <span>
+            {t('booking.work_location')}:{' '}
+            {row.workingRemotely ? t('booking.remote') : t('booking.office')}
+          </span>
         </div>
       ),
       wrap: true,
@@ -249,14 +262,14 @@ const BookingList: React.FC<BookingListProps> = ({
     },
     {
       id: 4,
-      name: 'User Email',
+      name: t('booking.user_email'),
       selector: (row: ApiBookingWithColor) => row.user.email,
       wrap: true,
       grow: 2,
     },
     {
       id: 5,
-      name: 'Note',
+      name: t('booking.notes'),
       selector: (row: ApiBookingWithColor) => row.bookingNote,
       format: (row: ApiBookingWithColor) => (
         <UpdateBookingNoteForm
@@ -287,7 +300,7 @@ const BookingList: React.FC<BookingListProps> = ({
           className="button button-xxs button-border button-error"
           onClick={handleDeleteBooking(row.uuid)}
         >
-          Delete
+          {t('button.delete')}
         </button>
       ),
     },
