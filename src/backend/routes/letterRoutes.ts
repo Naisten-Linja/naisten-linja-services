@@ -6,6 +6,7 @@ import {
   assignLetter,
   getLetter,
   updateOriginalLetterContent,
+  deleteLetterAndReply,
 } from '../controllers/letterControllers';
 import {
   replyToLetter,
@@ -231,7 +232,7 @@ router.put<
       return;
     }
     const { title, content } = req.body;
-    const updatedLetter = await updateOriginalLetterContent({letterUuid, title, content});
+    const updatedLetter = await updateOriginalLetterContent({ letterUuid, title, content });
 
     if (updatedLetter === null) {
       res.status(400).json({ error: 'failed to update original letter content' });
@@ -239,6 +240,16 @@ router.put<
     }
 
     res.status(200).json({ data: updatedLetter });
+  },
+);
+
+router.delete<{ letterUuid: string }, { data: { success: boolean } }>(
+  '/:letterUuid',
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { letterUuid } = req.params;
+    const success = await deleteLetterAndReply(letterUuid);
+    res.status(202).json({ data: { success } });
   },
 );
 

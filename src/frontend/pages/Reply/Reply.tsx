@@ -19,7 +19,7 @@ import moment from 'moment-timezone';
 export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: string }>> = ({
   letterUuid,
 }) => {
-  const { getRequest, postRequest, putRequest } = useRequest();
+  const { getRequest, postRequest, putRequest, deleteRequest } = useRequest();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
   const [letter, setLetter] = useState<ApiLetterAdmin | null>(null);
@@ -146,6 +146,24 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
     }
   };
 
+  const deleteLetter = async () => {
+    // Only staff who can delete the letter.
+    // On successful attempt, the user will be redirected to admin/letters page.
+    if (!letter) return;
+    if (window.confirm('Are you sure to delete this letter?')) {
+      const deleteResult = await deleteRequest<{ data: { success: boolean } }>(
+        `/api/letters/${letter.uuid}`,
+        { useJwt: true },
+      );
+      if (deleteResult.data.data.success) {
+        addNotification({ type: 'success', message: 'Letter and reply were successfully deleted' });
+        window.location.replace('/admin/letters');
+      } else {
+        addNotification({ type: 'error', message: 'Failed to delete letter' });
+      }
+    }
+  };
+
   const editLetterForm = (
     <form ref={letterFormRef}>
       {letter && <input type="hidden" value={letter.uuid} id="letterUuid" disabled />}
@@ -171,7 +189,9 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           }}
         />
       </div>
-      <div className="padding-xs color-white background-warning">Do not attempt to change the content unless you know what you are doing.</div>
+      <div className="padding-xs color-white background-warning">
+        Do not attempt to change the content unless you know what you are doing.
+      </div>
 
       <p className="field">
         {letterEdit ? (
@@ -297,6 +317,34 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         </p>
       )}
       {disableReplyEdit ? replyContent : editForm}
+
+      {user.role === UserRole.staff && (
+        <>
+          <h1 className="color-warning">Danger zone</h1>
+          <div className="flex flex-row flex-wrap border border-color-warning padding-s">
+            <div>
+              <p className="color-warning font-weight-bold">
+                Delete this letter and the corresponding reply
+              </p>
+              <p>
+                Once you delete this letter, there is no going back. This will delete the letter and
+                the reply permanently from the data storage.
+              </p>
+            </div>
+            <div className="margin-auto">
+              <Button
+                className="button warning button-border"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault();
+                  deleteLetter();
+                }}
+              >
+                Delete this letter
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };
