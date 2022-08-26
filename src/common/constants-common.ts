@@ -66,6 +66,11 @@ export interface ApiSendLetterParams {
   content: string;
 }
 
+export interface ApiUpdateLetterContentParams {
+  title: string;
+  content: string;
+}
+
 export enum ResponderType {
   internal = 'internal',
   sender = 'sender',

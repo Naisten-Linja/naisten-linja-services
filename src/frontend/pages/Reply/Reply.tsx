@@ -15,12 +15,11 @@ import { useAuth } from '../../AuthContext';
 import { LetterContent } from '../../ui-components/content';
 import { Button, ButtonText } from '../../ui-components/buttons';
 import moment from 'moment-timezone';
-import { StyledMDEditorWrapperDiv } from '../../shared/utils-frontend';
 
 export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: string }>> = ({
   letterUuid,
 }) => {
-  const { getRequest, postRequest } = useRequest();
+  const { getRequest, postRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
   const [letter, setLetter] = useState<ApiLetterAdmin | null>(null);
@@ -34,6 +33,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   const letterFormRef = useRef<HTMLFormElement | null>(null);
   const [letterContent, setLetterContent] = useState<string>('');
   const disableLetterEdit = user && user.role === UserRole.volunteer;
+  const [letterEdit, setLetterEdit] = useState<boolean>(false);
 
   const sendReply = async (status: ReplyStatus) => {
     if (formRef && letter) {
@@ -119,19 +119,48 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
     fetchReply();
   }, [getRequest, letterUuid, addNotification, fetchReply]);
 
+  const updateLetterContent = async () => {
+    if (letterFormRef && letter) {
+      // @ts-ignore
+      const { letterContent } = letterFormRef.current;
+      try {
+        const result = await putRequest<{ data: ApiLetterAdmin }>(
+          `/api/letters/${letter.uuid}`,
+          {
+            letterUuid: letter.uuid,
+            title: letter.title,
+            content: letterContent.value,
+          },
+          { useJwt: true },
+        );
+        setLetter(result.data.data);
+        addNotification({ type: 'success', message: `Letter content has been updated` });
+        setLetterEdit(false);
+      } catch (err) {
+        console.log(err);
+        addNotification({
+          type: 'error',
+          message: 'There was an error saving the letter content',
+        });
+      }
+    }
+  };
+
   const editLetterForm = (
     <form ref={letterFormRef}>
       {letter && <input type="hidden" value={letter.uuid} id="letterUuid" disabled />}
-      <StyledMDEditorWrapperDiv className="field">
+      <div className="field">
         <MDEditor
           value={letterContent}
-          height={500}
+          height={200}
+          hideToolbar={true}
+          preview="edit"
           textareaProps={{
             id: 'letterContent',
+            disabled: !letterEdit,
             // Disable transparent text fill color upon focusing on the text area
             // @ts-ignore
             style: { '-webkit-text-fill-color': 'inherit' },
-            minHeight: '300px',
           }}
           onChange={(val = '') => {
             if (val) setLetterContent(val);
@@ -141,15 +170,37 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
             rehypePlugins: [[rehypeSanitize]],
           }}
         />
-      </StyledMDEditorWrapperDiv>
-      <p className="field">Button here</p>
+      </div>
+      <div className="padding-xs color-white background-warning">Do not attempt to change the content unless you know what you are doing.</div>
+
+      <p className="field">
+        {letterEdit ? (
+          <Button
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              updateLetterContent();
+            }}
+          >
+            Save changes
+          </Button>
+        ) : (
+          <ButtonText
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              setLetterEdit(true);
+            }}
+          >
+            Edit letter content
+          </ButtonText>
+        )}
+      </p>
     </form>
   );
 
   const editForm = (
     <form ref={formRef} onSubmit={submitReply}>
       {reply && <input type="hidden" value={reply.uuid} id="replyUuid" disabled />}
-      <StyledMDEditorWrapperDiv className="field">
+      <div className="field">
         <MDEditor
           value={content}
           height={500}
@@ -168,7 +219,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
             rehypePlugins: [[rehypeSanitize]],
           }}
         />
-      </StyledMDEditorWrapperDiv>
+      </div>
       <p className="field">
         {showSendForReviewBtn && (
           <Button
@@ -213,18 +264,15 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <Link to={user.role === UserRole.staff ? '/admin/letters' : '/volunteer/letters'}>
         &lt; all letters
       </Link>
-      <h1>{letter.title}</h1>
+      <h1>Letter</h1>
+      <h3>{letter.title}</h3>
       <p>
         <i>
           <b>Created:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
         </i>
       </p>
-      <LetterContent>{letter.content}</LetterContent>
-      <p>{letterContent}</p>
 
-      {disableLetterEdit ? (
-        <LetterContent>{letter.content}</LetterContent>
-      ) : editLetterForm}
+      {disableLetterEdit ? <LetterContent>{letter.content}</LetterContent> : editLetterForm}
 
       <h1>Reply</h1>
       {reply && (

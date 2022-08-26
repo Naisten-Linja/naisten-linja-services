@@ -66,6 +66,22 @@ export async function sendLetter({
   return null;
 }
 
+export async function updateOriginalLetterContent({
+  letterUuid,
+  title,
+  content,
+}: {
+  letterUuid: string;
+  title: string;
+  content: string;
+}): Promise<Letter | null> {
+  const updatedLetter = await updateLetterContent({ uuid: letterUuid, title, content });
+  if (!updatedLetter) {
+    return null;
+  }
+  return updatedLetter;
+}
+
 export async function readLetter({
   accessKey,
   accessPassword,

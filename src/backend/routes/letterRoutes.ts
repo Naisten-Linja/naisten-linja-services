@@ -5,6 +5,7 @@ import {
   getAllAssignedLetters,
   assignLetter,
   getLetter,
+  updateOriginalLetterContent,
 } from '../controllers/letterControllers';
 import {
   replyToLetter,
@@ -17,6 +18,8 @@ import {
   ResponderType,
   ReplyStatus,
   ApiLetterWithReadStatus,
+  ApiLetterAdmin,
+  ApiUpdateLetterContentParams,
 } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
 
@@ -210,6 +213,32 @@ router.post(
       return;
     }
     res.status(200).json({ data: reply });
+  },
+);
+
+router.put<
+  { letterUuid: string },
+  { data: ApiLetterAdmin } | { error: string },
+  ApiUpdateLetterContentParams
+>(
+  '/:letterUuid',
+  // Only allow staff to modify existing booking notes
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { letterUuid } = req.params;
+    if (!req.body) {
+      res.status(400).json({ error: 'missing required data in request body' });
+      return;
+    }
+    const { title, content } = req.body;
+    const updatedLetter = await updateOriginalLetterContent({letterUuid, title, content});
+
+    if (updatedLetter === null) {
+      res.status(400).json({ error: 'failed to update original letter content' });
+      return;
+    }
+
+    res.status(200).json({ data: updatedLetter });
   },
 );
 
