@@ -305,3 +305,16 @@ export async function updateLetterAssignee({
     return null;
   }
 }
+
+export async function deleteLetter(uuid: string): Promise<boolean> {
+  // Deleting a letter will also delete its corresponding replies
+  try {
+    const queryText = 'DELETE from letters WHERE uuid = $1::text;';
+    const result = await db.query(queryText, [uuid]);
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error(`Failed to delete letter ${uuid}`);
+    console.error(err);
+    return false;
+  }
+}

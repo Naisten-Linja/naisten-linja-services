@@ -13,6 +13,7 @@ import {
   updateLetterAssignee,
   getLetterByUuid,
   getAssignedLetters,
+  deleteLetter,
 } from '../models/letters';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
@@ -64,6 +65,22 @@ export async function sendLetter({
     return updatedLetter;
   }
   return null;
+}
+
+export async function updateOriginalLetterContent({
+  letterUuid,
+  title,
+  content,
+}: {
+  letterUuid: string;
+  title: string;
+  content: string;
+}): Promise<Letter | null> {
+  const updatedLetter = await updateLetterContent({ uuid: letterUuid, title, content });
+  if (!updatedLetter) {
+    return null;
+  }
+  return updatedLetter;
 }
 
 export async function readLetter({
@@ -141,4 +158,8 @@ export async function checkResponderValidity(
     return false;
   }
   return letter.assignedResponderUuid === userUuid;
+}
+
+export async function deleteLetterAndReply(uuid: string): Promise<boolean> {
+  return await deleteLetter(uuid);
 }
