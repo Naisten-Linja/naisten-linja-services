@@ -14,6 +14,7 @@ import {
   getLetterByUuid,
   getAssignedLetters,
   deleteLetter,
+  updateLetterContentAndEmail,
 } from '../models/letters';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
@@ -62,7 +63,12 @@ export async function sendLetter({
     accessPassword,
   });
   if (isValid && letter) {
-    const updatedLetter = await updateLetterContent({ uuid: letter.uuid, title, content, email });
+    const updatedLetter = await updateLetterContentAndEmail({
+      uuid: letter.uuid,
+      title,
+      content,
+      email,
+    });
     return updatedLetter;
   }
   return null;

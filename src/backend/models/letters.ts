@@ -257,6 +257,50 @@ export async function updateLetterContent({
   uuid,
   title,
   content,
+}: {
+  uuid: string;
+  title: string;
+  content: string;
+}): Promise<Letter | null> {
+  try {
+    const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
+    const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
+
+    const queryText = `
+       UPDATE letters
+       SET
+         title = $1::text,
+         title_iv = $2::text,
+         content = $3::text,
+         content_iv = $4::text,
+         status = $5::text
+       WHERE uuid = $6::text
+       RETURNING *;
+    `;
+    const queryValues = [
+      encryptedTitle,
+      titleIv,
+      encryptedContent,
+      contentIv,
+      LetterStatus.sent,
+      uuid,
+    ];
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToLetter(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed update letter content. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateLetterContentAndEmail({
+  uuid,
+  title,
+  content,
   email,
 }: {
   uuid: string;
