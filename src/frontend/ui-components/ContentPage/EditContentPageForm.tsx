@@ -6,7 +6,6 @@ import { Formik, Form, Field } from 'formik';
 import { ApiPage, ApiUpdatePageParams } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
-import { StyledMDEditorWrapperDiv } from '../../shared/utils-frontend';
 
 export const EditContentPageForm: React.FC<{
   slug: string;
@@ -90,25 +89,23 @@ export const EditContentPageForm: React.FC<{
             <label htmlFor="field-title">Title</label>
             <Field id="field-title" type="text" name="title" />
             <label htmlFor="field-content">Content</label>
-            <StyledMDEditorWrapperDiv>
-              <MDEditor
-                value={values.content}
-                height={500}
-                textareaProps={{
-                  id: 'field-content',
-                  // Disable transparent text fill color upon focusing on the text area
-                  // @ts-ignore
-                  style: { '-webkit-text-fill-color': 'inherit' },
-                  minHeight: '300px',
-                }}
-                onChange={(content = '') => {
-                  setFieldValue('content', content);
-                }}
-                previewOptions={{
-                  rehypePlugins: [[rehypeSanitize]],
-                }}
-              />
-            </StyledMDEditorWrapperDiv>
+            <MDEditor
+              value={values.content}
+              height={500}
+              textareaProps={{
+                id: 'field-content',
+                // Disable transparent text fill color upon focusing on the text area
+                // @ts-ignore
+                style: { '-webkit-text-fill-color': 'inherit' },
+                minHeight: '300px',
+              }}
+              onChange={(content = '') => {
+                setFieldValue('content', content);
+              }}
+              previewOptions={{
+                rehypePlugins: [[rehypeSanitize]],
+              }}
+            />
             <button
               type="button"
               className="button margin-top-xxs margin-right-xxs"

@@ -223,7 +223,7 @@ router.put<
   ApiUpdateLetterContentParams
 >(
   '/:letterUuid',
-  // Only allow staff to modify existing booking notes
+  // Only allow staff to modify letter content
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { letterUuid } = req.params;
