@@ -68,11 +68,19 @@ export async function getReply(letterUuid: string): Promise<Reply | null> {
   }
 }
 
+/**
+ * Update the reply with own `uuid` which is connected to letter with `letterUuid`.
+ * This ensures that the reply belongs to the letter that the user has access to.
+ *
+ * `letterUuid` or `uuid` are not updated.
+ */
 export async function updateReply({
+  letterUuid,
   uuid,
   content,
   status,
 }: {
+  letterUuid: string;
   uuid: string;
   content: string;
   status: ReplyStatus;
@@ -86,10 +94,10 @@ export async function updateReply({
          content_iv=$2::text,
          status = $3::text,
          status_timestamp = now()
-       WHERE uuid = $4::text
+       WHERE uuid = $4::text AND letter_uuid = $5::text
        RETURNING *;
     `;
-    const queryValues = [encryptedData, iv, status, uuid];
+    const queryValues = [encryptedData, iv, status, uuid, letterUuid];
     const result = await db.query<ReplyQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;

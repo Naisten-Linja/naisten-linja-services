@@ -91,37 +91,31 @@ export async function getLettersReply(letterUuid: string): Promise<ApiReplyAdmin
 }
 
 export async function updateLettersReply(
+  letterUuid: string,
   replyUuid: string,
   content: string,
   status: ReplyStatus,
 ): Promise<ApiReplyAdmin | null> {
-  const reply = await updateReply({ uuid: replyUuid, content, status });
+  const reply = await updateReply({
+    letterUuid,
+    uuid: replyUuid,
+    content,
+    status,
+  });
   if (!reply) {
     return null;
   }
-  const {
-    uuid,
-    authorType,
-    created,
-    updated,
-    internalAuthorUuid,
-    letterUuid,
-    status: updatedStatus,
-    content: updatedContent,
-    readReceipt,
-    readTimestamp,
-    statusTimestamp,
-  } = reply;
+  const { readTimestamp, statusTimestamp } = reply;
   return {
-    uuid,
-    authorType,
-    created,
-    updated,
-    internalAuthorUuid,
-    letterUuid,
-    status: updatedStatus,
-    content: updatedContent,
-    readReceipt,
+    uuid: reply.uuid,
+    authorType: reply.authorType,
+    created: reply.created,
+    updated: reply.updated,
+    internalAuthorUuid: reply.internalAuthorUuid,
+    letterUuid: reply.letterUuid,
+    status: reply.status,
+    content: reply.content,
+    readReceipt: reply.readReceipt,
     readTimestamp: readTimestamp ? readTimestamp.toString() : null,
     statusTimestamp: statusTimestamp ? statusTimestamp.toString() : null,
   };

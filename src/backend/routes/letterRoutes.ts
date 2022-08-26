@@ -21,6 +21,7 @@ import {
   ApiLetterWithReadStatus,
   ApiLetterAdmin,
   ApiUpdateLetterContentParams,
+  ApiReplyParamsAdmin,
 } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
 import { sendReplyNotificationToCustomer } from '../controllers/emailControllers';
@@ -139,17 +140,21 @@ router.post(
   // Only allow staff and volunteer access
   isAuthenticated([UserRole.staff, UserRole.volunteer]),
   async (req, res) => {
+    const { uuid: letterUuid } = req.params;
+    const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
+    if (!letterUuid || !content || !status) {
+      res.status(400).json({ error: 'Missing letterUuid, content or status in request' });
+      return;
+    }
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(req.params.uuid, user.uuid);
-    if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
+    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    if (
+      (isVolunteer && (!isAssigned || status === ReplyStatus.published)) ||
+      (!isVolunteer && !isStaff)
+    ) {
       res.status(401).json({ error: `User ${user.email} can't response to this letter` });
-      return;
-    }
-    const { letterUuid, content, status } = req.body;
-    if (!letterUuid || !content || !status) {
-      res.status(400).json({ error: 'Missing letterUuid, content or status in request' });
       return;
     }
     const reply = await replyToLetter({
@@ -200,7 +205,7 @@ router.post(
       return;
     }
     // @ts-ignore
-    const { content, status } = req.body;
+    const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
     if (!content || !status) {
       res.status(400).json({ error: 'Missing content or status in request' });
       return;
@@ -209,7 +214,8 @@ router.post(
       res.status(401).json({ error: 'Non staff users are not allowed to publish a response' });
       return;
     }
-    const reply = await updateLettersReply(replyUuid, content, status);
+    // update the reply, this also ensures that replyUuid is really connected to letterUuid
+    const reply = await updateLettersReply(letterUuid, replyUuid, content, status);
     if (!reply) {
       res.status(400).json({ error: 'Unable to update reply' });
       return;

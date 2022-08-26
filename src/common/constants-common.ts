@@ -89,7 +89,6 @@ export enum ReadReceiptStatus {
 }
 
 export interface ApiReplyParamsAdmin {
-  letterUuid: string;
   content: string;
   status: ReplyStatus;
 }
