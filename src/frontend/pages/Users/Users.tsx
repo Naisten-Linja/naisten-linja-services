@@ -25,7 +25,6 @@ import {
   OverrideTurretInputHeightForReactSelectDiv,
   StyledDataTableWrapperDiv,
 } from '../../shared/utils-frontend';
-import { t } from 'i18next';
 
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
