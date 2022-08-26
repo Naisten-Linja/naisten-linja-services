@@ -2,11 +2,17 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { ApiUserData } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 
 export const ProfileSettings: React.FC<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.settings);
+
   const { getRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
   const [userData, setUserData] = useState<ApiUserData | null>(null);
@@ -36,7 +42,7 @@ export const ProfileSettings: React.FC<RouteComponentProps> = () => {
   }, []);
   return (
     <div className="width-100">
-      <h1>Notification settings</h1>
+      <h1>{t('title')}</h1>
       {userData && (
         <Formik
           initialValues={initialFormValues}
@@ -56,12 +62,12 @@ export const ProfileSettings: React.FC<RouteComponentProps> = () => {
             ) {
               addNotification({
                 type: 'success',
-                message: 'New booking notification setting updated',
+                message: t('fetch_profile_info_success'),
               });
             } else {
               addNotification({
                 type: 'error',
-                message: 'Failed to update booking notification setting.',
+                message: t('fetch_profile_info_error'),
               });
             }
           }}
@@ -69,10 +75,7 @@ export const ProfileSettings: React.FC<RouteComponentProps> = () => {
           <Form>
             <div className="field max-width-s">
               <label htmlFor="new-booking-days-threshold">
-                Day threshold for receiving new booking notifications. For example, if this is set
-                to 5, you will receive an email notification whenever a booking is made 5 or less
-                days before the start of the slot. The aim is to keep you up to date with
-                last-minute bookings. To disable notifications to your email, set this to 0.
+                {t('text')}
               </label>
               <Field
                 id="new-booking-days-threshold"
@@ -83,7 +86,7 @@ export const ProfileSettings: React.FC<RouteComponentProps> = () => {
               />
             </div>
             <button type="submit" className="button button-info">
-              Save
+              {t('button.save')}
             </button>
           </Form>
         </Formik>
