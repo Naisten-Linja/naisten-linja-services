@@ -40,7 +40,8 @@ export const StyledDataTableWrapperDiv = styled.div`
 `;
 
 export const StyledMDEditorWrapperDiv = styled.div`
-  textarea:hover, textarea:focus {
+  textarea:hover,
+  textarea:focus {
     background: none !important; // override turret
   }
 `;
