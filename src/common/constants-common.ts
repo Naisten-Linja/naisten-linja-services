@@ -40,6 +40,7 @@ export interface ApiLetterAdmin {
   status: LetterStatus;
   replyStatus: ReplyStatus | null;
   created: string;
+  hasEmail: boolean | null;
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;

@@ -17,6 +17,7 @@ export interface Letter {
   accessPasswordSalt: string;
   content: string | null;
   title: string | null;
+  hasEmail: boolean | null;
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;
@@ -39,6 +40,7 @@ export interface LetterQueryResult {
   access_password_salt: string;
   title?: string;
   content?: string;
+  has_email?: boolean;
   assigned_responder_uuid?: string;
   assigned_responder_email?: string;
   assigned_responder_full_name?: string;
@@ -62,6 +64,7 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     accessPasswordSalt: row.access_password_salt,
     title,
     content,
+    hasEmail: typeof row.has_email !== 'undefined' ? row.has_email : null,
     assignedResponderUuid: row.assigned_responder_uuid || null,
     assignedResponderEmail: row.assigned_responder_email || null,
     assignedResponderFullName: row.assigned_responder_full_name || null,
@@ -89,6 +92,7 @@ export async function getAssignedLetters(userUuid: string): Promise<Array<Letter
          letters.access_key, letters.access_password, letters.access_password_salt,
          letters.title, letters.title_iv,
          letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
          letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
@@ -125,6 +129,7 @@ export async function getSentLetters(): Promise<Array<Letter> | null> {
          letters.access_key, letters.access_password, letters.access_password_salt,
          letters.title, letters.title_iv,
          letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
          letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
@@ -205,6 +210,7 @@ export async function getLetterByCredentials({
          letters.access_key, letters.access_password, letters.access_password_salt,
          letters.title, letters.title_iv,
          letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
          letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name
@@ -241,6 +247,7 @@ export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
          letters.access_key, letters.access_password, letters.access_password_salt,
          letters.title, letters.title_iv,
          letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
          letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name
@@ -306,7 +313,7 @@ export async function updateLetterContent({
          content_iv = $4::text,
          status = $5::text
        WHERE uuid = $6::text
-       RETURNING *;
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
     `;
     const queryValues = [
       encryptedTitle,
@@ -355,7 +362,7 @@ export async function updateLetterContentAndEmail({
          email_iv = $6::text,
          status = $7::text
        WHERE uuid = $8::text
-       RETURNING *;
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
     `;
     const queryValues = [
       encryptedTitle,
@@ -391,7 +398,7 @@ export async function updateLetterAssignee({
        UPDATE letters
        SET assigned_responder_uuid = $1
        WHERE letters.uuid = $2::text
-       RETURNING *;
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
     `;
     const queryValues = [assigneeUuid, letterUuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);

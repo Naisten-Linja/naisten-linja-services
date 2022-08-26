@@ -237,6 +237,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           }}
         />
       </div>
+      {showPublishBtn && letter?.hasEmail && (
+        <p className="color-primary-800 font-weight-bold font-size-s">
+          The customer will get an email notification when the reply is published.
+        </p>
+      )}
       <p className="field">
         {showSendForReviewBtn && (
           <Button
@@ -286,6 +291,10 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <p>
         <i>
           <b>Created:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
+        </i>
+        <br />
+        <i>
+          <b>Customer has given email address:</b> {letter.hasEmail ? 'Yes' : 'No'}
         </i>
       </p>
 
