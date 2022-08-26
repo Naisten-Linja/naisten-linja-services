@@ -4,6 +4,7 @@ export const namespaces = {
     letters: 'pages.letters',
     reply: 'pages.reply',
     users: 'pages.users',
+    profile: 'pages.profile',
     bookingTypes: 'pages.bookingTypes',
     bookingCalendar: 'pages.booking',
     allBookings: 'pages.allBookings',
