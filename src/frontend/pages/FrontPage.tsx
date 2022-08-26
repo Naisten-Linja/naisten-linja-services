@@ -20,7 +20,7 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
   if (!user) {
     return (
       <div>
-        <p>{t('p-1')}</p>
+        <p>{t('p_1')}</p>
         <button onClick={login} className="button button-primary">
           {t('login')}
         </button>
@@ -37,7 +37,7 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
             className="button margin-top-xs button-primary"
             onClick={() => setIsEditing(true)}
           >
-            {t('edit-page')}
+            {t('edit_page')}
           </button>
         )}
       </>
