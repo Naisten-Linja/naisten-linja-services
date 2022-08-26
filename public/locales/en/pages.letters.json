@@ -1,0 +1,16 @@
+{
+  "fetch_users_error": "Unable to get users",
+  "fetch_letters_error": "Unable to get letters",
+  "assign_letter_success": "Letter was assigned to {{email}}",
+  "unassign_letter_success": "Letter was unassigned to any email",
+  "assign_letter_error": "Unable to assign letter to {{email}}",
+  "title": "Letters",
+  "table": {
+    "created": "Created",
+    "title": "Title",
+    "reply_status": "Reply status",
+    "read_receipt": "Read receipt",
+    "assigned_to": "Assigned to",
+    "user_select": "Assign to a user"
+  }
+}

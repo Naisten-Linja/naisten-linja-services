@@ -3,6 +3,10 @@ import { RouteComponentProps, Link } from '@reach/router';
 import styled from 'styled-components';
 import Select from 'react-select';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import {
   ApiLetterAdmin,
   ApiLetterWithReadStatus,
@@ -25,6 +29,8 @@ const LettersTable = styled.table`
 `;
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.letters);
+
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
   const { addNotification } = useNotifications();
@@ -40,10 +46,10 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setUsers(usersResult.data.data);
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get users' });
+      addNotification({ type: 'error', message: t('fetch_users_error') });
       setUsers([]);
     }
-  }, [getRequest, addNotification]);
+  }, [getRequest, addNotification, t]);
 
   const fetchLetters = useCallback(async () => {
     try {
@@ -57,9 +63,9 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       );
     } catch (err) {
       setLetters([]);
-      addNotification({ type: 'error', message: 'Unable to get letters' });
+      addNotification({ type: 'error', message: t('fetch_letters_error') });
     }
-  }, [addNotification, getRequest]);
+  }, [addNotification, getRequest, t]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,12 +94,12 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
       if (result.data.data) {
         if (assigneeUuid)
-          addNotification({ type: 'success', message: `Letter was assigned to ${email}` });
-        else addNotification({ type: 'success', message: `Letter was unassigned to any email` });
+          addNotification({ type: 'success', message: t('assign_letter_success', { email }) });
+        else addNotification({ type: 'success', message: t('unassign_letter_success') });
       }
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: `Unable to assign letter to ${email}` });
+      addNotification({ type: 'error', message: t('assign_letter_error', { email }) });
     }
     await fetchLetters();
   };
@@ -121,15 +127,15 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <>
-      <h1>Letters</h1>
+      <h1>{t('table.title')}</h1>
       <LettersTable>
         <thead>
           <tr>
-            <th>Created</th>
-            <th>Title</th>
-            <th>Reply status</th>
-            <th>Read receipt</th>
-            {isStaff && <th>Assigned to</th>}
+            <th>{t('table.created')}</th>
+            <th>{t('table.title')}</th>
+            <th>{t('table.reply_status')}</th>
+            <th>{t('table.read_receipt')}</th>
+            {isStaff && <th>{t('table.assigned_to')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -157,7 +163,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
                               )
                             : null
                         }
-                        placeholder="Assign to a user"
+                        placeholder={t('table.user_select')}
                         options={assigneeOptions}
                         isSearchable
                         isClearable
