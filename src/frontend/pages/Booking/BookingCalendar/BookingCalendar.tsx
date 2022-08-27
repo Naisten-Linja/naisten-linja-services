@@ -7,6 +7,10 @@ import {
 } from '@reach/dialog';
 import '@reach/dialog/styles.css';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../../i18n/i18n.constants';
+
 import {
   ApiBookedSlot,
   ApiBooking,
@@ -35,6 +39,8 @@ type BookingCalendarProps = {
 };
 
 export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }) => {
+  const { t } = useTranslation(namespaces.pages.bookingCalendar);
+
   // Give current date in Finnish (since default timezone was already set in App.tsx)
   // This has to be inside this component because on the main level the default time zone
   // is not set yet.
@@ -60,10 +66,10 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
         );
         callback(result.data.data);
       } catch (err) {
-        addNotification({ type: 'error', message: 'Unable to fetch booked slots' });
+        addNotification({ type: 'error', message: t('booking_calendar.fetch_booked_slots_error') });
       }
     },
-    [startDate, getRequest, addNotification],
+    [startDate, getRequest, addNotification, t],
   );
 
   const fetchOwnBookings = useCallback(
@@ -229,7 +235,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
       </div>
       {bookingDetails && (
         <DialogOverlay onDismiss={() => setBookingDetails(null)}>
-          <DialogContent aria-label="Make a new booking">
+          <DialogContent aria-label={t('booking_calendar.aria_new_booking')}>
             <BookingForm
               dismissModal={() => {
                 setBookingDetails(null);
@@ -256,6 +262,8 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
   startDate,
   setStartDate,
 }) => {
+  const { t } = useTranslation(namespaces.pages.bookingCalendar);
+
   const endDate = startDate.clone().endOf('week');
   const weekDays = Array.from(new Array(7).keys()).map((dayOffset) =>
     startDate.clone().add(dayOffset, 'days'),
@@ -276,12 +284,12 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
               onClick={() => {
                 setStartDate(startDate.clone().subtract(7, 'days'));
               }}
-              aria-label="Previous week"
+              aria-label={t('booking_calendar.aria_previous_week')}
             >{`<`}</button>
             <button
               className="button"
               onClick={() => setStartDate(startDate.clone().add(7, 'days'))}
-              aria-label="Next week"
+              aria-label={t('booking_calendar.aria_next_week')}
             >{`>`}</button>
           </div>
           <h2 className="no-margin">
@@ -296,7 +304,7 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
               `}
               style={{ whiteSpace: 'nowrap' }}
             >
-              {`Week ${startDate.format('w')}`}
+              {t('booking_calendar.week', { nth: startDate.format('w') })}
             </span>
             {startDate.year() !== endDate.year()
               ? `${startDate.format('MMMM YYYY')} - ${endDate.format('MMMM YYYY')}`
@@ -306,7 +314,7 @@ const CalendarHeader: React.FC<{ startDate: Moment; setStartDate(d: Moment): voi
           </h2>
         </section>
         <p>
-          <b>Please note booking times are in Europe/Helsinki timezone</b>
+          <b>{t('booking_calendar.p_1')}</b>
         </p>
         <div className="flex width-100 border-bottom position-top" aria-hidden={true}>
           {weekDays.map((currentDate) => (

@@ -4,6 +4,10 @@ import { Formik, Form, Field } from 'formik';
 import Select from 'react-select';
 import '@reach/dialog/styles.css';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../../i18n/i18n.constants';
+
 import {
   ApiCreateBookingParams,
   ApiBooking,
@@ -33,6 +37,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   ownBookings,
   seats,
 }) => {
+  const { t } = useTranslation(namespaces.pages.bookingCalendar);
+
   const { user } = useAuth();
   const { postRequest, getRequest } = useRequest();
   const { addNotification } = useNotifications();
@@ -66,7 +72,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           setUsers(result.data.data);
         }
       } catch (err) {
-        addNotification({ type: 'error', message: 'Unable to fetch users' });
+        addNotification({ type: 'error', message: t('booking_form.fetch_users_error') });
       }
     };
     const fetchAllBookings = async () => {
@@ -78,7 +84,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           setAllBookings(result.data.data);
         }
       } catch (err) {
-        addNotification({ type: 'error', message: 'Unable to fetch all bookings' });
+        addNotification({ type: 'error', message: t('booking_form.fetch_all_bookings_error') });
       }
     };
 
@@ -90,7 +96,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     return () => {
       updateStateAfterFetch = false;
     };
-  }, [user?.role, addNotification, setUsers, setAllBookings, getRequest]);
+  }, [user?.role, addNotification, setUsers, setAllBookings, getRequest, t]);
 
   const createNewBooking = useCallback(
     async ({
@@ -122,15 +128,15 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             useJwt: true,
           },
         );
-        addNotification({ type: 'success', message: 'New booking made' });
+        addNotification({ type: 'success', message: t('booking_form.create_new_booking_success') });
         dismissModal();
       } catch (err) {
         console.log(err);
-        addNotification({ type: 'error', message: 'Unable to make new booking' });
+        addNotification({ type: 'error', message: t('booking_form.create_new_booking_error') });
         dismissModal();
       }
     },
-    [addNotification, dismissModal, postRequest],
+    [addNotification, dismissModal, postRequest, t],
   );
 
   if (!user) {
@@ -187,28 +193,28 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
   return (
     <>
-      <h2>Reserve a slot</h2>
+      <h2>{t('booking_form.reserve_title')}</h2>
       <h3>{bookingTypeName}</h3>
       {isPastSlot && (
         <p>
-          <b>This slot has ended.</b>
+          <b>{t('booking_form.ended_slot')}</b>
         </p>
       )}
       {!!bookingTypeAdditionalInformation && <p>{bookingTypeAdditionalInformation}</p>}
       <p>
-        <b>Date:</b> {start.format('dddd Do MMMM YYYY')}
+        <b>{t('booking_form.date')}:</b> {start.format('dddd Do MMMM YYYY')}
       </p>
       <p>
-        <b>Time:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
+        <b>{t('booking_form.time')}:</b> {start.format('HH:mm')} - {end.format('HH:mm')}
       </p>
       <p>
-        <b>Seats:</b> {availableSeats} / {seats}
+        <b>{t('booking_form.seats')}:</b> {availableSeats} / {seats}
       </p>
 
-      {availableSeats < 1 && <p>This slot is fully booked</p>}
+      {availableSeats < 1 && <p>{t('booking_form.fully_booked')}</p>}
       {isReserved && (
         <p>
-          <b>You already booked this slot!</b>
+          <b>{t('booking_form.already_booked')}</b>
         </p>
       )}
 
@@ -228,9 +234,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
             <Form>
               {user.role === UserRole.staff && (
                 <>
-                  <label htmlFor="booking-details-user-uuid">
-                    Create a booking for another user
-                  </label>
+                  <label htmlFor="booking-details-user-uuid">{t('booking_form.form.title')}</label>
                   <Field
                     type="text"
                     name="userUuid"
@@ -263,33 +267,33 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   ></Field>
                 </>
               )}
-              <label htmlFor="booking-details-full-name">Full name</label>
+              <label htmlFor="booking-details-full-name">{t('booking_form.form.fullname')}</label>
               <Field type="text" name="fullName" id="booking-details-full-name" required />
-              <label htmlFor="booking-details-email">Email</label>
+              <label htmlFor="booking-details-email">{t('booking_form.form.email')}</label>
               <Field type="text" name="email" id="booking-details-email" required />
-              <label htmlFor="booking-details-phone">Phone</label>
+              <label htmlFor="booking-details-phone">{t('booking_form.form.phone')}</label>
               <Field type="text" name="phone" id="booking-details-phone" required />
               <label id="booking-details-preferred-working-location-label">
-                Preferred working location
+                {t('booking_form.form.work_location')}
               </label>
               <div role="group" aria-labelledby="booking-details-preferred-working-location-label">
                 <label>
                   <Field type="radio" name="workingRemotely" value="false" />
-                  From the office
+                  {t('booking_form.form.office')}
                 </label>
                 <label>
                   <Field type="radio" name="workingRemotely" value="true" />
-                  Remotely
+                  {t('booking_form.form.remote')}
                 </label>
               </div>
-              <label htmlFor="booking-details-booking-note">Note</label>
+              <label htmlFor="booking-details-booking-note">{t('booking_form.form.notes')}</label>
               <Field
                 type="text"
                 name="bookingNote"
                 id="booking-details-booking-note"
                 as="textarea"
               />
-              <input className="button button-primary" type="submit" value="Book the slot" />
+              <input className="button button-primary" type="submit" value={t('booking_form.form.book_slot')} />
             </Form>
           )}
         </Formik>
@@ -297,12 +301,12 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
       {user?.role === UserRole.staff && slotBookings.length > 0 && (
         <>
-          <h2>Reserved by:</h2>
+          <h2>{t('booking_form.form.reserved_by')}:</h2>
           {slotBookings.map(({ uuid, user, fullName, email, phone }) => (
             <p key={uuid}>
-              <b>User:</b> {user.email}
+              <b>{t('booking_form.form.user')}:</b> {user.email}
               <br />
-              <b>Booking details:</b>
+              <b>{t('booking_form.form.booking_details')}</b>
               <br />
               {fullName}
               <br />
@@ -315,7 +319,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       )}
 
       <button className="button width-100 margin-top-l" type="button" onClick={dismissModal}>
-        Close
+        {t('booking_form.form.close')}
       </button>
     </>
   );

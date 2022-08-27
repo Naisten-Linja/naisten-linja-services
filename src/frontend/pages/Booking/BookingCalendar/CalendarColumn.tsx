@@ -2,6 +2,10 @@ import React from 'react';
 import moment, { Moment } from 'moment-timezone';
 import styled, { css } from 'styled-components';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../../i18n/i18n.constants';
+
 import { ApiBookedSlot } from '../../../../common/constants-common';
 const HOUR_CELL_HEIGHT = 3;
 import { BookingSlotDetails } from './shared-constants';
@@ -27,6 +31,8 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
   openBookingForm,
   bookedSlots,
 }) => {
+  const { t } = useTranslation(namespaces.pages.bookingCalendar);
+
   const sortedDailySlots = dailySlots.sort(
     (a, b) =>
       a.start.diff(b.start, 'minutes') ||
@@ -141,15 +147,18 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
                   availableSeats,
                 })
               }
-              aria-label={`Book a slot for ${bookingTypeName} on ${start.format(
-                'DD MMM YYYY',
-              )} from ${start.format('HH:mm')} to ${end.format('HH:mm')}`}
+              aria-label={t('calendar_column.aria_booking_slot', {
+                bookingTypeName: bookingTypeName,
+                startDate: start.format('DD MMM YYYY'),
+                startTime: start.format('HH:mm'),
+                endTime: end.format('HH:mm'),
+              })}
             >
               {bookingTypeName}
               <br />
               {`${start.format('HH:mm')} - ${end.format('HH:mm')}`}
               <br />
-              Seats: {availableSeats}/{seats}
+              {t('calendar_column.seats')}: {availableSeats}/{seats}
             </SlotButton>
           );
         },

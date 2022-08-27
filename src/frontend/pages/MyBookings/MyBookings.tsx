@@ -8,7 +8,6 @@ import { namespaces } from '../../i18n/i18n.constants';
 
 import { ApiBooking } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
-import { t } from 'i18next';
 
 export const MyBookings: React.FC<RouteComponentProps> = () => {
   const { t } = useTranslation(namespaces.pages.myBookings);
