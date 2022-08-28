@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { useField, FieldArray } from 'formik';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { BookingTypeDateRange } from '../../../common/constants-common';
 import BookingTypeDateRangePicker from './BookingTypeDateRangePicker/BookingTypeDateRangePicker';
 import { BookingTypeBadgeDateRange } from './BookingTypeBadgeDateRange';
 
 export const BookingTypeDateRangesField = () => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const [{ value: dateRanges }] = useField<Array<BookingTypeDateRange>>('dateRanges');
   const [editRangeIndex, setEditRangeIndex] = useState<number | null>(null);
 
@@ -19,9 +25,7 @@ export const BookingTypeDateRangesField = () => {
         render={(arrayHelpers) => (
           <>
             {dateRanges.length === 0 ? (
-              <p className="font-size-xs color-error">
-                No date ranges selected, this booking type is never available.
-              </p>
+              <p className="font-size-xs color-error">{t('date_range_field.error')}</p>
             ) : (
               <ul className="list-unstyled">
                 {dateRanges.map((range, idx) => (
@@ -57,7 +61,7 @@ export const BookingTypeDateRangesField = () => {
                   }}
                   className="button-xxs success"
                 >
-                  Add date range
+                  {t('date_range_field.add_date_range')}
                 </button>
               </div>
             )}

@@ -4,6 +4,10 @@ import 'react-day-picker/lib/style.css';
 import { format } from 'date-fns';
 import { IoMdClose } from 'react-icons/io';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../../i18n/i18n.constants';
+
 import { BookingTypeDateRange } from '../../../../common/constants-common';
 import Modal from '../../../ui-components/Modal/Modal';
 import { storedDateToLocalNoon } from '../ExceptionsDatePicker/ExceptionsDatePicker';
@@ -47,6 +51,8 @@ const BookingTypeDateRangePicker: React.FC<BookingTypeDateRangePickerProps> = (p
 const BookingTypeDateRangePickerInside: React.FC<
   BookingTypeDateRangePickerProps & { currentRange: BookingTypeDateRange }
 > = ({ currentRange, onChange, onClose }) => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const setRangeValue = (key: 'start' | 'end', newValue: string | null) => {
     onChange({ ...currentRange, [key]: newValue });
   };
@@ -84,12 +90,10 @@ const BookingTypeDateRangePickerInside: React.FC<
 
   return (
     <div className="height-100 text-align-center">
-      <h1 className="font-weight-semibold font-size-xl">
-        Select range of dates when this booking type needs to be active
-      </h1>
+      <h1 className="font-weight-semibold font-size-xl">{t('date_range_picker.inside.title')}</h1>
 
       <div className="margin-top-s font-weight-medium font-size-s color-dark-300">
-        Current selection
+        {t('date_range_picker.inside.current_selection')}
       </div>
       <div className="font-size-xxl margin-top-xxs margin-bottom-m display-inline-block">
         <BookingTypeBadgeDateRange range={currentRange} />
@@ -100,12 +104,12 @@ const BookingTypeDateRangePickerInside: React.FC<
           [
             {
               key: 'start',
-              title: 'Start date',
+              title: t('date_range_picker.inside.start_date'),
               disabled: dates['end'] ? { after: dates['end'] } : undefined,
             },
             {
               key: 'end',
-              title: 'End date',
+              title: t('date_range_picker.inside.end_date'),
               disabled: dates['start'] ? { before: dates['start'] } : undefined,
             },
           ] as const
@@ -117,7 +121,7 @@ const BookingTypeDateRangePickerInside: React.FC<
           >
             <h2>{title}</h2>
             <div className="font-size-s font-weight-bold margin-top-s margin-bottom-m">
-              {currentRange[key] ? currentRange[key] : 'Not specified'}
+              {currentRange[key] ? currentRange[key] : t('date_range_picker.inside.not_specified')}
             </div>
             <div>
               <DayPicker
@@ -134,7 +138,7 @@ const BookingTypeDateRangePickerInside: React.FC<
               onClick={handleClear(key)}
             >
               <IoMdClose aria-hidden={true}></IoMdClose>
-              <span>Clear selection</span>
+              <span>{t('date_range_picker.inside.clear_selection')}</span>
             </button>
           </div>
         ))}
@@ -142,7 +146,7 @@ const BookingTypeDateRangePickerInside: React.FC<
 
       <div className="text-align-right">
         <button className="margin-m button-primary" onClick={onClose}>
-          Close
+          {t('date_range_picker.inside.close')}
         </button>
       </div>
     </div>
