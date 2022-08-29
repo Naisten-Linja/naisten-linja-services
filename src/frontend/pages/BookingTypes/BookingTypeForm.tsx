@@ -55,7 +55,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
           }),
         ) as BookingTypeDailyRules,
         exceptions: [],
-        dateRanges: [],
+        dateRanges: [{ start: null, end: null }],
         additionalInformation: '',
       };
 
