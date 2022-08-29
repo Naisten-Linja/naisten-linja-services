@@ -11,6 +11,7 @@ export const namespaces = {
     myBookings: 'pages.myBookings',
     settings: 'pages.settings',
     materials: 'pages.materials',
+    statusCode: 'pages.statusCode'
   },
   navigation: 'navigation',
 };
