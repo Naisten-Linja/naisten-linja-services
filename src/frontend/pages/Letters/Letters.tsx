@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import styled from 'styled-components';
 import Select from 'react-select';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import moment from 'moment-timezone';
 
 import {
   ApiLetterAdmin,
@@ -12,17 +14,7 @@ import {
 import { useNotifications } from '../../NotificationsContext';
 import { useAuth } from '../../AuthContext';
 import { useRequest } from '../../shared/http';
-
-import moment from 'moment-timezone';
 import { OverrideTurretInputHeightForReactSelectDiv } from '../../shared/utils-frontend';
-
-const LettersTable = styled.table`
-  tr {
-    height: 4rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
@@ -30,7 +22,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
   const { user } = useAuth();
-  const isStaff = user && user.role === UserRole.staff;
+  const isStaff = user ? user.role === UserRole.staff : false;
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -63,13 +55,13 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (user && user.role === UserRole.staff) {
+      if (isStaff) {
         await fetchUsers();
       }
       await fetchLetters();
     };
     fetchData();
-  }, [fetchLetters, fetchUsers, user]);
+  }, [fetchLetters, fetchUsers, isStaff]);
 
   const assignLetter = async ({
     letterUuid,
@@ -98,6 +90,31 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     await fetchLetters();
   };
 
+  return (
+    <>
+      <h1>Letters</h1>
+      <LetterList
+        letters={letters}
+        users={users}
+        showAssignmentColumn={isStaff}
+        assignLetter={assignLetter}
+      />
+    </>
+  );
+};
+
+const SelectWrapper = styled(OverrideTurretInputHeightForReactSelectDiv)`
+  width: 100%;
+`;
+
+type LetterListProps = {
+  letters: Array<ApiLetterWithReadStatus>;
+  users: Array<ApiUserData>;
+  showAssignmentColumn: boolean;
+  assignLetter: (details: { letterUuid: string; assigneeUuid: string | null }) => Promise<void>;
+};
+
+const LetterList = ({ letters, users, showAssignmentColumn, assignLetter }: LetterListProps) => {
   type OptionType = {
     value: string | null;
     label: string;
@@ -119,60 +136,88 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     }
   };
 
+  const sortDate =
+    (key: 'created' | 'replyReadTimestamp') =>
+    (a: ApiLetterWithReadStatus, b: ApiLetterWithReadStatus) => {
+      const valueA = a[key] || 0;
+      const valueB = b[key] || 0;
+      const dateA = new Date(valueA);
+      const dateB = new Date(valueB);
+      return dateA > dateB ? 1 : -1;
+    };
+
+  const sortAssigneeName = (a: ApiLetterWithReadStatus, b: ApiLetterWithReadStatus) => {
+    return (a.assignedResponderFullName || '').localeCompare(b.assignedResponderFullName || '');
+  };
+
+  const columns: TableColumn<ApiLetterWithReadStatus>[] = [
+    {
+      id: 1,
+      name: 'Created',
+      selector: (letter) => moment(letter.created).format('dddd DD/MM/YYYY, HH:mm'),
+      sortFunction: sortDate('created'),
+      wrap: true,
+    },
+    {
+      id: 2,
+      name: 'Title',
+      selector: (letter) => letter.title || '',
+      format: (letter) => <Link to={letter.uuid}>{letter.title}</Link>,
+      sortable: false,
+    },
+    {
+      id: 3,
+      name: 'Reply status',
+      selector: (letter) => letter.replyStatus || '-',
+      sortable: true,
+    },
+    {
+      id: 4,
+      name: 'Read receipt',
+      selector: () => '', // next row here overrides this
+      format: (letter) =>
+        letter.replyReadTimestamp
+          ? moment(letter.replyReadTimestamp).format('dddd DD/MM/YYYY, HH:mm')
+          : '-',
+      sortFunction: sortDate('replyReadTimestamp'),
+      sortable: false,
+      wrap: true,
+    },
+    {
+      id: 5,
+      name: 'Assigned to',
+      omit: !showAssignmentColumn,
+      selector: () => '', // next row here overrides this
+      sortFunction: sortAssigneeName,
+      cell: (letter) => (
+        <SelectWrapper>
+          <Select
+            value={
+              assigneeOptions
+                ? assigneeOptions.find((option) => option.value === letter.assignedResponderUuid)
+                : null
+            }
+            placeholder="Assign to a user"
+            options={assigneeOptions}
+            isSearchable
+            isClearable
+            onChange={(selected) => {
+              handleUserSelection(letter, selected);
+            }}
+          />
+        </SelectWrapper>
+      ),
+    },
+  ];
+
   return (
-    <>
-      <h1>Letters</h1>
-      <LettersTable>
-        <thead>
-          <tr>
-            <th>Created</th>
-            <th>Title</th>
-            <th>Reply status</th>
-            <th>Read receipt</th>
-            {isStaff && <th>Assigned to</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {letters.map((letter) => {
-            return (
-              <tr key={`letter-list-item-${letter.uuid}`}>
-                <td>{moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}</td>
-                <td>
-                  <Link to={letter.uuid}>{letter.title}</Link>
-                </td>
-                <td>{letter.replyStatus || ''}</td>
-                <td>
-                  {letter.replyReadTimestamp
-                    ? moment(letter.replyReadTimestamp).format('dddd DD/MM/YYYY, HH:mm')
-                    : '-'}
-                </td>
-                {isStaff && (
-                  <td style={{ maxWidth: 200 }}>
-                    <OverrideTurretInputHeightForReactSelectDiv>
-                      <Select
-                        value={
-                          assigneeOptions
-                            ? assigneeOptions.find(
-                                (option) => option.value === letter.assignedResponderUuid,
-                              )
-                            : null
-                        }
-                        placeholder="Assign to a user"
-                        options={assigneeOptions}
-                        isSearchable
-                        isClearable
-                        onChange={(selected) => {
-                          handleUserSelection(letter, selected);
-                        }}
-                      />
-                    </OverrideTurretInputHeightForReactSelectDiv>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </LettersTable>
-    </>
+    <DataTable
+      columns={columns}
+      data={letters}
+      keyField="uuid"
+      defaultSortFieldId={1}
+      defaultSortAsc={false}
+      responsive
+    />
   );
 };
