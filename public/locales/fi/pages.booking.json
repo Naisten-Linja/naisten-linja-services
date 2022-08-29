@@ -1,0 +1,45 @@
+{
+  "booking": {
+    "fetch_booking_types_error": "Unable to get all booking types"
+  },
+  "booking_calendar": {
+    "fetch_booked_slots_error": "Unable to fetch booked slots",
+    "p_1": "Please note booking times are in Europe/Helsinki timezone",
+    "week": "Viikko {{nth}}",
+    "aria_new_booking": "Make a new booking",
+    "aria_previous_week": "Previous week",
+    "aria_next_week": "Next week"
+  },
+  "booking_form": {
+    "fetch_users_error": "Unable to fetch users",
+    "fetch_all_bookings_error": "Unable to fetch all bookings",
+    "create_new_booking_success": "New booking made",
+    "create_new_booking_error": "Unable to make new booking",
+    "reserve_title": "Reserve a slot",
+    "ended_slot": "This slot has ended.",
+    "date": "Date",
+    "time": "Time",
+    "seats": "Seats",
+    "fully_booked": "This slot is fully booked",
+    "already_booked": "You already booked this slot!",
+    "form": {
+        "title": "Create a booking for another user",
+        "fullname": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "work_location": "Preferred working location",
+        "remote": "Remotely",
+        "office": "From the office",
+        "notes": "Notes",
+        "reserved_by": "Reserved by",
+        "user": "User",
+        "booking_details": "Booking details",
+        "book_slot": "Book the slot",
+        "close": "Close"
+    }
+  },
+  "calendar_column": {
+    "seats": "Seats",
+    "aria_booking_slot": "Varaa aika {{bookingTypeName}} päivänä {{startDate}} alkaen {{startTime}} päättyen {{endTime}}"
+  }
+}

@@ -13,7 +13,6 @@ import { EditContentPageForm } from '../ui-components/ContentPage/EditContentPag
 export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
   const { t } = useTranslation(namespaces.pages.front);
 
-  console.log(t('login'));
   const [isEditing, setIsEditing] = useState(false);
   const { user, login } = useAuth();
 

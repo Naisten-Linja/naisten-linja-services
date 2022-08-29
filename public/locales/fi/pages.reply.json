@@ -1,0 +1,46 @@
+{
+    "send_reply_success": "Vastaus tallennettu tilassa {{status}}",
+    "send_reply_error": "There was an error saving the reply",
+    "fetch_reply_error": "Unable to fetch reply",
+    "fetch_letter_error": "Unable to fetch letter",
+    "update_letter_content_success": "Letter content has been updated",
+    "update_letter_content_error": "There was an error saving the letter content",
+    "delete_letter": "Are you sure to delete this letter?",
+    "delete_letter_success": "Letter and reply were successfully deleted",
+    "delete_letter_error": "Failed to delete letter",
+    "edit_letter_form": {
+        "warning": "Do not attempt to change the content unless you know what you are doing.",
+        "button": {
+            "save_changes": "Save changes",
+            "edit_letter_content": "Edit letter content"
+        }
+    },
+    "edit_reply_form": {
+        "button": {
+            "submit_reply_for_review": "Submit reply for review",
+            "publish_reply": "Publish reply",
+            "unpublish_reply": "Unpublish reply",
+            "save_draft": "Save reply as draft"
+        }
+    },
+    "back_link": "all letters",
+    "letter": {
+        "title": "Letter",
+        "created": "Created"
+    },
+    "reply": {
+        "title": "Reply",
+        "updated_on": "Updated on",
+        "status": "Status",
+        "read_on": "Read on",
+        "never": "never"
+    },
+   
+    "danger_zone": {
+        "title": "Danger zone",
+        "p_1": "Delete this letter and the corresponding reply",
+        "p_2": "Once you delete this letter, there is no going back. This will delete the letter and the reply permanently from the data storage.",
+        "delete_button": "Delete this letter"
+    }
+    
+}

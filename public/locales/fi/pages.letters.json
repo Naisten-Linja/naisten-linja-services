@@ -1,0 +1,16 @@
+{
+  "fetch_users_error": "Unable to get users",
+  "fetch_letters_error": "Unable to get letters",
+  "assign_letter_success": "Kirje kohdistettu henkilölle {{email}}",
+  "unassign_letter_success": "Kirjeen kohdistus poistettu",
+  "assign_letter_error": "Kirjeen kohdistaminen henkilölle {{email}} epäonnistui",
+  "title": "Letters",
+  "table": {
+    "created": "Created",
+    "title": "Title",
+    "reply_status": "Reply status",
+    "read_receipt": "Read receipt",
+    "assigned_to": "Assigned to",
+    "user_select": "Assign to a user"
+  }
+}
