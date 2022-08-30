@@ -2,22 +2,25 @@ import sgMail from '@sendgrid/mail';
 
 import { ApiBooking } from '../../common/constants-common';
 import { getConfig } from '../config';
+import { getLetterCustomerEmailByUuid } from '../models/letters';
 import { getUsers } from '../models/users';
 import { getAllBookings } from './bookingControllers';
 
-export type SendDynamicEmailParams = {
+export type SendDynamicEmailParams<TDynamicTemplate> = {
   to: string | Array<string>;
   from: {
     name: string;
     email: string;
   };
   templateId: string;
-  dynamicTemplateData: {
-    startDay: string;
-    startTime: string;
-    endTime: string;
-    booking: ApiBooking;
-  };
+  dynamicTemplateData: TDynamicTemplate;
+};
+
+type BookingDynamicTemplate = {
+  startDay: string;
+  startTime: string;
+  endTime: string;
+  booking: ApiBooking;
 };
 
 const dateLocale = 'en-GB';
@@ -50,9 +53,17 @@ function getBookingTimeComponents(booking: ApiBooking) {
 }
 
 export async function sendBookingConfirmationEmail(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridVolunteerBookingConfirmationTemplate } = getConfig();
+  const {
+    sendGridFromEmailName,
+    sendGridFromEmailAddress,
+    sendGridVolunteerBookingConfirmationTemplate,
+  } = getConfig();
+  if (!sendGridFromEmailName) {
+    console.log('No From email name was set');
+    return;
+  }
   if (!sendGridFromEmailAddress) {
-    console.log('No From email adress was set');
+    console.log('No From email address was set');
     return;
   }
   if (!sendGridVolunteerBookingConfirmationTemplate) {
@@ -61,10 +72,10 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
   }
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
 
-  return sendEmailWithDynamicTemplate({
+  return sendEmailWithDynamicTemplate<BookingDynamicTemplate>({
     to: booking.email,
     from: {
-      name: 'Naisten Linja Booking Notifcation',
+      name: sendGridFromEmailName,
       email: sendGridFromEmailAddress,
     },
     templateId: sendGridVolunteerBookingConfirmationTemplate,
@@ -89,9 +100,17 @@ export async function sendBookingConfirmationEmail(booking: ApiBooking) {
 export async function sendBookingRemindersToVolunteers(
   bookingReminderDaysBefore: number,
 ): Promise<boolean[] | undefined> {
-  const { sendGridFromEmailAddress, sendGridVolunteerBookingReminderTemplate } = getConfig();
+  const {
+    sendGridFromEmailName,
+    sendGridFromEmailAddress,
+    sendGridVolunteerBookingReminderTemplate,
+  } = getConfig();
+  if (!sendGridFromEmailName) {
+    console.log('No From email name was set');
+    return;
+  }
   if (!sendGridFromEmailAddress) {
-    console.log('No From email adress was set');
+    console.log('No From email address was set');
     return;
   }
   if (!sendGridVolunteerBookingReminderTemplate) {
@@ -126,10 +145,10 @@ export async function sendBookingRemindersToVolunteers(
   const results = bookingsToRemindAbout.map((booking) => {
     const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
 
-    return sendEmailWithDynamicTemplate({
+    return sendEmailWithDynamicTemplate<BookingDynamicTemplate>({
       to: booking.email,
       from: {
-        name: 'Naisten Linja Booking Notifcation',
+        name: sendGridFromEmailName,
         email: sendGridFromEmailAddress,
       },
       templateId: sendGridVolunteerBookingReminderTemplate,
@@ -146,9 +165,17 @@ export async function sendBookingRemindersToVolunteers(
 }
 
 export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
-  const { sendGridFromEmailAddress, sendGridStaffBookingConfirmationTemplate } = getConfig();
+  const {
+    sendGridFromEmailName,
+    sendGridFromEmailAddress,
+    sendGridStaffBookingConfirmationTemplate,
+  } = getConfig();
+  if (!sendGridFromEmailName) {
+    console.log('No From email name was set');
+    return;
+  }
   if (!sendGridFromEmailAddress) {
-    console.log('No From email adress was set');
+    console.log('No From email address was set');
     return;
   }
   if (!sendGridStaffBookingConfirmationTemplate) {
@@ -181,10 +208,10 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
 
   const { startDay, startTime, endTime } = getBookingTimeComponents(booking);
 
-  return sendEmailWithDynamicTemplate({
+  return sendEmailWithDynamicTemplate<BookingDynamicTemplate>({
     to: staffEmails,
     from: {
-      name: 'New Booking Notifcation',
+      name: sendGridFromEmailName,
       email: sendGridFromEmailAddress,
     },
     templateId: sendGridStaffBookingConfirmationTemplate,
@@ -197,8 +224,65 @@ export async function sendNewBookingNotificationToStaffs(booking: ApiBooking) {
   });
 }
 
-export async function sendEmailWithDynamicTemplate(
-  messageData: SendDynamicEmailParams,
+/**
+ * Send a notification to the original sender of a letter.
+ *
+ * This method does NOT check if there is a published reply, it must only be called if there is.
+ *
+ * But it DOES check whether the customer has given their email address. If not, will return undefined.
+ *
+ * @param letterUuid
+ * @returns True if sent successfully, false if an error occured while sending, undefined if didn't even try to send.
+ */
+export async function sendReplyNotificationToCustomer(letterUuid: string): Promise<
+  | { sent: true }
+  | {
+      sent: false;
+      reason: 'no from email' | 'no notification template' | 'no customer email' | 'sendgrid error';
+    }
+> {
+  const {
+    sendGridFromEmailNameForCustomers,
+    sendGridFromEmailAddress,
+    sendGridCustomerReplyNotificationTemplate,
+  } = getConfig();
+  if (!sendGridFromEmailNameForCustomers) {
+    console.log('No From email name (for customers) was set');
+    return { sent: false, reason: 'no from email' };
+  }
+  if (!sendGridFromEmailAddress) {
+    console.log('No From email adress was set');
+    return { sent: false, reason: 'no from email' };
+  }
+  if (!sendGridCustomerReplyNotificationTemplate) {
+    console.log('No notification template was set');
+    return { sent: false, reason: 'no notification template' };
+  }
+
+  const customerEmail = await getLetterCustomerEmailByUuid(letterUuid);
+  if (!customerEmail) {
+    return { sent: false, reason: 'no customer email' };
+  }
+
+  const success = await sendEmailWithDynamicTemplate<Record<string, never>>({
+    to: customerEmail,
+    from: {
+      name: sendGridFromEmailNameForCustomers,
+      email: sendGridFromEmailAddress,
+    },
+    templateId: sendGridCustomerReplyNotificationTemplate,
+    dynamicTemplateData: {},
+  });
+
+  if (success) {
+    return { sent: true };
+  } else {
+    return { sent: false, reason: 'sendgrid error' };
+  }
+}
+
+export async function sendEmailWithDynamicTemplate<T extends Record<string, unknown>>(
+  messageData: SendDynamicEmailParams<T>,
 ): Promise<boolean> {
   const { sendGridApiKey } = getConfig();
   if (!sendGridApiKey) {
@@ -211,6 +295,7 @@ export async function sendEmailWithDynamicTemplate(
         return true;
       }
     } catch (err) {
+      console.error(err);
       console.log('Failed to send email');
       return false;
     }

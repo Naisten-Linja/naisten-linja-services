@@ -40,6 +40,7 @@ export interface ApiLetterAdmin {
   status: LetterStatus;
   replyStatus: ReplyStatus | null;
   created: string;
+  hasEmail: boolean | null;
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;
@@ -64,6 +65,7 @@ export interface ApiSendLetterParams {
   accessPassword: string;
   title: string;
   content: string;
+  email: string | null;
 }
 
 export interface ApiUpdateLetterContentParams {
@@ -88,7 +90,6 @@ export enum ReadReceiptStatus {
 }
 
 export interface ApiReplyParamsAdmin {
-  letterUuid: string;
   content: string;
   status: ReplyStatus;
 }

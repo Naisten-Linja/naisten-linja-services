@@ -14,6 +14,7 @@ import {
   getLetterByUuid,
   getAssignedLetters,
   deleteLetter,
+  updateLetterContentAndEmail,
 } from '../models/letters';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
@@ -53,6 +54,7 @@ export async function validateLetterCredentials({
 export async function sendLetter({
   title,
   content,
+  email,
   accessKey,
   accessPassword,
 }: ApiSendLetterParams): Promise<Letter | null> {
@@ -61,7 +63,12 @@ export async function sendLetter({
     accessPassword,
   });
   if (isValid && letter) {
-    const updatedLetter = await updateLetterContent({ uuid: letter.uuid, title, content });
+    const updatedLetter = await updateLetterContentAndEmail({
+      uuid: letter.uuid,
+      title,
+      content,
+      email,
+    });
     return updatedLetter;
   }
   return null;
@@ -122,6 +129,7 @@ export async function assignLetter({
     created,
     title,
     content,
+    hasEmail,
     assignedResponderUuid,
     assignedResponderEmail,
     assignedResponderFullName,
@@ -134,6 +142,7 @@ export async function assignLetter({
     created,
     title,
     content,
+    hasEmail,
     assignedResponderUuid,
     assignedResponderEmail,
     assignedResponderFullName,
