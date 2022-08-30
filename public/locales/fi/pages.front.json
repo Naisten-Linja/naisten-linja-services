@@ -1,5 +1,5 @@
-{  
-    "p_1": "Please login first to start using the service.",
-    "login": "Login",
-    "edit_page": "Edit page"
+{
+  "p_1": "Aloittaaksesi palvelun käytön kirjaudu sisään.",
+  "login": "Kirjaudu sisään",
+  "edit_page": "Muokkaa sivua"
 }

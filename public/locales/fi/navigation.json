@@ -1,14 +1,14 @@
 {
-  "letters": "Letters",
-  "users": "Users",
-  "booking-types": "Booking types",
-  "your-assigned-letters": "Your assigned letters",
-  "booking-calendar": "Booking calendar",
-  "all-bookings": "All bookings",
-  "my-bookings": "My bookings",
-  "settings": "Settings",
-  "materials": "Materials",
-  "edit-profile": "Edit profile",
-  "logout": "Logout",
-  "login": "Login"
+  "letters": "Kirjeet",
+  "users": "Käyttäjät",
+  "booking-types": "Varaustyypit",
+  "your-assigned-letters": "Sinulle kohdistetut kirjeet",
+  "booking-calendar": "Varauskalenteri",
+  "all-bookings": "Kaikki varaukset",
+  "my-bookings": "Varaukseni",
+  "settings": "Asetukset",
+  "materials": "Materiaalipankki",
+  "edit-profile": "Muokkaa profiilia",
+  "logout": "Kirjaudu ulos",
+  "login": "Kirjaudu sisään"
 }

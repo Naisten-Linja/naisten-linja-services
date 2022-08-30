@@ -1,18 +1,18 @@
 {
   "date_range_picker": {
     "inside": {
-      "title": "Select range of dates when this booking type needs to be active",
-      "current_selection": "Current selection",
-      "start_date": "Start date",
-      "end_date": "End date",
-      "not_specified": "Not specified",
-      "clear_selection": "Clear selection",
-      "close": "Close"
+      "title": "Valitse aikaväli varaustyypille",
+      "current_selection": "Nykyinen valinta",
+      "start_date": "Aloituspäivä",
+      "end_date": "Lopetuspäivä",
+      "not_specified": "Ei määritelty",
+      "clear_selection": "Tyhjennä valinta",
+      "close": "Sulje"
     }
   },
   "exceptions_date_picker": {
-    "choose_exceptions": "Choose exceptions",
-    "close": "Close"
+    "choose_exceptions": "Valitse poikkeukset",
+    "close": "Sulje"
   },
   "badge_date_range": {
     "always": "Aina",
@@ -24,46 +24,46 @@
     "delete": "Poista tämä aikaväli"
   },
   "badge_exception": {
-    "delete": "Delete this exception"
+    "delete": "Poista tämä poikkeus"
   },
   "date_range_field": {
-    "error": "No date ranges selected, this booking type is never available.",
-    "add_date_range": "Add date range"
+    "error": "Ajanjaksoa ei ole valittu, tämä varaustyyppi ei näy varauskalenterissa",
+    "add_date_range": "Lisää ajanjakso"
   },
   "booking_type_form": {
-    "create_new_booking_type_error": "Unable to create booking type",
-    "update_booking_type_error": "Unable to update booking type",
+    "create_new_booking_type_error": "Varaustyypin luominen epäonnistui",
+    "update_booking_type_error": "Varaustyypin päivittäminen epäonnistui",
     "button": {
-        "save": "Save",
-        "cancel": "Cancel",
-        "delete_slot": "Delete slot",
-        "add_slot": "Add slot"
+      "save": "Tallenna",
+      "cancel": "Peru",
+      "delete_slot": "Poista vuoro",
+      "add_slot": "Lisää vuoro"
     },
-    "booking_type_name": "Booking type name",
-    "active_date_ranges": "Active date ranges",
-    "exceptions": "Exceptions",
-    "add_exceptions": "Add exceptions",
-    "additional_information": "Additional information",
-    "week_day": "Week day",
-    "slots": "Slots",
-    "start": "Start time",
-    "end": "End time",
-    "seats": "Seats"
+    "booking_type_name": "Varaustyypin nimi",
+    "active_date_ranges": "Aktiiviset ajanjaksot",
+    "exceptions": "Poikkeukset",
+    "add_exceptions": "Lisää poikkeus",
+    "additional_information": "Lisätietoja",
+    "week_day": "Viikonpäivä",
+    "slots": "Vuorot",
+    "start": "Alkaa",
+    "end": "Päättyy",
+    "seats": "Paikat"
   },
   "booking_types": {
-    "fetch_booking_types_error": "Unable to get all booking types",
-    "new_booking_type": "New booking type",
-    "title": "Booking types",
+    "fetch_booking_types_error": "Kaikkien varaustyyppien noutaminen epäonnistui",
+    "new_booking_type": "Uusi varaustyyppi",
+    "title": "Varaustyyppi",
     "button": {
-        "create_booking_type": "Create a new booking type",
-        "edit": "Edit"
+      "create_booking_type": "Luo uusi varaustyyppi",
+      "edit": "Muokkaa"
     },
-    "additional_information": "Additional information",
-    "active_date_ranges": "Active date ranges",
-    "no_date_selected": "No date ranges selected, this booking type is never available.",
-    "exceptions": "Exceptions",
-    "week_day": "Week day",
-    "slots": "Slots",
-    "available_seats": "available seats"
+    "additional_information": "Lisätietoja",
+    "active_date_ranges": "Aktiiviset ajanjaksot",
+    "no_date_selected": "Ajanjaksoa ei ole valittu, tämä varaustyyppi ei näy varauskalenterissa",
+    "exceptions": "Poikkeukset",
+    "week_day": "Viikonpäivä",
+    "slots": "Vuorot",
+    "available_seats": "Vapaat paikat"
   }
 }

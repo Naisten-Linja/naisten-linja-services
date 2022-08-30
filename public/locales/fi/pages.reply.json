@@ -1,46 +1,45 @@
 {
-    "send_reply_success": "Vastaus tallennettu tilassa {{status}}",
-    "send_reply_error": "There was an error saving the reply",
-    "fetch_reply_error": "Unable to fetch reply",
-    "fetch_letter_error": "Unable to fetch letter",
-    "update_letter_content_success": "Letter content has been updated",
-    "update_letter_content_error": "There was an error saving the letter content",
-    "delete_letter": "Are you sure to delete this letter?",
-    "delete_letter_success": "Letter and reply were successfully deleted",
-    "delete_letter_error": "Failed to delete letter",
-    "edit_letter_form": {
-        "warning": "Do not attempt to change the content unless you know what you are doing.",
-        "button": {
-            "save_changes": "Save changes",
-            "edit_letter_content": "Edit letter content"
-        }
-    },
-    "edit_reply_form": {
-        "button": {
-            "submit_reply_for_review": "Submit reply for review",
-            "publish_reply": "Publish reply",
-            "unpublish_reply": "Unpublish reply",
-            "save_draft": "Save reply as draft"
-        }
-    },
-    "back_link": "all letters",
-    "letter": {
-        "title": "Letter",
-        "created": "Created"
-    },
-    "reply": {
-        "title": "Reply",
-        "updated_on": "Updated on",
-        "status": "Status",
-        "read_on": "Read on",
-        "never": "never"
-    },
-   
-    "danger_zone": {
-        "title": "Danger zone",
-        "p_1": "Delete this letter and the corresponding reply",
-        "p_2": "Once you delete this letter, there is no going back. This will delete the letter and the reply permanently from the data storage.",
-        "delete_button": "Delete this letter"
+  "send_reply_success": "Vastaus tallennettu tilassa {{status}}",
+  "send_reply_error": "Vastauksen tallentamisessa tapahtui virhe",
+  "fetch_reply_error": "Vastausta ei voida noutaa",
+  "fetch_letter_error": "Kirjettä ei voida noutaa",
+  "update_letter_content_success": "Kirjeen sisältö on päivitetty",
+  "update_letter_content_error": "Kirjeen päivittämisessä tapahtui virhe",
+  "delete_letter": "Oletko varma, että haluat poistaa kirjeen?",
+  "delete_letter_success": "Kirje ja vastaus on poistettu onnistuneesti",
+  "delete_letter_error": "Kirjeen poistaminen epäonnistui",
+  "edit_letter_form": {
+    "warning": "Huom! Ethän muokkaa kirjeen sisältöä tarpeettomasti. Muokattua kirjettä ei voida palauttaa ennalleen",
+    "button": {
+      "save_changes": "Tallenna muutokset",
+      "edit_letter_content": "Muokkaa kirjeen sisältöä"
     }
-    
+  },
+  "edit_reply_form": {
+    "button": {
+      "submit_reply_for_review": "Lähetä vastaus arvioitavaksi",
+      "publish_reply": "Julkaise vastaus",
+      "unpublish_reply": "Peruuta vastauksen julkaisu",
+      "save_draft": "Tallenna vastaus luonnoksena"
+    }
+  },
+  "back_link": "Kaikki kirjeet",
+  "letter": {
+    "title": "Kirje",
+    "created": "Lähetetty"
+  },
+  "reply": {
+    "title": "Vastaa",
+    "updated_on": "Päivitetty",
+    "status": "Tila",
+    "read_on": "Luettu",
+    "never": "Ei koskaan"
+  },
+
+  "danger_zone": {
+    "title": "Huom!",
+    "p_1": "Poista tämä kirje ja vastaus",
+    "p_2": "Poistaessasi kirjeen ja vastauksen poistuvat ne lopullisesti, eikä niitä voida enää palauttaa.",
+    "delete_button": "Poista tämä kirje"
+  }
 }

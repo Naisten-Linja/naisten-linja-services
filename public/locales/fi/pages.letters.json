@@ -1,16 +1,16 @@
 {
-  "fetch_users_error": "Unable to get users",
-  "fetch_letters_error": "Unable to get letters",
+  "fetch_users_error": "Käyttäjiä ei voida noutaa",
+  "fetch_letters_error": "Kirjeitä ei voida noutaa",
   "assign_letter_success": "Kirje kohdistettu henkilölle {{email}}",
   "unassign_letter_success": "Kirjeen kohdistus poistettu",
   "assign_letter_error": "Kirjeen kohdistaminen henkilölle {{email}} epäonnistui",
-  "title": "Letters",
+  "title": "Kirjeet",
   "table": {
-    "created": "Created",
-    "title": "Title",
-    "reply_status": "Reply status",
-    "read_receipt": "Read receipt",
-    "assigned_to": "Assigned to",
-    "user_select": "Assign to a user"
+    "created": "Lähetetty",
+    "title": "Otsikko",
+    "reply_status": "Vastauksen tila",
+    "read_receipt": "Vastaus luettu",
+    "assigned_to": "Kohdistettu käyttäjälle",
+    "user_select": "Kohdista käyttäjälle"
   }
 }
