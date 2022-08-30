@@ -116,6 +116,7 @@ export const LetterList = ({
             options={assigneeOptions}
             isSearchable
             isClearable
+            isOptionDisabled={(option) => option.value === letter.assignedResponderUuid}
             onChange={(selected) => {
               handleUserSelection(letter, selected);
             }}
