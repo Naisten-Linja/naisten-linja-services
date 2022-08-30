@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
+import moment from 'moment-timezone';
 
 import {
   ApiLetterAdmin,
   ApiLetterWithReadStatus,
   ApiUserData,
+  BookingTypeDateRange,
   UserRole,
 } from '../../../common/constants-common';
 import { useNotifications } from '../../NotificationsContext';
@@ -12,10 +14,20 @@ import { useAuth } from '../../AuthContext';
 import { useRequest } from '../../shared/http';
 import { LetterList } from './LetterList';
 import { LetterCounts } from './LetterCounts';
+import { BookingTypeBadgeDateRange } from '../BookingTypes/BookingTypeBadgeDateRange';
+import BookingTypeDateRangePicker from '../BookingTypes/BookingTypeDateRangePicker/BookingTypeDateRangePicker';
+import { isDateInActiveDateRanges } from '../Booking/BookingCalendar/BookingCalendar';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
+
+  const [selectedDateRange, setSelectedDateRange] = useState<BookingTypeDateRange>({
+    start: null,
+    end: null,
+  });
+  const [dateRangeSelectorVisible, setDateRangeSelectorVisible] = useState(false);
+
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
   const { user } = useAuth();
@@ -87,15 +99,37 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     await fetchLetters();
   };
 
+  const filteredLetters = letters.filter((letter) =>
+    isDateInActiveDateRanges(moment(letter.created), [selectedDateRange]),
+  );
+
   return (
     <>
-      <h1>Letters</h1>
-      <LetterCounts letters={letters} />
+      <div className="flex justify-content-space-between flex-wrap">
+        <h1>Letters</h1>
+        <div className="box-shadow-l padding-s display-inline-block">
+          <label htmlFor="user-list-booking-type-select">Show letters created on:</label>
+          <BookingTypeBadgeDateRange
+            range={selectedDateRange}
+            onEdit={() => {
+              setDateRangeSelectorVisible(true);
+            }}
+            className="display-inline-block"
+          />
+        </div>
+      </div>
+      <LetterCounts letters={filteredLetters} />
       <LetterList
-        letters={letters}
+        letters={filteredLetters}
         users={users}
         showAssignmentColumn={isStaff}
         assignLetter={assignLetter}
+      />
+      <BookingTypeDateRangePicker
+        currentRange={dateRangeSelectorVisible ? selectedDateRange : null}
+        onChange={(value) => setSelectedDateRange(value)}
+        onClose={() => setDateRangeSelectorVisible(false)}
+        title={'Select date range which contains the letters you want to see'}
       />
     </>
   );

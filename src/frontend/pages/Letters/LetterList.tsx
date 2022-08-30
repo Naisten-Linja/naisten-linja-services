@@ -103,6 +103,7 @@ export const LetterList = ({
       omit: !showAssignmentColumn,
       selector: () => '', // next row here overrides this
       sortFunction: sortAssigneeName,
+      minWidth: '15rem',
       cell: (letter) => (
         <SelectWrapper>
           <Select
