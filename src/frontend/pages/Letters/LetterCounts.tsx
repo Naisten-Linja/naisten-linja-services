@@ -11,9 +11,9 @@ interface LetterCountsProps {
 }
 
 export const LetterCounts = ({ letters }: LetterCountsProps) => {
+  const noReply = letters.filter((letter) => letter.replyStatus === null).length;
   const draft = letters.filter((letter) => letter.replyStatus === ReplyStatus.draft).length;
   const inReview = letters.filter((letter) => letter.replyStatus === ReplyStatus.in_review).length;
-  const published = letters.filter((letter) => letter.replyStatus === ReplyStatus.published).length;
 
   const unread = letters.filter(
     (letter) =>
@@ -33,18 +33,13 @@ export const LetterCounts = ({ letters }: LetterCountsProps) => {
           <b>Total</b> <span>{letters.length}</span>
         </Count>
         <Count>
+          <b>No reply</b> <span>{noReply}</span>
+        </Count>
+        <Count>
           <b>Draft</b> <span>{draft}</span>
         </Count>
         <Count>
           <b>In review</b> <span>{inReview}</span>
-        </Count>
-        <Count>
-          <b>
-            Published
-            <br />
-            total
-          </b>
-          <span>{published}</span>
         </Count>
         <Count>
           <b>
