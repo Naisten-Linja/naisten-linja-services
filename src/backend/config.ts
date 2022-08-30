@@ -39,6 +39,15 @@ export function getConfig() {
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
     throw 'Variable SENDGRID_FROM_EMAIL_ADDRESS is missing from your environment';
   }
+  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_NAME) {
+    throw 'Variable SENDGRID_FROM_EMAIL_NAME is missing from your environment';
+  }
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS
+  ) {
+    throw 'Variable SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS is missing from your environment';
+  }
   if (
     process.env.ENVIRONMENT === 'production' &&
     !process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID
@@ -108,6 +117,8 @@ export function getConfig() {
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
+    sendGridFromEmailName: process.env.SENDGRID_FROM_EMAIL_NAME || null,
+    sendGridFromEmailNameForCustomers: process.env.SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS || null,
     sendGridStaffBookingConfirmationTemplate:
       process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
     sendGridVolunteerBookingConfirmationTemplate:
