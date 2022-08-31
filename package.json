@@ -108,7 +108,7 @@
     "formik": "^2.2.9",
     "http-proxy-middleware": "^1.0.5",
     "moment": "^2.29.4",
-    "moment-timezone": "^0.5.34",
+    "moment-timezone": "^0.5.35",
     "nodemon": "^2.0.19",
     "normalize.css": "^8.0.1",
     "onchange": "^7.1.0",
