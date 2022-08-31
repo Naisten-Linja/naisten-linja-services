@@ -293,7 +293,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                 id="booking-details-booking-note"
                 as="textarea"
               />
-              <input className="button button-primary" type="submit" value={t('booking_form.form.book_slot')} />
+              <input
+                className="button button-primary"
+                type="submit"
+                value={t('booking_form.form.book_slot')}
+              />
             </Form>
           )}
         </Formik>

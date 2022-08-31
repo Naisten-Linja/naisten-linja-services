@@ -67,7 +67,9 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
 
   return (
     <div>
-      {loggedInUser?.role === UserRole.staff && <Link to={'/admin/users'}>&lt; {t('back_link')}</Link>}
+      {loggedInUser?.role === UserRole.staff && (
+        <Link to={'/admin/users'}>&lt; {t('back_link')}</Link>
+      )}
       <h1>{t('title')}</h1>
       {user && <UserProfile loggedInUser={loggedInUser} user={user} />}
       {bookings.length < 1 && <p>{t('no_booking')}</p>}
@@ -113,7 +115,8 @@ const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserD
       </div>
       {loggedInUser?.role === UserRole.staff && (
         <div>
-          <span className="font-weight-bold">{t('user_profile.notes')}:</span> {user.userNote || '-'}
+          <span className="font-weight-bold">{t('user_profile.notes')}:</span>{' '}
+          {user.userNote || '-'}
         </div>
       )}
     </div>
@@ -184,7 +187,8 @@ const BookingList: React.FC<{
     {
       id: 6,
       name: t('booking.work_location'),
-      selector: (row: ApiBookingWithColor) => (row.workingRemotely ? t('booking.remote') : t('booking.office')),
+      selector: (row: ApiBookingWithColor) =>
+        row.workingRemotely ? t('booking.remote') : t('booking.office'),
     },
     {
       id: 7,

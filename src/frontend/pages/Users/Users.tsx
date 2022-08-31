@@ -193,7 +193,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
         {moment(booking.start).format('ddd Do MMM YYYY')}
         <br />
         {moment(booking.start).format('HH:mm')} - {moment(booking.end).format('HH:mm')}
-        {others > 0 ? <span style={{ float: 'right' }}>({t('table.render_booking', {others})})</span> : null}
+        {others > 0 ? (
+          <span style={{ float: 'right' }}>({t('table.render_booking', { others })})</span>
+        ) : null}
       </span>
     );
   };

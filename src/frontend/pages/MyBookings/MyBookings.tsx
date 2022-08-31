@@ -98,7 +98,8 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
                   <br />
                   {phone}
                   <br />
-                  {t('table.work_location')}: {workingRemotely ? t('table.remote') : t('table.office')}
+                  {t('table.work_location')}:{' '}
+                  {workingRemotely ? t('table.remote') : t('table.office')}
                 </td>
                 <td>
                   {!!bookingNote && (

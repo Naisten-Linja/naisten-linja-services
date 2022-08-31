@@ -74,9 +74,7 @@ export const ProfileSettings: React.FC<RouteComponentProps> = () => {
         >
           <Form>
             <div className="field max-width-s">
-              <label htmlFor="new-booking-days-threshold">
-                {t('text')}
-              </label>
+              <label htmlFor="new-booking-days-threshold">{t('text')}</label>
               <Field
                 id="new-booking-days-threshold"
                 type="number"
