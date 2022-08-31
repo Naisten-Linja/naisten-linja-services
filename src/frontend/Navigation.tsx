@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from '@reach/router';
+import Select from 'react-select';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,9 @@ import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
 import ResponsiveMenu from 'react-responsive-navbar';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
+
+import { languages } from './i18n/i18n.constants';
+import { SelectWrapper } from './shared/utils-frontend';
 
 export const Navigation = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,8 +39,35 @@ export const Navigation = () => {
   );
 };
 
+type OptionType = {
+  value: string;
+  label: string;
+};
+
+const languageOptions: OptionType[] = Object.values(languages).map(
+  // yep thats correct
+  (value) => ({ value, label: value }),
+);
+
+const findSupportedLanguage = (browserLanguage: string): string => {
+  if (browserLanguage.startsWith('fi')) {
+    return 'fi';
+  } else {
+    return 'en';
+  }
+};
+
 const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
-  const { t } = useTranslation(namespaces.navigation);
+  const { t, i18n } = useTranslation(namespaces.navigation);
+
+  const browserLanguage = i18n.language || window.navigator.language;
+  const [language, setLanguage] = useState(findSupportedLanguage(browserLanguage));
+
+  const handleLanguageChanged = (selected: OptionType) => {
+    setLanguage(selected.value);
+    i18n.changeLanguage(selected.value);
+  };
+
   const { user, logout, login } = useAuth();
   return (
     <StyledNav onClick={afterMenuClicked}>
@@ -90,28 +121,47 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
             </li>
           </>
         )}
-        {!user && (
-          <li>
-            <ButtonSmall buttonType="secondary" onClick={login}>
-              {t('login')}
-            </ButtonSmall>
-          </li>
-        )}
-        {user && (
-          <li>
-            {user.email} ({user.role}) {` `}
-            <a
-              href="/api/auth/profile-redirect"
-              target="_blank"
-              className="button button-secondary button-xxs"
-            >
-              {t('edit-profile')}
-            </a>
-            <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
-              {t('logout')}
-            </ButtonSmall>
-          </li>
-        )}
+        <li>
+          <ul>
+            <li>
+              <SelectWrapper>
+                <Select
+                  className="color-black"
+                  value={languageOptions.find((option) => option.value === language)}
+                  options={languageOptions}
+                  isClearable={false}
+                  onChange={(selected) => {
+                    if (selected !== null) {
+                      handleLanguageChanged(selected);
+                    }
+                  }}
+                />
+              </SelectWrapper>
+            </li>
+            {!user && (
+              <li>
+                <ButtonSmall buttonType="secondary" onClick={login}>
+                  {t('login')}
+                </ButtonSmall>
+              </li>
+            )}
+            {user && (
+              <li>
+                {user.email} ({user.role}) {` `}
+                <a
+                  href="/api/auth/profile-redirect"
+                  target="_blank"
+                  className="button button-secondary button-xxs"
+                >
+                  {t('edit-profile')}
+                </a>
+                <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
+                  {t('logout')}
+                </ButtonSmall>
+              </li>
+            )}
+          </ul>
+        </li>
       </ul>
     </StyledNav>
   );
@@ -139,8 +189,6 @@ const StyledNav = styled.nav`
     flex: none;
     margin: 0;
     padding-right: 1rem;
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
   }
   a {
     text-decoration: underline;
