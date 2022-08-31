@@ -21,12 +21,16 @@
             "publish_reply": "Publish reply",
             "unpublish_reply": "Unpublish reply",
             "save_draft": "Save reply as draft"
-        }
+        },
+        "customer_will_get_email_notification": "The customer will get an email notification when the reply is published."
     },
     "back_link": "all letters",
     "letter": {
         "title": "Letter",
-        "created": "Created"
+        "created": "Created",
+        "customer_has_given_email": "Customer has given email address",
+        "yes": "Yes",
+        "no": "No"
     },
     "reply": {
         "title": "Reply",

@@ -245,7 +245,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       </div>
       {showPublishBtn && letter?.hasEmail && (
         <p className="color-primary-800 font-weight-bold font-size-s">
-          The customer will get an email notification when the reply is published.
+          {t('edit_reply_form.customer_will_get_email_notification')}
         </p>
       )}
       <p className="field">
@@ -297,7 +297,8 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <p className="font-style-italic">
         <b>{t('letter.created')}:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
         <br />
-        <b>Customer has given email address:</b> {letter.hasEmail ? 'Yes' : 'No'}
+        <b>{t('letter.customer_has_given_email')}:</b>{' '}
+        {letter.hasEmail ? t('letter.yes') : t('letter.no')}
       </p>
 
       {disableLetterEdit ? <LetterContent>{letter.content}</LetterContent> : editLetterForm}

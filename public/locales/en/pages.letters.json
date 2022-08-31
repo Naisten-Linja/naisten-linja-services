@@ -5,6 +5,10 @@
   "unassign_letter_success": "Letter was unassigned to any email",
   "assign_letter_error": "Unable to assign letter to {{email}}",
   "title": "Letters",
+  "datefilter": {
+    "show_letters_created_on": "Show letters created on:",
+    "select_date_range_title": "Select date range which contains the letters you want to see"
+  },
   "table": {
     "created": "Created",
     "title": "Title",
@@ -12,5 +16,14 @@
     "read_receipt": "Read receipt",
     "assigned_to": "Assigned to",
     "user_select": "Assign to a user"
+  },
+  "letter_counts": {
+    "total": "Total",
+    "no_reply": "No reply",
+    "draft": "Draft",
+    "in_review": "In review",
+    "published": "Published",
+    "not_read": "not read",
+    "read": "read"
   }
 }

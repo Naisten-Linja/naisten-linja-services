@@ -114,7 +114,9 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       <div className="flex justify-content-space-between flex-wrap">
         <h1>{t('table.title')}</h1>
         <div className="box-shadow-l padding-s display-inline-block">
-          <label htmlFor="user-list-booking-type-select">Show letters created on:</label>
+          <label htmlFor="user-list-booking-type-select">
+            {t('datefilter.show_letters_created_on')}
+          </label>
           <BookingTypeBadgeDateRange
             range={selectedDateRange}
             onEdit={() => {
@@ -135,7 +137,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         currentRange={dateRangeSelectorVisible ? selectedDateRange : null}
         onChange={(value) => setSelectedDateRange(value)}
         onClose={() => setDateRangeSelectorVisible(false)}
-        title={'Select date range which contains the letters you want to see'}
+        title={t('datefilter.select_date_range_title')}
       />
     </>
   );

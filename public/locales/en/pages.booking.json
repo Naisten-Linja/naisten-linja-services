@@ -3,6 +3,7 @@
     "fetch_booking_types_error": "Unable to get all booking types"
   },
   "booking_calendar": {
+    "book_a_slot": "Book a slot",
     "fetch_booked_slots_error": "Unable to fetch booked slots",
     "p_1": "Please note booking times are in Europe/Helsinki timezone",
     "week": "Week {{nth}}",

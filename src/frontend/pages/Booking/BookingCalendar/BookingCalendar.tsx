@@ -144,7 +144,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
         className="flex flex-wrap sticky padding-right-s"
         style={{ width: '12rem', top: 0, marginRight: '3rem' }}
       >
-        <h1 className="font-size-xxl">Book a slot</h1>
+        <h1 className="font-size-xxl">{t('booking_calendar.book_a_slot')}</h1>
         {bookingTypes.map(({ uuid, name, color }) => (
           <div key={uuid} className="flex align-items-center margin-vertical-1-4">
             <div

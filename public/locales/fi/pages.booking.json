@@ -3,6 +3,7 @@
     "fetch_booking_types_error": "Kaikkia varaustyyppejä ei voida noutaa"
   },
   "booking_calendar": {
+    "book_a_slot": "Varaa vuoro",
     "fetch_booked_slots_error": "Varauksia ei voida noutaa",
     "p_1": "Huom! Varausajat noudattavat Suomen aikavyöhykettä",
     "week": "Viikko {{nth}}",
