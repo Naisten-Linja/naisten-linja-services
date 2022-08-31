@@ -45,3 +45,7 @@ export const StyledMDEditorWrapperDiv = styled.div`
     background: none !important; // override turret
   }
 `;
+
+export const SelectWrapper = styled(OverrideTurretInputHeightForReactSelectDiv)`
+  width: 100%;
+`;

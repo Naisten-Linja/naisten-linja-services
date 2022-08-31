@@ -16,7 +16,7 @@ const createI18n = (language: string): i18nInstance => {
         // Use window.navigator for the selected language.
         // If the specified language code is not found under locales, it'll fallback to the primary language code.
         detection: {
-          order: ['navigator'],
+          order: ['cookie', 'localStorage', 'navigator'],
         },
         fallbackLng: language,
         backend: {
@@ -38,5 +38,4 @@ const createI18n = (language: string): i18nInstance => {
   return i18n;
 };
 
-// TODO: change this to 'fi' when the translation is ready
-export const i18n = createI18n(languages.fi);
+export const i18n = createI18n(languages.en);
