@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, Link } from '@reach/router';
 import DataTable from 'react-data-table-component';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { useRequest } from '../../shared/http';
 import {
   ApiBookingWithColor,
@@ -15,6 +19,8 @@ import { useAuth } from '../../AuthContext';
 export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: string }>> = ({
   userUuid,
 }) => {
+  const { t } = useTranslation(namespaces.pages.profile);
+
   const { user: loggedInUser } = useAuth();
 
   const [bookings, setBookings] = useState<Array<ApiBookingWithColor>>([]);
@@ -61,22 +67,24 @@ export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: st
 
   return (
     <div>
-      {loggedInUser?.role === UserRole.staff && <Link to={'/admin/users'}>&lt; all users</Link>}
-      <h1>User Profile</h1>
+      {loggedInUser?.role === UserRole.staff && (
+        <Link to={'/admin/users'}>&lt; {t('back_link')}</Link>
+      )}
+      <h1>{t('title')}</h1>
       {user && <UserProfile loggedInUser={loggedInUser} user={user} />}
-      {bookings.length < 1 && <p>You have not booked any slot yet</p>}
+      {bookings.length < 1 && <p>{t('no_booking')}</p>}
       {upcomingBookings.length > 0 && (
         <>
-          <h1>Upcoming bookings</h1>
+          <h1>{t('upcoming_bookings.title')}</h1>
           <p>
-            <b>Please note booking times are in Europe/Helsinki timezone</b>
+            <b>{t('upcoming_bookings.p_1')}</b>
           </p>
           <BookingList bookings={upcomingBookings} />
         </>
       )}
       {pastBookings.length > 0 && (
         <>
-          <h1>Past bookings</h1>
+          <h1>{t('past_bookings.title')}</h1>
           <BookingList bookings={pastBookings} defaultSortAsc={false} />
         </>
       )}
@@ -88,24 +96,27 @@ const UserProfile: React.FC<{ loggedInUser: TokenUserData | null; user: ApiUserD
   loggedInUser,
   user,
 }) => {
+  const { t } = useTranslation(namespaces.pages.profile);
+
   return (
     <div className="flex flex-column">
       <div>
-        <span className="font-weight-bold">Full name:</span> {user.fullName}
+        <span className="font-weight-bold">{t('user_profile.fullname')}:</span> {user.fullName}
       </div>
       <div>
-        <span className="font-weight-bold">Email:</span> {user.email}
+        <span className="font-weight-bold">{t('user_profile.email')}:</span> {user.email}
       </div>
       <div>
-        <span className="font-weight-bold">Role:</span> {user.role}
+        <span className="font-weight-bold">{t('user_profile.role')}:</span> {user.role}
       </div>
       <div>
-        <span className="font-weight-bold">Created on:</span>{' '}
+        <span className="font-weight-bold">{t('user_profile.created_on')}:</span>{' '}
         {moment(user.created).format('dddd DD/MM/YYYY, HH:mm')}
       </div>
       {loggedInUser?.role === UserRole.staff && (
         <div>
-          <span className="font-weight-bold">Notes:</span> {user.userNote || '-'}
+          <span className="font-weight-bold">{t('user_profile.notes')}:</span>{' '}
+          {user.userNote || '-'}
         </div>
       )}
     </div>
@@ -116,6 +127,8 @@ const BookingList: React.FC<{
   bookings: Array<ApiBookingWithColor>;
   defaultSortAsc?: boolean;
 }> = ({ bookings, defaultSortAsc }) => {
+  const { t } = useTranslation(namespaces.pages.profile);
+
   const dateSort = (a: { start: string }, b: { start: string }) => {
     return new Date(a.start) > new Date(b.start) ? 1 : -1;
   };
@@ -123,7 +136,7 @@ const BookingList: React.FC<{
   const columns = [
     {
       id: 1,
-      name: 'Type',
+      name: t('booking.type'),
       selector: (row: ApiBookingWithColor) => row.bookingType.name,
       format: (row: ApiBookingWithColor) => (
         <div
@@ -137,7 +150,7 @@ const BookingList: React.FC<{
     },
     {
       id: 2,
-      name: 'Date',
+      name: t('booking.date'),
       selector: (row: ApiBookingWithColor) =>
         `${moment(row.start).format('ddd Do MMM YYYY HH:mm')}`,
       sortable: true,
@@ -155,30 +168,31 @@ const BookingList: React.FC<{
     },
     {
       id: 3,
-      name: 'Full Name',
+      name: t('booking.fullname'),
       selector: (row: ApiBookingWithColor) => row.fullName,
     },
     {
       id: 4,
-      name: 'Email',
+      name: t('booking.email'),
       selector: (row: ApiBookingWithColor) => row.email,
       wrap: true,
       grow: 2,
     },
     {
       id: 5,
-      name: 'Phone',
+      name: t('booking.phone'),
       selector: (row: ApiBookingWithColor) => row.phone,
       wrap: true,
     },
     {
       id: 6,
-      name: 'Work Location',
-      selector: (row: ApiBookingWithColor) => (row.workingRemotely ? 'Remote' : 'Office'),
+      name: t('booking.work_location'),
+      selector: (row: ApiBookingWithColor) =>
+        row.workingRemotely ? t('booking.remote') : t('booking.office'),
     },
     {
       id: 7,
-      name: 'Note',
+      name: t('booking.notes'),
       selector: (row: ApiBookingWithColor) => row.bookingNote,
       wrap: true,
     },

@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { ApiBookingType, weekDays } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
@@ -9,6 +13,8 @@ import { BookingTypeBadgeDateRange } from './BookingTypeBadgeDateRange';
 import { BookingTypeBadgeException } from './BookingTypeBadgeException';
 
 export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingType>>([]);
   const [editStates, setEditStates] = useState<Record<string, boolean>>({});
@@ -34,9 +40,9 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       );
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get all booking types' });
+      addNotification({ type: 'error', message: t('booking_types.fetch_booking_types_error') });
     }
-  }, [addNotification, setBookingTypes, getRequest]);
+  }, [getRequest, addNotification, t]);
 
   useEffect(() => {
     if (!isCreatingNew) {
@@ -55,7 +61,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
   if (isCreatingNew) {
     return (
       <div className="container">
-        <h1>New booking type</h1>
+        <h1>{t('booking_types.new_booking_type')}</h1>
         <BookingTypeForm
           onSubmitCallback={() => setIsCreatingNew(false)}
           onCancelCallback={() => setIsCreatingNew(false)}
@@ -66,12 +72,12 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
 
   return (
     <div className="container">
-      <h1>Booking types</h1>
+      <h1>{t('booking_types.title')}</h1>
       <button
         className="button button-info button-m margin-bottom-l"
         onClick={() => setIsCreatingNew(true)}
       >
-        Create a new booking type
+        {t('booking_types.button.create_booking_type')}
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
@@ -98,7 +104,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                           })
                         }
                       >
-                        Edit
+                        {t('booking_types.button.edit')}
                       </button>
                     </td>
                     <td className="font-weight-bold font-size-xl">{name}</td>
@@ -106,7 +112,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                   {additionalInformation && (
                     <tr>
                       <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                        Additional information
+                        {t('booking_types.additional_information')}
                       </th>
                       <td className="font-weight-semibold font-size-s">
                         <div
@@ -120,12 +126,12 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                   )}
                   <tr>
                     <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                      Active date ranges
+                      {t('booking_types.active_date_ranges')}
                     </th>
                     <td className="font-weight-semibold font-size-s">
                       {dateRanges.length === 0 ? (
                         <p className="font-size-xs color-error">
-                          No date ranges selected, this booking type is never available.
+                          {t('booking_types.no_date_selected')}
                         </p>
                       ) : (
                         <ul className="list-unstyled">
@@ -143,7 +149,7 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                   </tr>
                   <tr>
                     <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                      Exceptions
+                      {t('booking_types.exceptions')}
                     </th>
                     <td className="font-weight-semibold font-size-s">
                       <ul className="list-unstyled">
@@ -160,9 +166,9 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                   </tr>
                   <tr>
                     <th className="font-weight-semibold" style={{ width: '7rem' }}>
-                      Week day
+                      {t('booking_types.week_day')}
                     </th>
-                    <th className="font-weight-semibold">Slots</th>
+                    <th className="font-weight-semibold">{t('booking_types.slots')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,7 +182,9 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                                 key={`slot-${idx}`}
                                 className="display-inline-block border-radius background-info-100 padding-xxs margin-xxs font-size-xs font-weight-semibold"
                               >
-                                {`${slot.start} - ${slot.end}; available seats: ${slot.seats}`}
+                                {`${slot.start} - ${slot.end}; ${t(
+                                  'booking_types.available_seats',
+                                )}: ${slot.seats}`}
                               </div>
                             ))
                           : ''}

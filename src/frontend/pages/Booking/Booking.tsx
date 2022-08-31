@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { ApiBookingTypeWithColor } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 import { BookingCalendar } from './BookingCalendar/BookingCalendar';
 
 export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.bookingCalendar);
+
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingTypeWithColor>>([]);
   const { getRequest } = useRequest();
   const { addNotification } = useNotifications();
@@ -20,9 +26,9 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
       setBookingTypes(bookingTypesResult.data.data);
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get all booking types' });
+      addNotification({ type: 'error', message: t('booking.fetch_booking_types_error') });
     }
-  }, [addNotification, setBookingTypes, getRequest]);
+  }, [getRequest, addNotification, t]);
 
   useEffect(() => {
     fetchBookingTypes();

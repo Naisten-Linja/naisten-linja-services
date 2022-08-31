@@ -1,0 +1,27 @@
+{
+  "update_user_role_success_notif": "Päivitetty henkilön {{email}} rooliksi {{role}}",
+  "update_user_role_failed_notif": "Roolin {{role}} päivitys henkilölle {{email}} epäonnistui",
+  "fetch_booking_types_failed": "Kaikkien varaustyyppien haku epäonnistui",
+  "copy_emails_to_clipboard_success": "Kaikkien käyttäjien sähköpostiosoitteet kopioitu",
+  "copy_emails_to_clipboard_failed": "Käyttäjien sähköpostien kopiointi epäonnistui",
+  "update_user_note_success": "Käyttäjän muistiinpanot päivitetty onnistuneesti",
+  "update_user_note_failed": "Käyttäjän muistiinpanojen päivitys epäonnistui",
+  "table": {
+    "email": "Sähköposti",
+    "fullname": "Koko nimi",
+    "phone": "Puhelinnumero",
+    "previous_booking": "Edellinen varaus",
+    "upcoming_booking": "Seuraava varaus",
+    "role": "Rooli",
+    "notes": "Muistiinpanot",
+    "render_booking": "+{{others}} lisää"
+  },
+  "title": "Käyttäjät",
+  "booking_type_select": "Näytä vain varaukset tyyppiä:",
+  "button": {
+    "edit": "Muokkaa",
+    "cancel": "Peru",
+    "save": "Tallenna",
+    "copy": "Kopioi kaikki sähköpostit"
+  }
+}

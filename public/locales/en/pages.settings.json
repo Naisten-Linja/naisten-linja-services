@@ -1,0 +1,7 @@
+{
+  "title": "Notification settings",
+  "fetch_profile_info_success": "New booking notification setting updated",
+  "fetch_profile_info_error": "Failed to update booking notification setting",
+  "text": "Day threshold for receiving new booking notifications. For example, if this is set to 5, you will receive an email notification whenever a booking is made 5 or less days before the start of the slot. The aim is to keep you up to date with last-minute bookings. To disable notifications to your email, set this to 0.",
+  "button": { "save": "Save" }
+}

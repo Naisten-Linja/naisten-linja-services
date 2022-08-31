@@ -6,6 +6,10 @@ import { SlotBookingRules } from '../../../../common/constants-common';
 import Modal from '../../../ui-components/Modal/Modal';
 import { format } from 'date-fns';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../../i18n/i18n.constants';
+
 interface ExceptionsDatePickerProps {
   showDatePicker: boolean;
   closeModal: (b: boolean) => void;
@@ -15,6 +19,8 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
   showDatePicker,
   closeModal,
 }) => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const [{ value: exceptions }, , { setValue }] = useField<Array<string>>('exceptions');
   const [{ value: rules }] = useField('rules');
 
@@ -63,7 +69,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
       testId="exceptions-date-picker"
     >
       <div className="height-100 text-align-center">
-        <h1 className="font-weight-semibold">Choose exceptions</h1>
+        <h1 className="font-weight-semibold">{t('exceptions_date_picker.choose_exceptions')}</h1>
 
         <div className="flex-column">
           <div>
@@ -77,7 +83,7 @@ const ExceptionsDatePicker: React.FC<ExceptionsDatePickerProps> = ({
 
           <div className="text-align-right">
             <button className="margin-m" onClick={() => closeModal(!showDatePicker)}>
-              Close
+              {t('exceptions_date_picker.close')}
             </button>
           </div>
         </div>

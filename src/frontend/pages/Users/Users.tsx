@@ -7,6 +7,10 @@ import Select from 'react-select';
 import { IoMdCopy } from 'react-icons/io';
 import copy from 'copy-to-clipboard';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import {
   ApiBooking,
   ApiBookingType,
@@ -25,6 +29,8 @@ import {
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
 export const Users: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.users);
+
   type BookingTypeOption = { label: string; value: string | null };
   const ALL_TYPES_OPTION = { label: '(All booking types)', value: null };
 
@@ -55,10 +61,16 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       usersUpdated[i].role = role;
       setUsers(usersUpdated);
 
-      addNotification({ type: 'success', message: `Updated ${email} role to ${role}` });
+      addNotification({
+        type: 'success',
+        message: t('update_user_role_success_notif', { email, role }),
+      });
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: `Failed to update ${email} role to ${role}` });
+      addNotification({
+        type: 'error',
+        message: t('update_user_role_failed_notif', { email, role }),
+      });
     }
   };
 
@@ -133,9 +145,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       setBookingTypes(result);
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get all booking types' });
+      addNotification({ type: 'error', message: t('fetch_booking_types_failed') });
     }
-  }, [addNotification, setBookingTypes, getRequest]);
+  }, [getRequest, addNotification, t]);
 
   useEffect(() => {
     fetchBookingTypes();
@@ -159,11 +171,11 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   const copyEmailsToClipboard = useCallback(() => {
     const success = copy(usersWithBookings.map((u) => u.email).join(','), { format: 'text/plain' });
     if (success) {
-      addNotification({ type: 'success', message: 'Emails of all users copied to your clipboard' });
+      addNotification({ type: 'success', message: t('copy_emails_to_clipboard_success') });
     } else {
-      addNotification({ type: 'error', message: 'Failed to copy user emails' });
+      addNotification({ type: 'error', message: t('copy_emails_to_clipboard_failed') });
     }
-  }, [usersWithBookings, addNotification]);
+  }, [usersWithBookings, addNotification, t]);
 
   const bookingTypeOptions: Array<BookingTypeOption> = [
     ALL_TYPES_OPTION,
@@ -181,7 +193,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
         {moment(booking.start).format('ddd Do MMM YYYY')}
         <br />
         {moment(booking.start).format('HH:mm')} - {moment(booking.end).format('HH:mm')}
-        {others > 0 ? <span style={{ float: 'right' }}>(+{others} more)</span> : null}
+        {others > 0 ? (
+          <span style={{ float: 'right' }}>({t('table.render_booking', { others })})</span>
+        ) : null}
       </span>
     );
   };
@@ -202,12 +216,12 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
       id: 1,
       name: (
         <>
-          <span style={{ flex: 1 }}>Email</span>
+          <span style={{ flex: 1 }}>{t('table.email')}</span>
           <button
             onClick={copyEmailsToClipboard}
             className="button button-square button-xxs button-icon"
           >
-            <span>Copy all emails</span>
+            <span>{t('button.copy')}</span>
             <IoMdCopy aria-hidden={true}></IoMdCopy>
           </button>
         </>
@@ -219,13 +233,13 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 2,
-      name: 'Full Name',
+      name: t('table.fullname'),
       selector: (row: UserDataStats) => row.fullName || '',
       sortable: true,
     },
     {
       id: 3,
-      name: 'Phone number',
+      name: t('table.phone'),
       selector: (row: UserDataStats) => {
         if (row.upcomingBooking) return row.upcomingBooking.phone;
         if (row.previousBooking) return row.previousBooking.phone;
@@ -234,7 +248,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 4,
-      name: 'Previous booking',
+      name: t('table.previous_booking'),
       selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.previousBooking, row.totalPrevious),
       sortable: true,
@@ -242,7 +256,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 5,
-      name: 'Upcoming booking',
+      name: t('table.upcoming_booking'),
       selector: () => '', // next row here overrides this
       format: (row: UserDataStats) => renderBooking(row.upcomingBooking, row.totalUpcoming),
       sortable: true,
@@ -250,7 +264,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 6,
-      name: 'Role',
+      name: t('table.role'),
       selector: (row: UserDataStats) => row.role,
       format: (row: UserDataStats) => {
         return (
@@ -278,7 +292,7 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
     },
     {
       id: 7,
-      name: 'Notes',
+      name: t('table.notes'),
       selector: (row: UserDataStats) => row.userNote,
       format: (row: UserDataStats) => (
         <UpdateUserNoteForm
@@ -294,9 +308,9 @@ export const Users: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <>
       <div className="flex justify-content-space-between flex-wrap">
-        <h1>Users</h1>
+        <h1>{t('title')}</h1>
         <OverrideTurretInputHeightForReactSelectDiv className="box-shadow-l padding-s display-inline-block">
-          <label htmlFor="user-list-booking-type-select">Only show bookings with type</label>
+          <label htmlFor="user-list-booking-type-select">{t('booking_type_select')}</label>
           <Select
             id="user-list-booking-type-select"
             isSearchable
@@ -331,6 +345,8 @@ const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
   const { addNotification } = useNotifications();
   const { putRequest } = useRequest();
 
+  const { t } = useTranslation(namespaces.pages.users);
+
   const updateUserNote = useCallback(
     async (note: string) => {
       try {
@@ -342,18 +358,18 @@ const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
           { useJwt: true },
         );
         if (result.data.data) {
-          addNotification({ type: 'success', message: 'User note was updated' });
+          addNotification({ type: 'success', message: t('update_user_note_success') });
           fetchUsers((users) => {
             setUsers(users);
           });
         }
       } catch (err) {
-        addNotification({ type: 'error', message: 'Failed to update user note' });
+        addNotification({ type: 'error', message: t('update_user_note_failed') });
       } finally {
         setIsEditing(false);
       }
     },
-    [putRequest, userUuid, addNotification, fetchUsers, setUsers],
+    [putRequest, userUuid, addNotification, t, fetchUsers, setUsers],
   );
 
   const initialFormValues = {
@@ -370,7 +386,7 @@ const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
             setIsEditing(true);
           }}
         >
-          Edit
+          {t('button.edit')}
         </button>
       </>
     );
@@ -385,9 +401,11 @@ const UpdateUserNoteForm: React.FC<UpdateUserNoteFormProps> = ({
     >
       <Form>
         <Field type="text" name="userNote" as="textarea" aria-label="User note" />
-        <input type="submit" className="button button-xxs button-primary" value="Save" />
+        <button type="submit" className="button button-xxs button-primary">
+          {t('button.save')}
+        </button>
         <button type="button" className="button button-xxs" onClick={() => setIsEditing(false)}>
-          Cancel
+          {t('button.cancel')}
         </button>
       </Form>
     </Formik>

@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
 
 import {
   ApiLetterAdmin,
@@ -29,6 +31,8 @@ export const LetterList = ({
   showAssignmentColumn,
   assignLetter,
 }: LetterListProps) => {
+  const { t } = useTranslation(namespaces.pages.letters);
+
   type OptionType = {
     value: string | null;
     label: string;
@@ -67,27 +71,27 @@ export const LetterList = ({
   const columns: TableColumn<ApiLetterWithReadStatus>[] = [
     {
       id: 1,
-      name: 'Created',
+      name: t('table.created'),
       selector: (letter) => moment(letter.created).format('dddd DD/MM/YYYY, HH:mm'),
       sortFunction: sortDate('created'),
       wrap: true,
     },
     {
       id: 2,
-      name: 'Title',
+      name: t('table.title'),
       selector: (letter) => letter.title || '',
       format: (letter) => <Link to={letter.uuid}>{letter.title}</Link>,
       sortable: false,
     },
     {
       id: 3,
-      name: 'Reply status',
+      name: t('table.reply_status'),
       selector: (letter) => letter.replyStatus || '-',
       sortable: true,
     },
     {
       id: 4,
-      name: 'Read receipt',
+      name: t('table.read_receipt'),
       selector: () => '', // next row here overrides this
       format: (letter) =>
         letter.replyReadTimestamp
@@ -99,7 +103,7 @@ export const LetterList = ({
     },
     {
       id: 5,
-      name: 'Assigned to',
+      name: t('table.assigned_to'),
       omit: !showAssignmentColumn,
       selector: () => '', // next row here overrides this
       sortFunction: sortAssigneeName,
@@ -112,7 +116,7 @@ export const LetterList = ({
                 ? assigneeOptions.find((option) => option.value === letter.assignedResponderUuid)
                 : null
             }
-            placeholder="Assign to a user"
+            placeholder={t('table.user_select')}
             options={assigneeOptions}
             isSearchable
             isClearable

@@ -3,6 +3,10 @@ import { RouteComponentProps, Link } from '@reach/router';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { useRequest } from '../../shared/http';
 import {
   ApiLetterAdmin,
@@ -20,6 +24,8 @@ import moment from 'moment-timezone';
 export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: string }>> = ({
   letterUuid,
 }) => {
+  const { t } = useTranslation(namespaces.pages.reply);
+
   const { getRequest, postRequest, putRequest, deleteRequest } = useRequest();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
@@ -64,12 +70,12 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           );
           setReply(result.data.data);
         }
-        addNotification({ type: 'success', message: `Reply was saved with status ${status}` });
+        addNotification({ type: 'success', message: t('send_reply_success', { status }) });
       } catch (err) {
         console.log(err);
         addNotification({
           type: 'error',
-          message: 'There was an error saving the reply',
+          message: t('send_reply_error'),
         });
       }
     }
@@ -94,10 +100,10 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       console.log(err);
       addNotification({
         type: 'error',
-        message: 'Unable to fetch reply',
+        message: t('fetch_reply_error'),
       });
     }
-  }, [setReply, addNotification, getRequest, letterUuid]);
+  }, [getRequest, letterUuid, addNotification, t]);
 
   useEffect(() => {
     const fetchLetter = async () => {
@@ -109,12 +115,12 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         if (result.data.data.content) setLetterContent(result.data.data.content);
       } catch (err) {
         console.log(err);
-        addNotification({ type: 'error', message: 'Unable to fetch letter' });
+        addNotification({ type: 'error', message: t('fetch_letter_error') });
       }
     };
     fetchLetter();
     fetchReply();
-  }, [getRequest, letterUuid, addNotification, fetchReply]);
+  }, [getRequest, letterUuid, addNotification, fetchReply, t]);
 
   const updateLetterContent = async () => {
     if (letterFormRef && letter) {
@@ -131,13 +137,13 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           { useJwt: true },
         );
         setLetter(result.data.data);
-        addNotification({ type: 'success', message: `Letter content has been updated` });
+        addNotification({ type: 'success', message: t('update_letter_content_success') });
         setLetterEdit(false);
       } catch (err) {
         console.log(err);
         addNotification({
           type: 'error',
-          message: 'There was an error saving the letter content',
+          message: t('update_letter_content_error'),
         });
       }
     }
@@ -147,16 +153,16 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
     // Only staff who can delete the letter.
     // On successful attempt, the user will be redirected to admin/letters page.
     if (!letter) return;
-    if (window.confirm('Are you sure to delete this letter?')) {
+    if (window.confirm(t('delete_letter'))) {
       const deleteResult = await deleteRequest<{ data: { success: boolean } }>(
         `/api/letters/${letter.uuid}`,
         { useJwt: true },
       );
       if (deleteResult.data.data.success) {
-        addNotification({ type: 'success', message: 'Letter and reply were successfully deleted' });
+        addNotification({ type: 'success', message: t('delete_letter_success') });
         window.location.replace('/admin/letters');
       } else {
-        addNotification({ type: 'error', message: 'Failed to delete letter' });
+        addNotification({ type: 'error', message: t('delete_letter_error') });
       }
     }
   };
@@ -187,7 +193,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
         />
       </div>
       <div className="padding-xs color-white background-warning">
-        Do not attempt to change the content unless you know what you are doing.
+        {t('edit_letter_form.warning')}
       </div>
 
       <p className="field">
@@ -198,7 +204,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               updateLetterContent();
             }}
           >
-            Save changes
+            {t('edit_letter_form.button.save_changes')}
           </Button>
         ) : (
           <ButtonText
@@ -207,14 +213,14 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               setLetterEdit(true);
             }}
           >
-            Edit letter content
+            {t('edit_letter_form.button.edit_letter_content')}
           </ButtonText>
         )}
       </p>
     </form>
   );
 
-  const editForm = (
+  const editReplyForm = (
     <form ref={formRef} onSubmit={submitReply}>
       {reply && <input type="hidden" value={reply.uuid} id="replyUuid" disabled />}
       <div className="field">
@@ -239,7 +245,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       </div>
       {showPublishBtn && letter?.hasEmail && (
         <p className="color-primary-800 font-weight-bold font-size-s">
-          The customer will get an email notification when the reply is published.
+          {t('edit_reply_form.customer_will_get_email_notification')}
         </p>
       )}
       <p className="field">
@@ -250,7 +256,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               sendReply(ReplyStatus.in_review);
             }}
           >
-            Submit reply for review
+            {t('edit_reply_form.button.submit_reply_for_review')}
           </Button>
         )}
 
@@ -261,7 +267,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
               sendReply(ReplyStatus.published);
             }}
           >
-            Publish reply
+            {t('edit_reply_form.button.publish_reply')}
           </Button>
         )}
 
@@ -272,8 +278,8 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           }}
         >
           {reply && reply.status === ReplyStatus.published
-            ? 'Unpublish reply'
-            : 'Save reply as draft'}
+            ? t('edit_reply_form.button.unpublish_reply')
+            : t('edit_reply_form.button.save_draft')}
         </ButtonText>
       </p>
     </form>
@@ -284,58 +290,50 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
   return !letter || !user ? null : (
     <>
       <Link to={user.role === UserRole.staff ? '/admin/letters' : '/volunteer/letters'}>
-        &lt; all letters
+        &lt; {t('back_link')}
       </Link>
-      <h1>Letter</h1>
+      <h1>{t('letter.title')}</h1>
       <h3>{letter.title}</h3>
-      <p>
-        <i>
-          <b>Created:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
-        </i>
+      <p className="font-style-italic">
+        <b>{t('letter.created')}:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
         <br />
-        <i>
-          <b>Customer has given email address:</b> {letter.hasEmail ? 'Yes' : 'No'}
-        </i>
+        <b>{t('letter.customer_has_given_email')}:</b>{' '}
+        {letter.hasEmail ? t('letter.yes') : t('letter.no')}
       </p>
 
       {disableLetterEdit ? <LetterContent>{letter.content}</LetterContent> : editLetterForm}
 
-      <h1>Reply</h1>
+      <h1>{t('reply.title')}</h1>
       {reply && (
         <p>
           <i>
-            <b>Updated on:</b>{' '}
+            <b>{t('reply.updated_on')}:</b>{' '}
             {reply.statusTimestamp
               ? moment(reply.statusTimestamp).format('dddd DD/MM/YYYY, HH:mm')
-              : 'never'}
+              : t('reply.never')}
           </i>
           <br />
           <i>
-            <b>Status:</b> {reply.status}
+            <b>{t('reply.status')}:</b> {reply.status}
           </i>
           <br />
           <i>
-            <b>Read on:</b>{' '}
+            <b>{t('reply.read_on')}:</b>{' '}
             {reply?.readTimestamp
               ? moment(reply?.readTimestamp).format('dddd DD/MM/YYYY, HH:mm')
-              : '-'}
+              : t('reply.never')}
           </i>
         </p>
       )}
-      {disableReplyEdit ? replyContent : editForm}
+      {disableReplyEdit ? replyContent : editReplyForm}
 
       {user.role === UserRole.staff && (
         <>
-          <h1 className="color-warning">Danger zone</h1>
+          <h1 className="color-warning">{t('danger_zone.title')}</h1>
           <div className="flex flex-row flex-wrap border border-color-warning padding-s">
             <div>
-              <p className="color-warning font-weight-bold">
-                Delete this letter and the corresponding reply
-              </p>
-              <p>
-                Once you delete this letter, there is no going back. This will delete the letter and
-                the reply permanently from the data storage.
-              </p>
+              <p className="color-warning font-weight-bold">{t('danger_zone.p_1')}</p>
+              <p>{t('danger_zone.p_2')}</p>
             </div>
             <div className="margin-auto">
               <Button
@@ -345,7 +343,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
                   deleteLetter();
                 }}
               >
-                Delete this letter
+                {t('danger_zone.delete_button')}
               </Button>
             </div>
           </div>

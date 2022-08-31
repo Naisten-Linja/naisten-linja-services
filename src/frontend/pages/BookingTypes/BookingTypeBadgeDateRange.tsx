@@ -3,6 +3,10 @@ import moment from 'moment-timezone';
 import { IoMdCreate, IoMdTrash } from 'react-icons/io';
 import { BookingTypeDateRange } from '../../../common/constants-common';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 interface BookingTypeBadgeDateRangeProps {
   range: BookingTypeDateRange;
   onEdit?: () => void;
@@ -11,6 +15,8 @@ interface BookingTypeBadgeDateRangeProps {
 }
 
 export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps) => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const { start, end } = props.range;
   const { onEdit, onDelete } = props;
 
@@ -19,15 +25,15 @@ export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps)
 
   const getText = () => {
     if (start === null && end === null) {
-      return 'Always';
+      return t('badge_date_range.always');
     } else if (start === null) {
-      return `Always until ${endFormatted}`;
+      return t('badge_date_range.until', { endDate: endFormatted });
     } else if (end === null) {
-      return `Forever after ${startFormatted}`;
+      return t('badge_date_range.forever_after', { startDate: startFormatted });
     } else if (start === end) {
-      return `Only on ${startFormatted}`;
+      return t('badge_date_range.only', { startDate: startFormatted });
     } else {
-      return `From ${startFormatted} to ${endFormatted}`;
+      return t('badge_date_range.from_to', { startDate: startFormatted, endDate: endFormatted });
     }
   };
 
@@ -61,14 +67,14 @@ export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps)
           }}
         >
           <IoMdCreate />
-          <span>EDIT</span>
+          <span>{t('badge_date_range.edit')}</span>
         </button>
       )}
       {onDelete && (
         <button
           className="button button-xs button-error button-square button button-icon no-margin no-border"
           style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          title="Delete this date range"
+          title={t('badge_date_range.delete')}
           onClick={(e) => {
             e.preventDefault();
             onDelete();

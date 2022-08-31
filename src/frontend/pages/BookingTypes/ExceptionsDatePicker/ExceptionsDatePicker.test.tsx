@@ -27,7 +27,7 @@ describe('ExceptionsDatePicker', () => {
       </Formik>,
     );
 
-    expect(screen.getByText('Choose exceptions')).toBeInTheDocument();
+    expect(screen.getByText('exceptions_date_picker.choose_exceptions')).toBeInTheDocument();
   });
 
   it('when an exception is chosen and form is submitted, submits the exception', async () => {
@@ -44,7 +44,7 @@ describe('ExceptionsDatePicker', () => {
     userEvent.click(screen.getByText('23'));
 
     //Close the modal
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    userEvent.click(screen.getByRole('button', { name: 'exceptions_date_picker.close' }));
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));
@@ -73,7 +73,7 @@ describe('ExceptionsDatePicker', () => {
     userEvent.click(screen.getByText('24'));
 
     //Close the modal
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    userEvent.click(screen.getByRole('button', { name: 'exceptions_date_picker.close' }));
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));

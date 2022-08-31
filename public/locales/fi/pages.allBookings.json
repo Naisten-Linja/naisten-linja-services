@@ -1,0 +1,27 @@
+{
+  "delete_booking": {
+    "warning": "Oletko varma, että haluat poistaa tämän varauksen?",
+    "success": "Varaus poistettu onnistuneesti"
+  },
+  "title": "Hallinnoi varauksia",
+  "p_1": "Huom! Varausajat noudattavat Suomen aikavyöhykettä",
+  "upcoming_bookings": "Tulevat varaukset",
+  "past_bookings": "Menneet varaukset",
+  "update_booking_success": "Varaus on tallennettu onnistuneesti",
+  "update_booking_error": "Varauksen tallentaminen epäonnistui",
+  "button": {
+    "edit": "Muokkaa",
+    "cancel": "Peru",
+    "delete": "Poista"
+  },
+  "booking": {
+    "type": "Tyyppi",
+    "date": "Päivämäärä",
+    "detail": "Yhteystiedot",
+    "work_location": "Sijainti",
+    "remote": "Etä",
+    "office": "Toimisto",
+    "user_email": "Sähköposti",
+    "notes": "Muistiinpanot"
+  }
+}

@@ -2,6 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import moment from 'moment-timezone';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import {
   ApiLetterAdmin,
   ApiLetterWithReadStatus,
@@ -19,6 +23,8 @@ import BookingTypeDateRangePicker from '../BookingTypes/BookingTypeDateRangePick
 import { isDateInActiveDateRanges } from '../Booking/BookingCalendar/BookingCalendar';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.letters);
+
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
 
@@ -41,10 +47,10 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       setUsers(usersResult.data.data);
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to get users' });
+      addNotification({ type: 'error', message: t('fetch_users_error') });
       setUsers([]);
     }
-  }, [getRequest, addNotification]);
+  }, [getRequest, addNotification, t]);
 
   const fetchLetters = useCallback(async () => {
     try {
@@ -58,9 +64,9 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
       );
     } catch (err) {
       setLetters([]);
-      addNotification({ type: 'error', message: 'Unable to get letters' });
+      addNotification({ type: 'error', message: t('fetch_letters_error') });
     }
-  }, [addNotification, getRequest]);
+  }, [addNotification, getRequest, t]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,12 +95,12 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
       if (result.data.data) {
         if (assigneeUuid)
-          addNotification({ type: 'success', message: `Letter was assigned to ${email}` });
-        else addNotification({ type: 'success', message: `Letter was unassigned to any email` });
+          addNotification({ type: 'success', message: t('assign_letter_success', { email }) });
+        else addNotification({ type: 'success', message: t('unassign_letter_success') });
       }
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: `Unable to assign letter to ${email}` });
+      addNotification({ type: 'error', message: t('assign_letter_error', { email }) });
     }
     await fetchLetters();
   };
@@ -106,9 +112,11 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   return (
     <>
       <div className="flex justify-content-space-between flex-wrap">
-        <h1>Letters</h1>
+        <h1>{t('table.title')}</h1>
         <div className="box-shadow-l padding-s display-inline-block">
-          <label htmlFor="user-list-booking-type-select">Show letters created on:</label>
+          <label htmlFor="user-list-booking-type-select">
+            {t('datefilter.show_letters_created_on')}
+          </label>
           <BookingTypeBadgeDateRange
             range={selectedDateRange}
             onEdit={() => {
@@ -129,7 +137,7 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
         currentRange={dateRangeSelectorVisible ? selectedDateRange : null}
         onChange={(value) => setSelectedDateRange(value)}
         onClose={() => setDateRangeSelectorVisible(false)}
-        title={'Select date range which contains the letters you want to see'}
+        title={t('datefilter.select_date_range_title')}
       />
     </>
   );

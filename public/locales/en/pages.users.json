@@ -1,0 +1,27 @@
+{
+  "update_user_role_success_notif": "Updated {{email}} role to {{role}}",
+  "update_user_role_failed_notif": "Failed to update {{email}} role to {{role}}",
+  "fetch_booking_types_failed": "Unable to get all booking types",
+  "copy_emails_to_clipboard_success": "Emails of all users copied to your clipboard",
+  "copy_emails_to_clipboard_failed": "Failed to copy user emails",
+  "update_user_note_success": "User note was updated",
+  "update_user_note_failed": "Failed to update user note",
+  "table": {
+    "email": "Email",
+    "fullname": "Full Name",
+    "phone": "Phone number",
+    "previous_booking": "Previous booking",
+    "upcoming_booking": "Upcoming booking",
+    "role": "Role",
+    "notes": "Notes",
+    "render_booking": "+{{others}} more"
+  },
+  "title": "Users",
+  "booking_type_select": "Only show bookings with type",
+  "button": {
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "copy": "Copy all emails"
+  }
+}

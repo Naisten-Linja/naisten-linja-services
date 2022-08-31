@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import moment from 'moment-timezone';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import { ApiBooking } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 
 export const MyBookings: React.FC<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.myBookings);
+
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);
   const { getRequest } = useRequest();
   const upcomingBookings = bookings.filter(({ end }) => new Date() < new Date(end));
@@ -31,19 +37,19 @@ export const MyBookings: React.FC<RouteComponentProps> = () => {
 
   return (
     <div>
-      {bookings.length < 1 && <p>You have not booked any slot yet</p>}
+      {bookings.length < 1 && <p>{t('no_booking')}</p>}
       {upcomingBookings.length > 0 && (
         <>
-          <h1>Upcoming bookings</h1>
+          <h1>{t('upcoming_bookings')}</h1>
           <p>
-            <b>Please note booking times are in Europe/Helsinki timezone</b>
+            <b>{t('p_1')}</b>
           </p>
           <BookingList bookings={upcomingBookings} />
         </>
       )}
       {pastBookings.length > 0 && (
         <>
-          <h1>Past bookings</h1>
+          <h1>{t('past_bookings')}</h1>
           <BookingList bookings={pastBookings} />
         </>
       )}
@@ -52,14 +58,16 @@ export const MyBookings: React.FC<RouteComponentProps> = () => {
 };
 
 const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) => {
+  const { t } = useTranslation(namespaces.pages.myBookings);
+
   return (
     <div className="table-responsive">
       <table>
         <thead>
           <tr>
-            <th>Booking details</th>
-            <th>Personal details</th>
-            <th>Note</th>
+            <th>{t('table.booking_detail')}</th>
+            <th>{t('table.personal_detail')}</th>
+            <th>{t('table.notes')}</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +98,8 @@ const BookingList: React.FC<{ bookings: Array<ApiBooking> }> = ({ bookings }) =>
                   <br />
                   {phone}
                   <br />
-                  Work location: {workingRemotely ? 'Remote' : 'Office'}
+                  {t('table.work_location')}:{' '}
+                  {workingRemotely ? t('table.remote') : t('table.office')}
                 </td>
                 <td>
                   {!!bookingNote && (

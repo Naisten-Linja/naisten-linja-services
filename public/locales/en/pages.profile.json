@@ -1,0 +1,30 @@
+{
+    "back_link": "all users",
+    "title": "User Profile",
+    "no_booking": "You have not booked any slot yet",
+    "upcoming_bookings": {
+        "title": "Upcoming bookings",
+        "p_1": "Please note booking times are in Europe/Helsinki timezone"
+    },
+    "past_bookings": {
+        "title": "Past bookings"
+    },
+    "user_profile": {
+        "fullname": "Full name",
+        "email": "Email",
+        "role": "Role",
+        "created_on": "Created on",
+        "notes": "Notes"
+    },
+    "booking": {
+        "type": "Type",
+        "date": "Date",
+        "fullname": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "work_location": "Work Location",
+        "remote": "Remote",
+        "office": "Office",
+        "notes": "Notes"
+    }
+}

@@ -1,16 +1,20 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import {
   ApiLetterWithReadStatus,
   ReadReceiptStatus,
   ReplyStatus,
 } from '../../../common/constants-common';
+import { namespaces } from '../../i18n/i18n.constants';
 
 interface LetterCountsProps {
   letters: Array<ApiLetterWithReadStatus>;
 }
 
 export const LetterCounts = ({ letters }: LetterCountsProps) => {
+  const { t } = useTranslation(namespaces.pages.letters);
+
   const noReply = letters.filter((letter) => letter.replyStatus === null).length;
   const draft = letters.filter((letter) => letter.replyStatus === ReplyStatus.draft).length;
   const inReview = letters.filter((letter) => letter.replyStatus === ReplyStatus.in_review).length;
@@ -30,30 +34,30 @@ export const LetterCounts = ({ letters }: LetterCountsProps) => {
     <>
       <CountRow className="box-shadow-m border-radius">
         <Count>
-          <b>Total</b> <span>{letters.length}</span>
+          <b>{t('letter_counts.total')}</b> <span>{letters.length}</span>
         </Count>
         <Count>
-          <b>No reply</b> <span>{noReply}</span>
+          <b>{t('letter_counts.no_reply')}</b> <span>{noReply}</span>
         </Count>
         <Count>
-          <b>Draft</b> <span>{draft}</span>
+          <b>{t('letter_counts.draft')}</b> <span>{draft}</span>
         </Count>
         <Count>
-          <b>In review</b> <span>{inReview}</span>
+          <b>{t('letter_counts.in_review')}</b> <span>{inReview}</span>
         </Count>
         <Count>
           <b>
-            Published
+            {t('letter_counts.published')}
             <br />
-            not read
+            {t('letter_counts.not_read')}
           </b>
           <span>{unread}</span>
         </Count>
         <Count>
           <b>
-            Published
+            {t('letter_counts.published')}
             <br />
-            read
+            {t('letter_counts.read')}
           </b>
           <span>{read}</span>
         </Count>

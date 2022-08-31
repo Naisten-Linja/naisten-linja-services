@@ -1,6 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { Formik, Form, Field, FieldArray } from 'formik';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../../i18n/i18n.constants';
+
 import {
   ApiBookingType,
   weekDays,
@@ -34,6 +38,8 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
   onSubmitCallback,
   onCancelCallback,
 }) => {
+  const { t } = useTranslation(namespaces.pages.bookingTypes);
+
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const { postRequest, putRequest } = useRequest();
   const { addNotification } = useNotifications();
@@ -70,7 +76,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       );
     } catch (err) {
       console.log(err);
-      addNotification({ type: 'error', message: 'Unable to create booking type' });
+      addNotification({
+        type: 'error',
+        message: t('booking_type_form.create_new_booking_type_error'),
+      });
     }
   };
 
@@ -96,10 +105,13 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
         );
       } catch (err) {
         console.log(err);
-        addNotification({ type: 'error', message: 'Unable to update booking type' });
+        addNotification({
+          type: 'error',
+          message: t('booking_type_form.update_booking_type_error'),
+        });
       }
     },
-    [addNotification, putRequest],
+    [addNotification, putRequest, t],
   );
 
   return (
@@ -139,19 +151,19 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         }
                       }}
                     >
-                      Cancel
+                      {t('booking_type_form.button.cancel')}
                     </button>
                     <input
                       type="submit"
                       className="button button-xxs button-secondary width-100"
-                      value="Save"
+                      value={t('booking_type_form.button.save')}
                     />
                   </td>
                   <td>
                     <Field
-                      aria-label="booking type name"
+                      aria-label={t('booking_type_form.booking_type_name')}
                       className="input-s font-weight-bold"
-                      placeholder="Booking type name"
+                      placeholder={t('booking_type_form.booking_type_name')}
                       type="text"
                       name="name"
                       required
@@ -159,14 +171,18 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </td>
                 </tr>
                 <tr>
-                  <th className="font-weight-semibold font-size-s">Active date ranges</th>
+                  <th className="font-weight-semibold font-size-s">
+                    {t('booking_type_form.active_date_ranges')}
+                  </th>
                   <td className="font-weight-semibold font-size-s">
                     <BookingTypeDateRangesField />
                   </td>
                 </tr>
 
                 <tr>
-                  <th className="font-weight-semibold font-size-s">Exceptions</th>
+                  <th className="font-weight-semibold font-size-s">
+                    {t('booking_type_form.exceptions')}
+                  </th>
                   <td className="font-weight-semibold font-size-s">
                     {exceptions.length > 0 && (
                       <ul className="list-unstyled">
@@ -199,18 +215,20 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                         className="button-xxs success"
                         disabled={filledRules.length === 0}
                       >
-                        Add exceptions
+                        {t('booking_type_form.add_exceptions')}
                       </button>
                     </div>
                   </td>
                 </tr>
 
                 <tr>
-                  <th className="font-weight-semibold font-size-s">Additional information</th>
+                  <th className="font-weight-semibold font-size-s">
+                    {t('booking_type_form.additional_information')}
+                  </th>
                   <td className="font-weight-semibold font-size-s">
                     <Field
-                      aria-label="additional information"
-                      placeholder="Additional information"
+                      aria-label={t('booking_type_form.additional_information')}
+                      placeholder={t('booking_type_form.additional_information')}
                       className="input-s"
                       name="additionalInformation"
                       type="text"
@@ -220,9 +238,11 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
 
                 <tr>
                   <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
-                    Week day
+                    {t('booking_type_form.week_day')}
                   </th>
-                  <th className="font-weight-semibold font-size-s">Slots</th>
+                  <th className="font-weight-semibold font-size-s">
+                    {t('booking_type_form.slots')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -243,10 +263,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         htmlFor={`rules.${idx}.slots.${slotIdx}.start`}
                                         className="font-size-xxs"
                                       >
-                                        Start
+                                        {t('booking_type_form.start')}
                                       </label>
                                       <Field
-                                        aria-label="start date"
+                                        aria-label={t('booking_type_form.start')}
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.start`}
                                         type="text"
@@ -257,10 +277,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         htmlFor={`rules.${idx}.slots.${slotIdx}.end`}
                                         className="font-size-xxs"
                                       >
-                                        End
+                                        {t('booking_type_form.end')}
                                       </label>
                                       <Field
-                                        aria-label="end date"
+                                        aria-label={t('booking_type_form.end')}
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.end`}
                                         type="text"
@@ -271,10 +291,10 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                         htmlFor={`rules.${idx}.slots.${slotIdx}.seats`}
                                         className="font-size-xxs"
                                       >
-                                        Seats:{' '}
+                                        {t('booking_type_form.seats')}:{' '}
                                       </label>
                                       <Field
-                                        aria-label="seats"
+                                        aria-label={t('booking_type_form.seats')}
                                         className="input-xxs"
                                         name={`rules.${idx}.slots.${slotIdx}.seats`}
                                         type="number"
@@ -290,7 +310,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                                     arrayHelpers.remove(slotIdx);
                                   }}
                                 >
-                                  Delete slot
+                                  {t('booking_type_form.button.delete_slot')}
                                 </button>
                               </div>
                             ))}
@@ -302,7 +322,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                               className="button-xxs success"
                               data-testid={`add-slot-button-${weekDays[idx]}`}
                             >
-                              Add slot
+                              {t('booking_type_form.button.add_slot')}
                             </button>
                           </>
                         )}
