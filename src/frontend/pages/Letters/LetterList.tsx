@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '@reach/router';
-import styled from 'styled-components';
 import Select from 'react-select';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
