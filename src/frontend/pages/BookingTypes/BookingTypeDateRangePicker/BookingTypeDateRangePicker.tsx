@@ -17,6 +17,7 @@ interface BookingTypeDateRangePickerProps {
   currentRange: BookingTypeDateRange | null;
   onChange: (value: BookingTypeDateRange) => void;
   onClose: () => void;
+  title: string;
 }
 
 /**
@@ -42,6 +43,7 @@ const BookingTypeDateRangePicker: React.FC<BookingTypeDateRangePickerProps> = (p
           currentRange={props.currentRange}
           onChange={props.onChange}
           onClose={props.onClose}
+          title={props.title}
         />
       ) : null}
     </Modal>
@@ -50,7 +52,7 @@ const BookingTypeDateRangePicker: React.FC<BookingTypeDateRangePickerProps> = (p
 
 const BookingTypeDateRangePickerInside: React.FC<
   BookingTypeDateRangePickerProps & { currentRange: BookingTypeDateRange }
-> = ({ currentRange, onChange, onClose }) => {
+> = ({ currentRange, onChange, onClose, title }) => {
   const { t } = useTranslation(namespaces.pages.bookingTypes);
 
   const setRangeValue = (key: 'start' | 'end', newValue: string | null) => {
@@ -90,7 +92,7 @@ const BookingTypeDateRangePickerInside: React.FC<
 
   return (
     <div className="height-100 text-align-center">
-      <h1 className="font-weight-semibold font-size-xl">{t('date_range_picker.inside.title')}</h1>
+      <h1 className="font-weight-semibold font-size-xl">{title}</h1>
 
       <div className="margin-top-s font-weight-medium font-size-s color-dark-300">
         {t('date_range_picker.inside.current_selection')}

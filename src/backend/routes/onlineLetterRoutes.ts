@@ -1,4 +1,6 @@
 import express from 'express';
+import isEmail from 'validator/lib/isEmail';
+
 import { ReadReceiptStatus } from '../../common/constants-common';
 
 import { initiateLetter, sendLetter, readLetter } from '../controllers/letterControllers';
@@ -16,12 +18,19 @@ router.post('/start', async (_, res) => {
 });
 
 router.post('/send', async (req, res) => {
-  const { title, content, accessKey, accessPassword } = req.body;
-  const trimmedTitle = title ? title.trim() : '';
-  const trimmedContent = content ? content.trim() : '';
+  const { title, content, email, accessKey, accessPassword } = req.body;
+  const trimmedTitle: string = title ? title.trim() : '';
+  const trimmedContent: string = content ? content.trim() : '';
+  const trimmedEmail: string | null = email ? email.trim() : null;
 
+  // email can be missing, others not (empty string is falsy)
   if (!trimmedTitle || !trimmedContent || !accessKey || !accessPassword) {
     res.status(400).json({ error: 'missing title, content, accessKey or accessPassword' });
+    return;
+  }
+
+  if (trimmedEmail !== null && !isEmail(trimmedEmail)) {
+    res.status(400).json({ error: 'invalid email' });
     return;
   }
 
@@ -30,6 +39,7 @@ router.post('/send', async (req, res) => {
     accessPassword,
     title: trimmedTitle,
     content: trimmedContent,
+    email: trimmedEmail,
   });
   if (!letter) {
     res.status(400).json({ error: 'failed to send letter' });

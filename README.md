@@ -166,3 +166,17 @@ in [Emacs Tide](https://github.com/ananthakumaran/tide)
   and out of it. In that one component using that, instead of using Moment.js, we parse dates directly into browser's
   local timezone, pointing to the local noon. The inputs and outputs of `ExceptionsDatePicker` are still just strings
   in format `2022-01-30`, so this difference in timestamp processing does not affect anything outside of that.
+
+## Backups in Heroku
+
+https://devcenter.heroku.com/articles/heroku-postgres-backups
+
+This activates daily backups, which will be stored for 7 days.
+
+    heroku pg:backups:schedule --at '03:00 Europe/Helsinki' -a naisten-linja-services-dev
+    heroku pg:backups:schedule --at '03:00 Europe/Helsinki' -a naisten-linja-services
+
+You can see the status of existing backups with
+
+    heroku pg:backups -a naisten-linja-services-dev
+    heroku pg:backups -a naisten-linja-services

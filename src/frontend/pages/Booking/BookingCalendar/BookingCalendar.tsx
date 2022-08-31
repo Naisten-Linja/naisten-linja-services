@@ -354,10 +354,11 @@ export function isDateInActiveDateRanges(
   currentMomentDate: Moment,
   dateRanges: Array<BookingTypeDateRange>,
 ): boolean {
+  const startOfCurrent = currentMomentDate.startOf('day');
   for (const { start, end } of dateRanges) {
     const isStartSameOrBeforeCurrent =
-      start === null || moment(start).isSameOrBefore(currentMomentDate);
-    const isEndSameOrAfterCurrent = end === null || moment(end).isSameOrAfter(currentMomentDate);
+      start === null || moment(start).isSameOrBefore(startOfCurrent);
+    const isEndSameOrAfterCurrent = end === null || moment(end).isSameOrAfter(startOfCurrent);
     if (isStartSameOrBeforeCurrent && isEndSameOrAfterCurrent) {
       return true;
     }

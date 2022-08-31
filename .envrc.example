@@ -19,12 +19,21 @@ export REDIS_PORT=6379
 # URL to use for connecting to Redis. This one is needed for production too.
 export REDIS_URL="redis://localhost:$REDIS_PORT"
 
+# -- SENDGRID --
 # Set these variables if you are planning to test sending real emails
 export SENDGRID_API_KEY=
-export SENDGRID_FROM_EMAIL_ADDRESS=
+
+# Address and name that the booking related emails for staff/volunteers come from.
+export SENDGRID_FROM_EMAIL_ADDRESS="noreply@services-dev.naistenlinja.fi"
+export SENDGRID_FROM_EMAIL_NAME="Naisten Linja Bookings"
+# Name used for emails that go to customers
+export SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS="Reply Notification"
+
+# Dynamic templates to use for different emails
 export SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID=
 export SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID=
 export SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID=
+export SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID=
 
 # The hour when booking reminder emails will be sent to volunteers
 # In development you can set this to "* *" to make the emails run every minute, but then you should also

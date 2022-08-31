@@ -35,4 +35,19 @@ describe('isDateInActiveDateRanges', () => {
       ]),
     ).toBe(false);
   });
+
+  describe('Works even for non-exact dates', () => {
+    it('returns true if date is in the middle of the end date', () => {
+      expect(
+        isDateInActiveDateRanges(moment('2022-08-22 13:00:00'), [
+          { start: null, end: '2022-08-22' },
+        ]),
+      ).toBe(true);
+      expect(
+        isDateInActiveDateRanges(moment('2022-08-22 13:00:00'), [
+          { start: null, end: '2022-08-21' },
+        ]),
+      ).toBe(false);
+    });
+  });
 });

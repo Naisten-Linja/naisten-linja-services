@@ -47,6 +47,7 @@ export const BookingTypeDateRangesField = () => {
                   onClose={() => {
                     setEditRangeIndex(null);
                   }}
+                  title={t('date_range_picker.inside.title')}
                 />
               </ul>
             )}

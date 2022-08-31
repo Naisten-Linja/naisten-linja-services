@@ -13,6 +13,7 @@ import {
   ApiReplyAdmin,
   UserRole,
   ReplyStatus,
+  ApiReplyParamsAdmin,
 } from '../../../common/constants-common';
 import { useNotifications } from '../../NotificationsContext';
 import { useAuth } from '../../AuthContext';
@@ -46,15 +47,15 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       // @ts-ignore
       const { replyContent } = formRef.current;
       try {
+        const body: ApiReplyParamsAdmin = {
+          status,
+          content: replyContent.value,
+        };
         // If there is no reply for letter, create a new reply
         if (!reply) {
           const result = await postRequest<{ data: ApiReplyAdmin }>(
             `/api/letters/${letter.uuid}/reply`,
-            {
-              letterUuid: letter.uuid,
-              content: replyContent.value,
-              status,
-            },
+            body,
             { useJwt: true },
           );
           setReply(result.data.data);
@@ -64,11 +65,7 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           const { replyUuid } = formRef.current;
           const result = await postRequest<{ data: ApiReplyAdmin }>(
             `/api/letters/${letter.uuid}/reply/${replyUuid.value}`,
-            {
-              status,
-              letterUuid: letter.uuid,
-              content: replyContent.value,
-            },
+            body,
             { useJwt: true },
           );
           setReply(result.data.data);
@@ -246,6 +243,11 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
           }}
         />
       </div>
+      {showPublishBtn && letter?.hasEmail && (
+        <p className="color-primary-800 font-weight-bold font-size-s">
+          The customer will get an email notification when the reply is published.
+        </p>
+      )}
       <p className="field">
         {showSendForReviewBtn && (
           <Button
@@ -294,6 +296,8 @@ export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: st
       <h3>{letter.title}</h3>
       <p className="font-style-italic">
         <b>{t('letter.created')}:</b> {moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}
+        <br />
+        <b>Customer has given email address:</b> {letter.hasEmail ? 'Yes' : 'No'}
       </p>
 
       {disableLetterEdit ? <LetterContent>{letter.content}</LetterContent> : editLetterForm}

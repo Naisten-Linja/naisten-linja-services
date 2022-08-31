@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { RouteComponentProps, Link } from '@reach/router';
-import styled from 'styled-components';
-import Select from 'react-select';
+import { RouteComponentProps } from '@reach/router';
+import moment from 'moment-timezone';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -11,32 +10,34 @@ import {
   ApiLetterAdmin,
   ApiLetterWithReadStatus,
   ApiUserData,
+  BookingTypeDateRange,
   UserRole,
 } from '../../../common/constants-common';
 import { useNotifications } from '../../NotificationsContext';
 import { useAuth } from '../../AuthContext';
 import { useRequest } from '../../shared/http';
-
-import moment from 'moment-timezone';
-import { OverrideTurretInputHeightForReactSelectDiv } from '../../shared/utils-frontend';
-
-const LettersTable = styled.table`
-  tr {
-    height: 4rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
+import { LetterList } from './LetterList';
+import { LetterCounts } from './LetterCounts';
+import { BookingTypeBadgeDateRange } from '../BookingTypes/BookingTypeBadgeDateRange';
+import BookingTypeDateRangePicker from '../BookingTypes/BookingTypeDateRangePicker/BookingTypeDateRangePicker';
+import { isDateInActiveDateRanges } from '../Booking/BookingCalendar/BookingCalendar';
 
 export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
   const { t } = useTranslation(namespaces.pages.letters);
 
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);
   const [users, setUsers] = useState<Array<ApiUserData>>([]);
+
+  const [selectedDateRange, setSelectedDateRange] = useState<BookingTypeDateRange>({
+    start: null,
+    end: null,
+  });
+  const [dateRangeSelectorVisible, setDateRangeSelectorVisible] = useState(false);
+
   const { addNotification } = useNotifications();
   const { getRequest, postRequest } = useRequest();
   const { user } = useAuth();
-  const isStaff = user && user.role === UserRole.staff;
+  const isStaff = user ? user.role === UserRole.staff : false;
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -69,13 +70,13 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (user && user.role === UserRole.staff) {
+      if (isStaff) {
         await fetchUsers();
       }
       await fetchLetters();
     };
     fetchData();
-  }, [fetchLetters, fetchUsers, user]);
+  }, [fetchLetters, fetchUsers, isStaff]);
 
   const assignLetter = async ({
     letterUuid,
@@ -104,81 +105,38 @@ export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
     await fetchLetters();
   };
 
-  type OptionType = {
-    value: string | null;
-    label: string;
-  };
-
-  const assigneeOptions: OptionType[] = users
-    .map((u) => ({
-      value: u.uuid as string | null,
-      label: `${u.fullName ? u.fullName + ' - ' : ''}${u.email}`,
-    }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
-  const handleUserSelection = (letter: ApiLetterAdmin, opt: OptionType | null) => {
-    if (opt && opt.value !== letter.assignedResponderUuid) {
-      assignLetter({ letterUuid: letter.uuid, assigneeUuid: opt.value });
-    } else {
-      // Unassigned letter will set assigneeUuid field to null
-      assignLetter({ letterUuid: letter.uuid, assigneeUuid: null });
-    }
-  };
+  const filteredLetters = letters.filter((letter) =>
+    isDateInActiveDateRanges(moment(letter.created), [selectedDateRange]),
+  );
 
   return (
     <>
-      <h1>{t('table.title')}</h1>
-      <LettersTable>
-        <thead>
-          <tr>
-            <th>{t('table.created')}</th>
-            <th>{t('table.title')}</th>
-            <th>{t('table.reply_status')}</th>
-            <th>{t('table.read_receipt')}</th>
-            {isStaff && <th>{t('table.assigned_to')}</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {letters.map((letter) => {
-            return (
-              <tr key={`letter-list-item-${letter.uuid}`}>
-                <td>{moment(letter.created).format('dddd DD/MM/YYYY, HH:mm')}</td>
-                <td>
-                  <Link to={letter.uuid}>{letter.title}</Link>
-                </td>
-                <td>{letter.replyStatus || ''}</td>
-                <td>
-                  {letter.replyReadTimestamp
-                    ? moment(letter.replyReadTimestamp).format('dddd DD/MM/YYYY, HH:mm')
-                    : '-'}
-                </td>
-                {isStaff && (
-                  <td style={{ maxWidth: 200 }}>
-                    <OverrideTurretInputHeightForReactSelectDiv>
-                      <Select
-                        value={
-                          assigneeOptions
-                            ? assigneeOptions.find(
-                                (option) => option.value === letter.assignedResponderUuid,
-                              )
-                            : null
-                        }
-                        placeholder={t('table.user_select')}
-                        options={assigneeOptions}
-                        isSearchable
-                        isClearable
-                        onChange={(selected) => {
-                          handleUserSelection(letter, selected);
-                        }}
-                      />
-                    </OverrideTurretInputHeightForReactSelectDiv>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
-        </tbody>
-      </LettersTable>
+      <div className="flex justify-content-space-between flex-wrap">
+        <h1>{t('table.title')}</h1>
+        <div className="box-shadow-l padding-s display-inline-block">
+          <label htmlFor="user-list-booking-type-select">Show letters created on:</label>
+          <BookingTypeBadgeDateRange
+            range={selectedDateRange}
+            onEdit={() => {
+              setDateRangeSelectorVisible(true);
+            }}
+            className="display-inline-block"
+          />
+        </div>
+      </div>
+      <LetterCounts letters={filteredLetters} />
+      <LetterList
+        letters={filteredLetters}
+        users={users}
+        showAssignmentColumn={isStaff}
+        assignLetter={assignLetter}
+      />
+      <BookingTypeDateRangePicker
+        currentRange={dateRangeSelectorVisible ? selectedDateRange : null}
+        onChange={(value) => setSelectedDateRange(value)}
+        onClose={() => setDateRangeSelectorVisible(false)}
+        title={'Select date range which contains the letters you want to see'}
+      />
     </>
   );
 };
