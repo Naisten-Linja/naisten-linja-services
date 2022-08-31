@@ -24,9 +24,7 @@ describe('BookingTypeDateRangesField', () => {
       </Formik>,
     );
 
-    expect(
-      screen.getByText('No date ranges selected, this booking type is never available.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('date_range_field.error')).toBeInTheDocument();
   });
 
   it('when a date range is chosen and the form is submitted, submits the exception', async () => {
@@ -40,19 +38,17 @@ describe('BookingTypeDateRangesField', () => {
     );
 
     // Open the modal
-    userEvent.click(screen.getByRole('button', { name: 'Add date range' }));
+    userEvent.click(screen.getByRole('button', { name: 'date_range_field.add_date_range' }));
 
     // `find` because waiting for the modal to open, check the header text
-    expect(
-      await screen.findByText('Select range of dates when this booking type needs to be active'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('date_range_picker.inside.title')).toBeInTheDocument();
 
     //Choose start and end date in the future (Tuesday, Thursday) from the calendar, mocked date for today is Monday 2019-04-22"
     userEvent.click(screen.getAllByText('23')[0]);
     userEvent.click(screen.getAllByText('25')[1]);
 
     //Close the modal
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    userEvent.click(screen.getByRole('button', { name: 'date_range_picker.inside.close' }));
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));
@@ -83,30 +79,34 @@ describe('BookingTypeDateRangesField', () => {
     );
 
     // Open the modal
-    userEvent.click(screen.getByRole('button', { name: 'EDIT' }));
+    userEvent.click(screen.getByRole('button', { name: 'badge_date_range.edit' }));
 
     // `find` because waiting for the modal to open, check the header text
-    expect(
-      await screen.findByText('Select range of dates when this booking type needs to be active'),
-    ).toBeInTheDocument();
+    expect(await screen.findByText('date_range_picker.inside.title')).toBeInTheDocument();
 
-    expect(screen.getAllByText('Always until 15.04.2019')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('badge_date_range.until[15.04.2019]')[0]).toBeInTheDocument();
 
     //Other days than Tuesdays are disabled, chosen date 2019-04-24 is Wednesday
     userEvent.click(screen.getAllByText('12')[0]);
 
     expect(await screen.findByText('2019-04-12')).toBeInTheDocument();
 
-    expect(screen.getAllByText('From 12.04.2019 to 15.04.2019')[0]).toBeInTheDocument();
+    expect(
+      screen.getAllByText('badge_date_range.from_to[12.04.2019,15.04.2019]')[0],
+    ).toBeInTheDocument();
 
     // Clear the selection of end date
-    userEvent.click(screen.getAllByRole('button', { name: 'Clear selection' })[1]);
+    userEvent.click(
+      screen.getAllByRole('button', { name: 'date_range_picker.inside.clear_selection' })[1],
+    );
 
     // Check the contents now
-    expect(screen.getAllByText('Forever after 12.04.2019')[0]).toBeInTheDocument();
+    expect(
+      screen.getAllByText('badge_date_range.forever_after[12.04.2019]')[0],
+    ).toBeInTheDocument();
 
     //Close the modal
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    userEvent.click(screen.getByRole('button', { name: 'date_range_picker.inside.close' }));
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));
@@ -140,7 +140,7 @@ describe('BookingTypeDateRangesField', () => {
     );
 
     // Delete the second date range
-    userEvent.click(screen.getAllByRole('button', { name: 'Delete this date range' })[1]);
+    userEvent.click(screen.getAllByRole('button', { name: 'badge_date_range.delete' })[1]);
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));
@@ -155,7 +155,7 @@ describe('BookingTypeDateRangesField', () => {
     );
 
     // Delete the first date range
-    userEvent.click(screen.getAllByRole('button', { name: 'Delete this date range' })[0]);
+    userEvent.click(screen.getAllByRole('button', { name: 'badge_date_range.delete' })[0]);
 
     //Submit the form
     userEvent.click(screen.getByRole('button', { name: 'Submit' }));
