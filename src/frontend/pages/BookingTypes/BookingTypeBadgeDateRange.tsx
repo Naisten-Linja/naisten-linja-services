@@ -7,6 +7,7 @@ interface BookingTypeBadgeDateRangeProps {
   range: BookingTypeDateRange;
   onEdit?: () => void;
   onDelete?: () => void;
+  className?: string;
 }
 
 export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps) => {
@@ -32,7 +33,10 @@ export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps)
 
   return (
     <p
-      className="font-weight-semibold no-margin no-padding background-info-100 border-radius"
+      className={
+        'font-weight-semibold no-margin no-padding background-info-100 border-radius ' +
+        props.className
+      }
       style={{ fontSize: '0.75em' }}
     >
       <span className="display-inline-block padding-xxs" style={{ verticalAlign: 'middle' }}>
@@ -40,7 +44,17 @@ export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps)
       </span>
       {onEdit && (
         <button
-          className="button button-xs button-primary button button-icon no-margin no-border-radius"
+          className="button button-xs button-primary button button-icon no-margin no-border"
+          style={
+            typeof onDelete !== 'undefined'
+              ? {
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                }
+              : { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
+          }
           onClick={(e) => {
             e.preventDefault();
             onEdit();
@@ -52,7 +66,7 @@ export const BookingTypeBadgeDateRange = (props: BookingTypeBadgeDateRangeProps)
       )}
       {onDelete && (
         <button
-          className="button button-xs button-error button-square button button-icon no-margin"
+          className="button button-xs button-error button-square button button-icon no-margin no-border"
           style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
           title="Delete this date range"
           onClick={(e) => {

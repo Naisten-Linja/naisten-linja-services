@@ -43,6 +43,7 @@ export const BookingTypeDateRangesField = () => {
                   onClose={() => {
                     setEditRangeIndex(null);
                   }}
+                  title={'Select range of dates when this booking type needs to be active'}
                 />
               </ul>
             )}
