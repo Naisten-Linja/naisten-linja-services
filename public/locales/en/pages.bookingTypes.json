@@ -1,0 +1,69 @@
+{
+  "date_range_picker": {
+    "inside": {
+      "title": "Select range of dates when this booking type needs to be active",
+      "current_selection": "Current selection",
+      "start_date": "Start date",
+      "end_date": "End date",
+      "not_specified": "Not specified",
+      "clear_selection": "Clear selection",
+      "close": "Close"
+    }
+  },
+  "exceptions_date_picker": {
+    "choose_exceptions": "Choose exceptions",
+    "close": "Close"
+  },
+  "badge_date_range": {
+    "always": "Always",
+    "until": "Always until {{endDate}}",
+    "forever_after": "Forever after {{startDate}}",
+    "only": "Only on {{startDate}}",
+    "from_to": "From {{startDate}} to {{endDate}}",
+    "edit": "EDIT",
+    "delete": "Delete this date range"
+  },
+  "badge_exception": {
+    "delete": "Delete this exception"
+  },
+  "date_range_field": {
+    "error": "No date ranges selected, this booking type is never available.",
+    "add_date_range": "Add date range"
+  },
+  "booking_type_form": {
+    "create_new_booking_type_error": "Unable to create booking type",
+    "update_booking_type_error": "Unable to update booking type",
+    "button": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete_slot": "Delete slot",
+        "add_slot": "Add slot"
+    },
+    "booking_type_name": "Booking type name",
+    "active_date_ranges": "Active date ranges",
+    "exceptions": "Exceptions",
+    "add_exceptions": "Add exceptions",
+    "additional_information": "Additional information",
+    "week_day": "Week day",
+    "slots": "Slots",
+    "start": "Start time",
+    "end": "End time",
+    "seats": "Seats"
+  },
+  "booking_types": {
+    "fetch_booking_types_error": "Unable to get all booking types",
+    "new_booking_type": "New booking type",
+    "title": "Booking types",
+    "button": {
+        "create_booking_type": "Create a new booking type",
+        "edit": "Edit"
+    },
+    "additional_information": "Additional information",
+    "active_date_ranges": "Active date ranges",
+    "no_date_selected": "No date ranges selected, this booking type is never available.",
+    "exceptions": "Exceptions",
+    "week_day": "Week day",
+    "slots": "Slots",
+    "available_seats": "available seats"
+  }
+}

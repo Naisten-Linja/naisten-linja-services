@@ -2,6 +2,10 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Link } from '@reach/router';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from './i18n/i18n.constants';
+
 import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
@@ -10,11 +14,11 @@ import { IoMdMenu, IoMdClose } from 'react-icons/io';
 
 export const Navigation = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const responsiveMenu= useRef<any>(null);
+  const responsiveMenu = useRef<any>(null);
 
   const handleMenuItemClicked = () => {
     if (responsiveMenu.current) responsiveMenu.current?.handleClick();
-  }
+  };
 
   return (
     <NavigationWrapper>
@@ -25,79 +29,86 @@ export const Navigation = () => {
         changeMenuOn="600px"
         largeMenuClassName="padding-m container"
         smallMenuClassName="padding-m"
-        menu={<MainMenu afterMenuClicked={handleMenuItemClicked}/>}
+        menu={<MainMenu afterMenuClicked={handleMenuItemClicked} />}
       />
     </NavigationWrapper>
   );
 };
 
 const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
+  const { t } = useTranslation(namespaces.navigation);
   const { user, logout, login } = useAuth();
   return (
     <StyledNav onClick={afterMenuClicked}>
       <ul>
         <li>
-          <Link to="/" style={{ fontWeight: 'bold' }}>Naisten Linja</Link>
+          <Link to="/" style={{ fontWeight: 'bold' }}>
+            Naisten Linja
+          </Link>
         </li>
         {user && user.role === UserRole.staff && (
           <>
             <li>
-              <Link to="admin/letters">Letters</Link>
+              <Link to="admin/letters">{t('letters')}</Link>
             </li>
             <li>
-              <Link to="admin/users">Users</Link>
+              <Link to="admin/users">{t('users')}</Link>
             </li>
             <li>
-              <Link to="admin/booking-types">Booking Types</Link>
+              <Link to="admin/booking-types">{t('booking-types')}</Link>
             </li>
             <li>
-              <Link to="admin/booking">Booking calendar</Link>
+              <Link to="admin/booking">{t('booking-calendar')}</Link>
             </li>
             <li>
-              <Link to="admin/all-bookings">All bookings</Link>
+              <Link to="admin/all-bookings">{t('all-bookings')}</Link>
             </li>
             <li>
-              <Link to="admin/my-bookings">My bookings</Link>
+              <Link to="admin/my-bookings">{t('my-bookings')}</Link>
             </li>
             <li>
-              <Link to="admin/settings">Settings</Link>
+              <Link to="admin/settings">{t('settings')}</Link>
             </li>
             <li>
-              <Link to="admin/materials">Materials</Link>
+              <Link to="admin/materials">{t('materials')}</Link>
             </li>
           </>
         )}
         {user && user.role === UserRole.volunteer && (
           <>
             <li>
-              <Link to="volunteer/letters">Your assigned letters</Link>
+              <Link to="volunteer/letters">{t('your-assigned-letters')}</Link>
             </li>
             <li>
-              <Link to="volunteer/booking">Booking calendar</Link>
+              <Link to="volunteer/booking">{t('booking-calendar')}</Link>
             </li>
             <li>
-              <Link to="volunteer/my-bookings">My bookings</Link>
+              <Link to="volunteer/my-bookings">{t('my-bookings')}</Link>
             </li>
             <li>
-              <Link to="volunteer/materials">Materials</Link>
+              <Link to="volunteer/materials">{t('materials')}</Link>
             </li>
           </>
         )}
         {!user && (
           <li>
             <ButtonSmall buttonType="secondary" onClick={login}>
-              login
+              {t('login')}
             </ButtonSmall>
           </li>
         )}
         {user && (
           <li>
             {user.email} ({user.role}) {` `}
-            <a href="/api/auth/profile-redirect" target="_blank" className="button button-secondary button-xxs">
-              Edit profile
+            <a
+              href="/api/auth/profile-redirect"
+              target="_blank"
+              className="button button-secondary button-xxs"
+            >
+              {t('edit-profile')}
             </a>
             <ButtonSmall buttonType="secondary" onClick={logout} className="button button-xxs">
-              Logout
+              {t('logout')}
             </ButtonSmall>
           </li>
         )}
@@ -128,8 +139,8 @@ const StyledNav = styled.nav`
     flex: none;
     margin: 0;
     padding-right: 1rem;
-    padding-top: .4rem;
-    padding-bottom: .4rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
   a {
     text-decoration: underline;

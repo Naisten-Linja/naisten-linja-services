@@ -1,0 +1,29 @@
+{
+  "fetch_users_error": "Käyttäjiä ei voida noutaa",
+  "fetch_letters_error": "Kirjeitä ei voida noutaa",
+  "assign_letter_success": "Kirje kohdistettu henkilölle {{email}}",
+  "unassign_letter_success": "Kirjeen kohdistus poistettu",
+  "assign_letter_error": "Kirjeen kohdistaminen henkilölle {{email}} epäonnistui",
+  "title": "Kirjeet",
+  "datefilter": {
+    "show_letters_created_on": "Näytä vain kirjeet aikaväliltä:",
+    "select_date_range_title": "Valitse aikaväli jonka kirjeet haluat nähdä"
+  },
+  "table": {
+    "created": "Lähetetty",
+    "title": "Otsikko",
+    "reply_status": "Vastauksen tila",
+    "read_receipt": "Vastaus luettu",
+    "assigned_to": "Kohdistettu käyttäjälle",
+    "user_select": "Kohdista käyttäjälle"
+  },
+  "letter_counts": {
+    "total": "Yhteensä",
+    "no_reply": "Ei vastausta",
+    "draft": "Luonnos",
+    "in_review": "Arvioitavana",
+    "published": "Julkaistu",
+    "not_read": "ei luettu",
+    "read": "luettu"
+  }
+}

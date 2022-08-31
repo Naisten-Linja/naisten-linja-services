@@ -1,0 +1,69 @@
+{
+  "date_range_picker": {
+    "inside": {
+      "title": "Valitse aikaväli varaustyypille",
+      "current_selection": "Nykyinen valinta",
+      "start_date": "Aloituspäivä",
+      "end_date": "Lopetuspäivä",
+      "not_specified": "Ei määritelty",
+      "clear_selection": "Tyhjennä valinta",
+      "close": "Sulje"
+    }
+  },
+  "exceptions_date_picker": {
+    "choose_exceptions": "Valitse poikkeukset",
+    "close": "Sulje"
+  },
+  "badge_date_range": {
+    "always": "Aina",
+    "until": "{{endDate}} asti",
+    "forever_after": "{{startDate}} alkaen",
+    "only": "Vain {{startDate}}",
+    "from_to": "{{startDate}} - {{endDate}}",
+    "edit": "MUOKKAA",
+    "delete": "Poista tämä aikaväli"
+  },
+  "badge_exception": {
+    "delete": "Poista tämä poikkeus"
+  },
+  "date_range_field": {
+    "error": "Ajanjaksoa ei ole valittu, tämä varaustyyppi ei näy varauskalenterissa",
+    "add_date_range": "Lisää ajanjakso"
+  },
+  "booking_type_form": {
+    "create_new_booking_type_error": "Varaustyypin luominen epäonnistui",
+    "update_booking_type_error": "Varaustyypin päivittäminen epäonnistui",
+    "button": {
+      "save": "Tallenna",
+      "cancel": "Peru",
+      "delete_slot": "Poista vuoro",
+      "add_slot": "Lisää vuoro"
+    },
+    "booking_type_name": "Varaustyypin nimi",
+    "active_date_ranges": "Aktiiviset ajanjaksot",
+    "exceptions": "Poikkeukset",
+    "add_exceptions": "Lisää poikkeus",
+    "additional_information": "Lisätietoja",
+    "week_day": "Viikonpäivä",
+    "slots": "Vuorot",
+    "start": "Alkaa",
+    "end": "Päättyy",
+    "seats": "Paikat"
+  },
+  "booking_types": {
+    "fetch_booking_types_error": "Kaikkien varaustyyppien noutaminen epäonnistui",
+    "new_booking_type": "Uusi varaustyyppi",
+    "title": "Varaustyyppi",
+    "button": {
+      "create_booking_type": "Luo uusi varaustyyppi",
+      "edit": "Muokkaa"
+    },
+    "additional_information": "Lisätietoja",
+    "active_date_ranges": "Aktiiviset ajanjaksot",
+    "no_date_selected": "Ajanjaksoa ei ole valittu, tämä varaustyyppi ei näy varauskalenterissa",
+    "exceptions": "Poikkeukset",
+    "week_day": "Viikonpäivä",
+    "slots": "Vuorot",
+    "available_seats": "Vapaat paikat"
+  }
+}

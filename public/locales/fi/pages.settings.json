@@ -1,0 +1,7 @@
+{
+  "title": "Ilmoitusasetukset",
+  "fetch_profile_info_success": "Uusi ilmoitusasetus päivitetty",
+  "fetch_profile_info_error": "Ilmoitusasetusten päivittäminen epäonnistui",
+  "text": "Vastaanota ilmoitus jokaisesta varatusta vuorosta. Jos kirjaat esimerkiksi luvun 5, saat sähköposti-ilmoituksen aina, kun varaus on tehty 5 päivää (tai vähemmän) ennen kyseisen vuoron ajankohtaa. Tarkoituksena on pitää sinut ajan tasalla viime hetken varauksista. Mikäli et halua ilmoituksia, valitse luku 0.",
+  "button": { "save": "Tallenna" }
+}

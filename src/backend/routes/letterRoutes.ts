@@ -5,6 +5,8 @@ import {
   getAllAssignedLetters,
   assignLetter,
   getLetter,
+  updateOriginalLetterContent,
+  deleteLetterAndReply,
 } from '../controllers/letterControllers';
 import {
   replyToLetter,
@@ -17,8 +19,12 @@ import {
   ResponderType,
   ReplyStatus,
   ApiLetterWithReadStatus,
+  ApiLetterAdmin,
+  ApiUpdateLetterContentParams,
+  ApiReplyParamsAdmin,
 } from '../../common/constants-common';
 import { isAuthenticated } from '../middlewares';
+import { sendReplyNotificationToCustomer } from '../controllers/emailControllers';
 
 const router = express.Router();
 
@@ -50,6 +56,7 @@ router.get(
           uuid,
           title,
           content,
+          hasEmail,
           assignedResponderUuid,
           assignedResponderEmail,
           assignedResponderFullName,
@@ -57,13 +64,14 @@ router.get(
           replyStatus,
           replyReadReceipt,
           replyReadTimestamp,
-          replyStatusTimestamp
+          replyStatusTimestamp,
         } = letter;
         return {
           uuid,
           created,
           title,
           content,
+          hasEmail,
           assignedResponderUuid,
           assignedResponderEmail,
           assignedResponderFullName,
@@ -71,7 +79,7 @@ router.get(
           replyStatus,
           replyReadReceipt,
           replyReadTimestamp,
-          replyStatusTimestamp
+          replyStatusTimestamp,
         };
       })
       .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
@@ -134,17 +142,21 @@ router.post(
   // Only allow staff and volunteer access
   isAuthenticated([UserRole.staff, UserRole.volunteer]),
   async (req, res) => {
+    const { uuid: letterUuid } = req.params;
+    const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
+    if (!letterUuid || !content || !status) {
+      res.status(400).json({ error: 'Missing letterUuid, content or status in request' });
+      return;
+    }
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(req.params.uuid, user.uuid);
-    if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
+    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    if (
+      (isVolunteer && (!isAssigned || status === ReplyStatus.published)) ||
+      (!isVolunteer && !isStaff)
+    ) {
       res.status(401).json({ error: `User ${user.email} can't response to this letter` });
-      return;
-    }
-    const { letterUuid, content, status } = req.body;
-    if (!letterUuid || !content || !status) {
-      res.status(400).json({ error: 'Missing letterUuid, content or status in request' });
       return;
     }
     const reply = await replyToLetter({
@@ -195,7 +207,7 @@ router.post(
       return;
     }
     // @ts-ignore
-    const { content, status } = req.body;
+    const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
     if (!content || !status) {
       res.status(400).json({ error: 'Missing content or status in request' });
       return;
@@ -204,12 +216,55 @@ router.post(
       res.status(401).json({ error: 'Non staff users are not allowed to publish a response' });
       return;
     }
-    const reply = await updateLettersReply(replyUuid, content, status);
+    // update the reply, this also ensures that replyUuid is really connected to letterUuid
+    const reply = await updateLettersReply(letterUuid, replyUuid, content, status);
     if (!reply) {
       res.status(400).json({ error: 'Unable to update reply' });
       return;
     }
+    if (status === ReplyStatus.published) {
+      const result = await sendReplyNotificationToCustomer(letterUuid);
+      if (!result.sent && result.reason !== 'no customer email') {
+        console.error(`Failed to send email notification to customer. reason: ${result.reason}`);
+      }
+    }
     res.status(200).json({ data: reply });
+  },
+);
+
+router.put<
+  { letterUuid: string },
+  { data: ApiLetterAdmin } | { error: string },
+  ApiUpdateLetterContentParams
+>(
+  '/:letterUuid',
+  // Only allow staff to modify letter content
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { letterUuid } = req.params;
+    if (!req.body) {
+      res.status(400).json({ error: 'missing required data in request body' });
+      return;
+    }
+    const { title, content } = req.body;
+    const updatedLetter = await updateOriginalLetterContent({ letterUuid, title, content });
+
+    if (updatedLetter === null) {
+      res.status(400).json({ error: 'failed to update original letter content' });
+      return;
+    }
+
+    res.status(200).json({ data: updatedLetter });
+  },
+);
+
+router.delete<{ letterUuid: string }, { data: { success: boolean } }>(
+  '/:letterUuid',
+  isAuthenticated([UserRole.staff]),
+  async (req, res) => {
+    const { letterUuid } = req.params;
+    const success = await deleteLetterAndReply(letterUuid);
+    res.status(202).json({ data: { success } });
   },
 );
 

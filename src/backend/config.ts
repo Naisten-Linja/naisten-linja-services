@@ -39,13 +39,31 @@ export function getConfig() {
   if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_ADDRESS) {
     throw 'Variable SENDGRID_FROM_EMAIL_ADDRESS is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID) {
+  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_FROM_EMAIL_NAME) {
+    throw 'Variable SENDGRID_FROM_EMAIL_NAME is missing from your environment';
+  }
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS
+  ) {
+    throw 'Variable SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS is missing from your environment';
+  }
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID) {
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID is missing from your environment';
   }
-  if (process.env.ENVIRONMENT === 'production' && !process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID) {
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID
+  ) {
     throw 'Variable SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID is missing from your environment';
   }
   if (process.env.ENVIRONMENT === 'production' && !process.env.BOOKING_REMINDER_SENDING_HOUR) {
@@ -53,6 +71,12 @@ export function getConfig() {
   }
   if (process.env.ENVIRONMENT === 'production' && !process.env.BOOKING_REMINDER_DAYS_BEFORE) {
     throw 'Variable BOOKING_REMINDER_DAYS_BEFORE is missing from your environment';
+  }
+  if (
+    process.env.ENVIRONMENT === 'production' &&
+    !process.env.SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID
+  ) {
+    throw 'Variable SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID is missing from your environment';
   }
 
   // `checkVariables` should ensure required variables are available here. Unfortunately typescript
@@ -93,10 +117,17 @@ export function getConfig() {
 
     sendGridApiKey: process.env.SENDGRID_API_KEY || null,
     sendGridFromEmailAddress: process.env.SENDGRID_FROM_EMAIL_ADDRESS || null,
-    sendGridStaffBookingConfirmationTemplate: process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
-    sendGridVolunteerBookingConfirmationTemplate: process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
-    sendGridVolunteerBookingReminderTemplate: process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID || null,
+    sendGridFromEmailName: process.env.SENDGRID_FROM_EMAIL_NAME || null,
+    sendGridFromEmailNameForCustomers: process.env.SENDGRID_FROM_EMAIL_NAME_FOR_CUSTOMERS || null,
+    sendGridStaffBookingConfirmationTemplate:
+      process.env.SENDGRID_STAFF_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
+    sendGridVolunteerBookingConfirmationTemplate:
+      process.env.SENDGRID_VOLUNTEER_BOOKING_CONFIRMATION_TEMPLATE_ID || null,
+    sendGridVolunteerBookingReminderTemplate:
+      process.env.SENDGRID_VOLUNTEER_BOOKING_REMINDER_TEMPLATE_ID || null,
     bookingReminderSendingHour: process.env.BOOKING_REMINDER_SENDING_HOUR || null,
     bookingReminderDaysBefore: process.env.BOOKING_REMINDER_DAYS_BEFORE || null,
+    sendGridCustomerReplyNotificationTemplate:
+      process.env.SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID || null,
   };
 }

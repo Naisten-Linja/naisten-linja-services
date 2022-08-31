@@ -1,0 +1,49 @@
+{
+  "send_reply_success": "Vastaus tallennettu tilassa {{status}}",
+  "send_reply_error": "Vastauksen tallentamisessa tapahtui virhe",
+  "fetch_reply_error": "Vastausta ei voida noutaa",
+  "fetch_letter_error": "Kirjettä ei voida noutaa",
+  "update_letter_content_success": "Kirjeen sisältö on päivitetty",
+  "update_letter_content_error": "Kirjeen päivittämisessä tapahtui virhe",
+  "delete_letter": "Oletko varma, että haluat poistaa kirjeen?",
+  "delete_letter_success": "Kirje ja vastaus on poistettu onnistuneesti",
+  "delete_letter_error": "Kirjeen poistaminen epäonnistui",
+  "edit_letter_form": {
+    "warning": "Huom! Ethän muokkaa kirjeen sisältöä tarpeettomasti. Muokattua kirjettä ei voida palauttaa ennalleen",
+    "button": {
+      "save_changes": "Tallenna muutokset",
+      "edit_letter_content": "Muokkaa kirjeen sisältöä"
+    }
+  },
+  "edit_reply_form": {
+    "button": {
+      "submit_reply_for_review": "Lähetä vastaus arvioitavaksi",
+      "publish_reply": "Julkaise vastaus",
+      "unpublish_reply": "Peruuta vastauksen julkaisu",
+      "save_draft": "Tallenna vastaus luonnoksena"
+    },
+    "customer_will_get_email_notification": "Asiakas saa sähköposti-ilmoituksen kun julkaiset vastauksen."
+  },
+  "back_link": "Kaikki kirjeet",
+  "letter": {
+    "title": "Kirje",
+    "created": "Lähetetty",
+    "customer_has_given_email": "Asiakas on antanut sähköpostiosoitteen",
+    "yes": "Kyllä",
+    "no": "Ei"
+  },
+  "reply": {
+    "title": "Vastaa",
+    "updated_on": "Päivitetty",
+    "status": "Tila",
+    "read_on": "Luettu",
+    "never": "Ei koskaan"
+  },
+
+  "danger_zone": {
+    "title": "Huom!",
+    "p_1": "Poista tämä kirje ja vastaus",
+    "p_2": "Poistaessasi kirjeen ja vastauksen poistuvat ne lopullisesti, eikä niitä voida enää palauttaa.",
+    "delete_button": "Poista tämä kirje"
+  }
+}

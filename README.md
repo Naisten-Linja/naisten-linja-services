@@ -90,6 +90,19 @@ To convert **all local user from volunteer to a staff member** in the database, 
 docker exec -it naisten_linja_db psql nl_dev nl_dev -c "update users set role='staff';"
 ```
 
+### Linting and formatting
+
+- ESLint for code quality
+- Prettier for code style
+
+You can run both with some of these commands:
+
+    npm run lint
+    npm run lint:fix
+    npm run lint:watch
+
+To make Visual Studio Code's auto format rules use Prettier, install extension `esbenp.prettier-vscode`.
+
 ### Making changes to the database schema
 
 We are using [db-migrate](https://github.com/db-migrate/node-db-migrate) to manage database schema changes. All
@@ -153,3 +166,17 @@ in [Emacs Tide](https://github.com/ananthakumaran/tide)
   and out of it. In that one component using that, instead of using Moment.js, we parse dates directly into browser's
   local timezone, pointing to the local noon. The inputs and outputs of `ExceptionsDatePicker` are still just strings
   in format `2022-01-30`, so this difference in timestamp processing does not affect anything outside of that.
+
+## Backups in Heroku
+
+https://devcenter.heroku.com/articles/heroku-postgres-backups
+
+This activates daily backups, which will be stored for 7 days.
+
+    heroku pg:backups:schedule --at '03:00 Europe/Helsinki' -a naisten-linja-services-dev
+    heroku pg:backups:schedule --at '03:00 Europe/Helsinki' -a naisten-linja-services
+
+You can see the status of existing backups with
+
+    heroku pg:backups -a naisten-linja-services-dev
+    heroku pg:backups -a naisten-linja-services

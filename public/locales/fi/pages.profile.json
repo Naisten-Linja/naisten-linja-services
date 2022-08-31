@@ -1,0 +1,30 @@
+{
+  "back_link": "Kaikki käyttäjät",
+  "title": "Käyttäjäprofiili",
+  "no_booking": "Et ole varannut yhtäkään paikkaa",
+  "upcoming_bookings": {
+    "title": "Tulevat varaukset",
+    "p_1": "Huom! Varausajat noudattavat Suomen aikavyöhykettä"
+  },
+  "past_bookings": {
+    "title": "Menneet varaukset"
+  },
+  "user_profile": {
+    "fullname": "Koko nimi",
+    "email": "Sähköposti",
+    "role": "Rooli",
+    "created_on": "Luotu",
+    "notes": "Muistiinpanot"
+  },
+  "booking": {
+    "type": "Tyyppi",
+    "date": "Päivämäärä",
+    "fullname": "Koko nimi",
+    "email": "Sähköposti",
+    "phone": "Puhelin",
+    "work_location": "Sijainti",
+    "remote": "Etä",
+    "office": "Toimisto",
+    "notes": "Muistiinpanot"
+  }
+}

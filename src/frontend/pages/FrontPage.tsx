@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 
+// Use translation
+import { useTranslation } from 'react-i18next';
+import { namespaces } from '../i18n/i18n.constants';
+
 import { UserRole } from '../../common/constants-common';
 import { useAuth } from '../AuthContext';
-import { ContentPage } from '../ContentPage';
-import { EditContentPageForm } from '../EditContentPageForm';
+import { ContentPage } from '../ui-components/ContentPage/ContentPage';
+import { EditContentPageForm } from '../ui-components/ContentPage/EditContentPageForm';
 
 export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
+  const { t } = useTranslation(namespaces.pages.front);
+
   const [isEditing, setIsEditing] = useState(false);
   const { user, login } = useAuth();
 
   if (!user) {
     return (
       <div>
-        <p>Please login first to start using the service.</p>
+        <p>{t('p_1')}</p>
         <button onClick={login} className="button button-primary">
-          Login
+          {t('login')}
         </button>
       </div>
     );
@@ -30,7 +36,7 @@ export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
             className="button margin-top-xs button-primary"
             onClick={() => setIsEditing(true)}
           >
-            Edit page
+            {t('edit_page')}
           </button>
         )}
       </>

@@ -1,0 +1,46 @@
+{
+  "booking": {
+    "fetch_booking_types_error": "Kaikkia varaustyyppejä ei voida noutaa"
+  },
+  "booking_calendar": {
+    "book_a_slot": "Varaa vuoro",
+    "fetch_booked_slots_error": "Varauksia ei voida noutaa",
+    "p_1": "Huom! Varausajat noudattavat Suomen aikavyöhykettä",
+    "week": "Viikko {{nth}}",
+    "aria_new_booking": "Tee uusi varaus",
+    "aria_previous_week": "Edellinen viikko",
+    "aria_next_week": "Seuraava viikko"
+  },
+  "booking_form": {
+    "fetch_users_error": "Käyttäjiä ei voida noutaa",
+    "fetch_all_bookings_error": "Kaikkia varauksia ei voida noutaa",
+    "create_new_booking_success": "Uusi varaus tehty onnistuneesti",
+    "create_new_booking_error": "Uutta varausta ei voida tehdä",
+    "reserve_title": "Varaa vuoro",
+    "ended_slot": "Tämä varaus on päättynyt.",
+    "date": "Päivämäärä",
+    "time": "Aika",
+    "seats": "Paikat",
+    "fully_booked": "Tämä vuoro on täynnä",
+    "already_booked": "Olet jo varannut tämän vuoron!",
+    "form": {
+      "title": "Tee varaus toiselle käyttäjälle",
+      "fullname": "Koko nimi",
+      "email": "Sähköposti",
+      "phone": "Puhelin",
+      "work_location": "Sijainti",
+      "remote": "Etä",
+      "office": "Toimisto",
+      "notes": "Muistiinpanot",
+      "reserved_by": "Varauksen tekijä",
+      "user": "Käyttäjä",
+      "booking_details": "Varauksen tiedot",
+      "book_slot": "Varaa vuoro",
+      "close": "Sulje"
+    }
+  },
+  "calendar_column": {
+    "seats": "Paikat",
+    "aria_booking_slot": "Varaa aika {{bookingTypeName}} päivänä {{startDate}} alkaen {{startTime}} päättyen {{endTime}}"
+  }
+}

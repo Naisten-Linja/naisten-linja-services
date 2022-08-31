@@ -13,6 +13,8 @@ import {
   updateLetterAssignee,
   getLetterByUuid,
   getAssignedLetters,
+  deleteLetter,
+  updateLetterContentAndEmail,
 } from '../models/letters';
 import { saltHash } from '../utils';
 import { getConfig } from '../config';
@@ -52,6 +54,7 @@ export async function validateLetterCredentials({
 export async function sendLetter({
   title,
   content,
+  email,
   accessKey,
   accessPassword,
 }: ApiSendLetterParams): Promise<Letter | null> {
@@ -60,10 +63,31 @@ export async function sendLetter({
     accessPassword,
   });
   if (isValid && letter) {
-    const updatedLetter = await updateLetterContent({ uuid: letter.uuid, title, content });
+    const updatedLetter = await updateLetterContentAndEmail({
+      uuid: letter.uuid,
+      title,
+      content,
+      email,
+    });
     return updatedLetter;
   }
   return null;
+}
+
+export async function updateOriginalLetterContent({
+  letterUuid,
+  title,
+  content,
+}: {
+  letterUuid: string;
+  title: string;
+  content: string;
+}): Promise<Letter | null> {
+  const updatedLetter = await updateLetterContent({ uuid: letterUuid, title, content });
+  if (!updatedLetter) {
+    return null;
+  }
+  return updatedLetter;
 }
 
 export async function readLetter({
@@ -105,24 +129,26 @@ export async function assignLetter({
     created,
     title,
     content,
+    hasEmail,
     assignedResponderUuid,
     assignedResponderEmail,
     assignedResponderFullName,
     status,
     replyStatus,
-    replyStatusTimestamp
+    replyStatusTimestamp,
   } = letter;
   return {
     uuid,
     created,
     title,
     content,
+    hasEmail,
     assignedResponderUuid,
     assignedResponderEmail,
     assignedResponderFullName,
     status,
     replyStatus,
-    replyStatusTimestamp
+    replyStatusTimestamp,
   };
 }
 
@@ -141,4 +167,8 @@ export async function checkResponderValidity(
     return false;
   }
   return letter.assignedResponderUuid === userUuid;
+}
+
+export async function deleteLetterAndReply(uuid: string): Promise<boolean> {
+  return await deleteLetter(uuid);
 }

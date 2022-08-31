@@ -2,7 +2,12 @@ import db from '../db';
 import { generate as generatePass } from 'generate-password';
 
 import { saltHash, generateRandomString, aesDecrypt, aesEncrypt } from '../utils';
-import { LetterStatus, ApiLetterCredentials, ReplyStatus, ReadReceiptStatus } from '../../common/constants-common';
+import {
+  LetterStatus,
+  ApiLetterCredentials,
+  ReplyStatus,
+  ReadReceiptStatus,
+} from '../../common/constants-common';
 import { getConfig } from '../config';
 
 export interface Letter {
@@ -12,6 +17,7 @@ export interface Letter {
   accessPasswordSalt: string;
   content: string | null;
   title: string | null;
+  hasEmail: boolean | null;
   assignedResponderUuid: string | null;
   assignedResponderEmail: string | null;
   assignedResponderFullName: string | null;
@@ -34,6 +40,7 @@ export interface LetterQueryResult {
   access_password_salt: string;
   title?: string;
   content?: string;
+  has_email?: boolean;
   assigned_responder_uuid?: string;
   assigned_responder_email?: string;
   assigned_responder_full_name?: string;
@@ -57,22 +64,36 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
     accessPasswordSalt: row.access_password_salt,
     title,
     content,
+    hasEmail: typeof row.has_email !== 'undefined' ? row.has_email : null,
     assignedResponderUuid: row.assigned_responder_uuid || null,
     assignedResponderEmail: row.assigned_responder_email || null,
     assignedResponderFullName: row.assigned_responder_full_name || null,
     replyStatus: row.reply_status || null,
     replyReadReceipt: row.reply_read_receipt || null,
-    replyReadTimestamp: row.reply_read_timestamp || null, 
-    replyStatusTimestamp: row.reply_status_timestamp || null, 
+    replyReadTimestamp: row.reply_read_timestamp || null,
+    replyStatusTimestamp: row.reply_status_timestamp || null,
   };
+}
+
+function emailQueryResultToEmailString(row: {
+  email: string | null;
+  email_iv: string | null;
+}): string | null {
+  if (row.email === null || row.email_iv === null) return null;
+  return aesDecrypt(row.email, row.email_iv);
 }
 
 export async function getAssignedLetters(userUuid: string): Promise<Array<Letter> | null> {
   try {
-    // Fetch the letter using the unique accessKeyHash
+    // explicitly set all fields to avoid fetching too much (like email)
     const queryText = `
        SELECT
-         letters.*,
+         letters.id, letters.uuid, letters.status, letters.created,
+         letters.access_key, letters.access_password, letters.access_password_salt,
+         letters.title, letters.title_iv,
+         letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
+         letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
          replies.status as reply_status,
@@ -101,10 +122,15 @@ export async function getAssignedLetters(userUuid: string): Promise<Array<Letter
 
 export async function getSentLetters(): Promise<Array<Letter> | null> {
   try {
-    // Fetch the letter using the unique accessKeyHash
+    // explicitly set all fields to avoid fetching too much (like email)
     const queryText = `
        SELECT
-         letters.*,
+         letters.id, letters.uuid, letters.status, letters.created,
+         letters.access_key, letters.access_password, letters.access_password_salt,
+         letters.title, letters.title_iv,
+         letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
+         letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name,
          replies.status as reply_status,
@@ -150,7 +176,7 @@ export async function createLetterCredentials(): Promise<ApiLetterCredentials | 
        RETURNING uuid;
     `;
     const queryValues = [accessKeyHash, accessPasswordHash, accessPasswordSalt];
-    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    const result = await db.query<{ uuid: string }>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
     }
@@ -176,10 +202,16 @@ export async function getLetterByCredentials({
     const { letterAccessKeySalt } = getConfig();
     const { hash: accessKeyHash } = saltHash(accessKey, letterAccessKeySalt);
 
-    // Fetch the letter using the unique accessKeyHash
+    // Fetch the letter using the unique accessKeyHash,
+    // explicitly set all fields to avoid fetching too much (like email)
     const queryText = `
        SELECT
-         letters.*,
+         letters.id, letters.uuid, letters.status, letters.created,
+         letters.access_key, letters.access_password, letters.access_password_salt,
+         letters.title, letters.title_iv,
+         letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
+         letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name
        FROM letters
@@ -211,7 +243,12 @@ export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   try {
     const queryText = `
        SELECT
-         letters.*,
+         letters.id, letters.uuid, letters.status, letters.created,
+         letters.access_key, letters.access_password, letters.access_password_salt,
+         letters.title, letters.title_iv,
+         letters.content, letters.content_iv,
+         (letters.email IS NOT NULL) as has_email,
+         letters.assigned_responder_uuid,
          users.email as assigned_responder_email,
          users.full_name as assigned_responder_full_name
        FROM letters
@@ -231,6 +268,29 @@ export async function getLetterByUuid(uuid: string): Promise<Letter | null> {
   }
 }
 
+export async function getLetterCustomerEmailByUuid(uuid: string): Promise<string | null> {
+  try {
+    const queryText = `
+      SELECT email, email_iv
+      FROM letters
+      WHERE uuid=$1::text;
+    `;
+    const queryValues = [uuid];
+    const result = await db.query<{ email: string | null; email_iv: string | null }>(
+      queryText,
+      queryValues,
+    );
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return emailQueryResultToEmailString(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed to get letter. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
 export async function updateLetterContent({
   uuid,
   title,
@@ -243,6 +303,7 @@ export async function updateLetterContent({
   try {
     const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
     const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
+
     const queryText = `
        UPDATE letters
        SET
@@ -252,13 +313,64 @@ export async function updateLetterContent({
          content_iv = $4::text,
          status = $5::text
        WHERE uuid = $6::text
-       RETURNING *;
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
     `;
     const queryValues = [
       encryptedTitle,
       titleIv,
       encryptedContent,
       contentIv,
+      LetterStatus.sent,
+      uuid,
+    ];
+    const result = await db.query<LetterQueryResult>(queryText, queryValues);
+    if (result.rows.length < 1) {
+      return null;
+    }
+    return queryResultToLetter(result.rows[0]);
+  } catch (err) {
+    console.error(`Failed update letter content. uuid: ${uuid}`);
+    console.error(err);
+    return null;
+  }
+}
+
+export async function updateLetterContentAndEmail({
+  uuid,
+  title,
+  content,
+  email,
+}: {
+  uuid: string;
+  title: string;
+  content: string;
+  email: string | null;
+}): Promise<Letter | null> {
+  try {
+    const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
+    const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
+    const { encryptedData: encryptedEmail, iv: emailIv } =
+      email === null ? { encryptedData: null, iv: null } : aesEncrypt(email.trim());
+    const queryText = `
+       UPDATE letters
+       SET
+         title = $1::text,
+         title_iv = $2::text,
+         content = $3::text,
+         content_iv = $4::text,
+         email = $5::text,
+         email_iv = $6::text,
+         status = $7::text
+       WHERE uuid = $8::text
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
+    `;
+    const queryValues = [
+      encryptedTitle,
+      titleIv,
+      encryptedContent,
+      contentIv,
+      encryptedEmail,
+      emailIv,
       LetterStatus.sent,
       uuid,
     ];
@@ -286,7 +398,7 @@ export async function updateLetterAssignee({
        UPDATE letters
        SET assigned_responder_uuid = $1
        WHERE letters.uuid = $2::text
-       RETURNING *;
+       RETURNING *, (letters.email IS NOT NULL) as has_email;
     `;
     const queryValues = [assigneeUuid, letterUuid];
     const result = await db.query<LetterQueryResult>(queryText, queryValues);
@@ -298,5 +410,18 @@ export async function updateLetterAssignee({
     console.error(`Failed assign letter ${letterUuid} to user ${assigneeUuid}`);
     console.error(err);
     return null;
+  }
+}
+
+export async function deleteLetter(uuid: string): Promise<boolean> {
+  // Deleting a letter will also delete its corresponding replies
+  try {
+    const queryText = 'DELETE from letters WHERE uuid = $1::text;';
+    const result = await db.query(queryText, [uuid]);
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error(`Failed to delete letter ${uuid}`);
+    console.error(err);
+    return false;
   }
 }

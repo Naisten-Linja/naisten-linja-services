@@ -15,6 +15,7 @@ import {
   ApiUpdateBookingParams,
   ApiBookedSlot,
   ApiBookingUserStats,
+  ApiBookingWithColor,
 } from '../../common/constants-common';
 import {
   sendBookingConfirmationEmail,
@@ -113,7 +114,7 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
   },
 );
 
-router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string }>(
+router.get<Record<string, never>, { data: Array<ApiBookingWithColor> } | { error: string }>(
   '/all',
   // Only allow staff to view all detailed booking information
   isAuthenticated([UserRole.staff]),
@@ -123,17 +124,14 @@ router.get<Record<string, never>, { data: Array<ApiBooking> } | { error: string 
   },
 );
 
-router.get<
-  Record<string, never>,
-  { data: Array<ApiBookingUserStats> } | { error: string }
->(
+router.get<Record<string, never>, { data: Array<ApiBookingUserStats> } | { error: string }>(
   '/userstats',
   // Only allow staff to view all detailed booking information
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const bookingType = req.query.bookingType || undefined;
     if (typeof bookingType != 'string' && typeof bookingType != 'undefined') {
-      res.status(400).json({ error: 'Invalid type for bookingType query parameter '});
+      res.status(400).json({ error: 'Invalid type for bookingType query parameter ' });
       return;
     }
     const bookings = (await getBookingUserStats(bookingType)) || [];
