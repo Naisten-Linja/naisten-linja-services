@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '@reach/router';
-import styled from 'styled-components';
 import Select from 'react-select';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
@@ -12,11 +11,7 @@ import {
   ApiLetterWithReadStatus,
   ApiUserData,
 } from '../../../common/constants-common';
-import { OverrideTurretInputHeightForReactSelectDiv } from '../../shared/utils-frontend';
-
-const SelectWrapper = styled(OverrideTurretInputHeightForReactSelectDiv)`
-  width: 100%;
-`;
+import { SelectWrapper } from '../../shared/utils-frontend';
 
 type LetterListProps = {
   letters: Array<ApiLetterWithReadStatus>;
