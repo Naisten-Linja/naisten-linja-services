@@ -2,6 +2,9 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from '@reach/router';
 import Select from 'react-select';
+import moment from 'moment-timezone';
+import 'moment/locale/fi';
+import 'moment/locale/en-gb';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -65,6 +68,8 @@ const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked
 
   const handleLanguageChanged = (selected: OptionType) => {
     setLanguage(selected.value);
+    const momentLocale = selected.value === 'fi' ? 'fi' : 'en-gb';
+    moment.locale(momentLocale);
     i18n.changeLanguage(selected.value);
   };
 
