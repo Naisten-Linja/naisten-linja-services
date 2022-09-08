@@ -5,7 +5,7 @@ import { RouteComponentProps } from '@reach/router';
 import { useTranslation } from 'react-i18next';
 import { namespaces } from '../../i18n/i18n.constants';
 
-import { ApiBookingTypeWithColor } from '../../../common/constants-common';
+import { ApiBookingTypeWithColor, BookingTypeDailyRules } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 import { BookingCalendar } from './BookingCalendar/BookingCalendar';
@@ -23,7 +23,17 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
         '/api/booking-types',
         { useJwt: true },
       );
-      setBookingTypes(bookingTypesResult.data.data);
+      const bookingTypes = bookingTypesResult.data.data.map((bookingType) => {
+        // Re-shuffle rules so that the first index slot config is Monday,
+        // and last slot index is Sunday. This is to match the Finnish convention
+        // of having Monday as the first day of the week
+        bookingType.rules = [
+          ...bookingType.rules.slice(1),
+          bookingType.rules[bookingType.rules.length - 1],
+        ] as BookingTypeDailyRules;
+        return bookingType;
+      });
+      setBookingTypes(bookingTypes);
     } catch (err) {
       console.log(err);
       addNotification({ type: 'error', message: t('booking.fetch_booking_types_error') });
