@@ -187,6 +187,12 @@ const SlotButton = styled.button<{
   position: absolute;
   text-align: left;
   font-size: 0.8rem;
+  &:focus {
+    z-index: inherit !important;
+    &:hover {
+      z-index: 2 !important;
+    }
+  }
   ${({ background, leftOffset, top, height, width }) => css`
     top: ${top};
     height: ${height};
