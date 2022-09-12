@@ -191,8 +191,8 @@ const SlotButton = styled.button<{
     z-index: inherit !important;
     &:hover {
       z-index: 2 !important;
-    };
-  };
+    }
+  }
   ${({ background, leftOffset, top, height, width }) => css`
     top: ${top};
     height: ${height};
