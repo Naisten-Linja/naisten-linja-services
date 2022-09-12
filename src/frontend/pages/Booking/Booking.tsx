@@ -29,7 +29,7 @@ export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
         // of having Monday as the first day of the week
         bookingType.rules = [
           ...bookingType.rules.slice(1),
-          bookingType.rules[bookingType.rules.length - 1],
+          bookingType.rules[0],
         ] as BookingTypeDailyRules;
         return bookingType;
       });
