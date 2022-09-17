@@ -76,3 +76,6 @@ export PATH=$PATH:$(pwd)/node_modules/.bin
 # These variables are only required in production:
 
 # export APP_DOMAIN=
+
+# Allow compatibility with peer dependency resolve for packages that don't support npm version 7 and later yet
+npm config set legacy-peer-deps true
