@@ -1,5 +1,9 @@
 import { GenericContainer, Wait } from 'testcontainers';
 import express from 'express';
+import util from 'util';
+import { exec } from 'child_process';
+
+const execPromise = util.promisify(exec);
 
 import { createApp } from '../app';
 
@@ -10,7 +14,8 @@ const testDbPassword = 'test_db_pass';
 export type StopContainersFn = () => Promise<void>;
 
 export async function setupTestContainers(): Promise<StopContainersFn> {
-  const pgContainer = await new GenericContainer('postgres')
+  // Setup containers for postgres and redis
+  const pgContainer = await new GenericContainer('postgres:12-alpine')
     .withExposedPorts(5432)
     .withEnv('POSTGRES_USER', testDbUser)
     .withEnv('POSTGRES_PASSWORD', testDbPassword)
@@ -23,11 +28,18 @@ export async function setupTestContainers(): Promise<StopContainersFn> {
     .withWaitStrategy(Wait.forLogMessage('Ready to accept connections'))
     .start();
 
+  const testDbPort = `${pgContainer.getMappedPort(5432)}`;
   process.env.DB_NAME = testDbName;
   process.env.DB_USERNAME = testDbUser;
   process.env.DB_PASSOWRD = testDbPassword;
-  process.env.DB_PORT = `${pgContainer.getMappedPort(5432)}`;
+  process.env.DB_PORT = testDbPort;
   process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(6379)}`;
+
+  // Migrate database
+  const { stderr } = await execPromise(
+    `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up`,
+  );
+  console.log(stderr);
 
   return async () => {
     await pgContainer.stop();

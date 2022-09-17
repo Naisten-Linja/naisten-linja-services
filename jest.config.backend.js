@@ -13,4 +13,6 @@ module.exports = {
   },
   testMatch: ['**/src/backend/**/?(*.)+(spec|test).[jt]s?(x)'],
   testEnvironment: 'node',
+  // Allow sufficient time to download test containers
+  testTimeout: 60000,
 };
