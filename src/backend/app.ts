@@ -6,7 +6,7 @@ import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 import path from 'path';
-import redis from 'redis';
+import { createClient } from 'redis';
 import connectRedis, { RedisStore } from 'connect-redis';
 import cron from 'node-cron';
 
@@ -51,7 +51,7 @@ export function createApp() {
     );
   }
 
-  const redisClient = redis.createClient({ url: redisUrl });
+  const redisClient = createClient({ url: redisUrl });
   redisClient.on('error', (err) => {
     console.log('Redis error: ', err);
   });

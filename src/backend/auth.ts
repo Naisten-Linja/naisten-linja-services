@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import redis from 'redis';
+import { createClient } from 'redis';
 import JWTR from 'jwt-redis';
 // @ts-ignore
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
@@ -115,7 +115,7 @@ let jwtr: JWTR | null = null;
 export function getJwtr() {
   if (!jwtr) {
     const { redisUrl } = getConfig();
-    const redisClient = redis.createClient({ url: redisUrl });
+    const redisClient = createClient({ url: redisUrl });
     jwtr = new JWTR(redisClient);
   }
   return jwtr;

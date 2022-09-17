@@ -13,9 +13,14 @@ else
 fi
 
 tries=0
+max_tries=5
 
-until (nc -vzw 2 localhost $REDIS_PORT) || (($tries == 5))
+until (nc -vzw 2 localhost $REDIS_PORT) || (($tries == $max_tries))
 do
     sleep 2
     ((tries+=1))
 done
+
+if (($tries == $max_tries)); then
+    exit 1
+fi
