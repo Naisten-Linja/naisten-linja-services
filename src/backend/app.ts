@@ -51,16 +51,14 @@ export function createApp() {
     );
   }
 
+  const redisClient = redis.createClient({ url: redisUrl });
+  redisClient.on('error', (err) => {
+    console.log('Redis error: ', err);
+  });
   const storeOption: { store?: RedisStore } = {};
 
-  if (redisUrl) {
-    const redisClient = redis.createClient({ url: redisUrl });
-    redisClient.on('error', (err) => {
-      console.log('Redis error: ', err);
-    });
-    const redisStore = connectRedis(session);
-    storeOption.store = new redisStore({ client: redisClient, url: redisUrl });
-  }
+  const redisStore = connectRedis(session);
+  storeOption.store = new redisStore({ client: redisClient, url: redisUrl });
 
   // Add session support - this is needed for SSO
   app.use(
