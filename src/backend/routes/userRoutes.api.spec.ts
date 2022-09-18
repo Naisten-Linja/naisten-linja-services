@@ -12,6 +12,7 @@ describe('userRoutes', () => {
   let app: express.Application;
   let volunteer: User;
   let staff: User;
+  // TODO: Add tests for unassigned user
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
@@ -46,7 +47,7 @@ describe('userRoutes', () => {
 
       const users = (res.body?.data || []) as Array<ApiUserData>;
       expect(res.statusCode).toEqual(200);
-      expect(users.length).toEqual(2);
+      expect(users.length).toEqual(3);
       expect(users).toIncludeAllPartialMembers([staff, volunteer].map(modelUserToApiUserData));
     });
   });

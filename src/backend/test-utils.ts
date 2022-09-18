@@ -6,6 +6,7 @@ const execPromise = util.promisify(exec);
 
 import { createApp } from './app';
 import { upsertUser, UpsertUserParams, updateUserRole, User } from './models/users';
+import { createBookingType } from './models/bookingTypes';
 import { createToken } from './auth';
 import { UserRole } from '../common/constants-common';
 import { getLegacyRedisClient, getRedisClient } from './redis';
@@ -131,6 +132,70 @@ export class TestApiHelpers {
       UserRole.volunteer,
     );
 
-    return [staff, volunteer];
+    const unassigned = await this.createTestUser(
+      {
+        discourseUserId: 3,
+        fullName: 'Unassigned User',
+        email: 'unassignedUser@naistenlinja.fi',
+      },
+      UserRole.unassigned,
+    );
+
+    return [staff, volunteer, unassigned];
+  }
+
+  public static async populateBookingTypes() {
+    const phoneBookingType = await createBookingType({
+      name: 'Phone',
+      rules: [
+        {
+          enabled: true,
+          slots: [
+            { start: '07:00', end: '09:00', seats: 4 },
+            { start: '10:00', end: '12:00', seats: 2 },
+          ],
+        },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 5 }] },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [] },
+      ],
+      exceptions: [new Date().toUTCString()],
+      dateRanges: [],
+      additionalInformation: 'this is a test booking',
+    });
+
+    if (!phoneBookingType) {
+      throw 'unable to create phone booking';
+    }
+
+    const letterBookingType = await createBookingType({
+      name: 'Letter',
+      rules: [
+        { enabled: true, slots: [] },
+        {
+          enabled: true,
+          slots: [
+            { start: '14:00', end: '19:00', seats: 1 },
+            { start: '19:45', end: '20:30', seats: 3 },
+          ],
+        },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 10 }] },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [] },
+        { enabled: true, slots: [] },
+      ],
+      exceptions: [new Date().toUTCString()],
+      dateRanges: [],
+      additionalInformation: 'this is a test booking',
+    });
+    if (!letterBookingType) {
+      throw 'unable to create phone booking';
+    }
+
+    return [phoneBookingType, letterBookingType];
   }
 }
