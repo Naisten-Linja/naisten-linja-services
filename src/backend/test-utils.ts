@@ -50,7 +50,7 @@ export async function setupTestContainers() {
   };
 }
 
-export class IntegrationHelpers {
+export class TestApiHelpers {
   public static appInstance: express.Application;
   private static pgContainer: StartedTestContainer;
   private static redisContainer: StartedTestContainer;

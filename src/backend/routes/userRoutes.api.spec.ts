@@ -4,7 +4,7 @@ import 'jest';
 import request from 'supertest';
 import express from 'express';
 
-import { IntegrationHelpers } from '../test-utils';
+import { TestApiHelpers } from '../test-utils';
 import { ApiUserData, UserRole } from '../../common/constants-common';
 import { User } from '../models/users';
 
@@ -14,9 +14,9 @@ describe('userRoutes', () => {
   let staff: User;
 
   beforeAll(async () => {
-    app = await IntegrationHelpers.getApp();
+    app = await TestApiHelpers.getApp();
 
-    staff = await IntegrationHelpers.createTestUser(
+    staff = await TestApiHelpers.createTestUser(
       {
         discourseUserId: 1,
         fullName: 'Staff',
@@ -25,7 +25,7 @@ describe('userRoutes', () => {
       UserRole.staff,
     );
 
-    volunteer = await IntegrationHelpers.createTestUser(
+    volunteer = await TestApiHelpers.createTestUser(
       {
         discourseUserId: 2,
         fullName: 'Volunteer User',
@@ -36,7 +36,7 @@ describe('userRoutes', () => {
   });
 
   afterAll(async () => {
-    await IntegrationHelpers.cleanup();
+    await TestApiHelpers.cleanup();
   });
 
   describe('GET /api/users', () => {
@@ -46,7 +46,7 @@ describe('userRoutes', () => {
     });
 
     it('should not allow volunteers to access user list', async () => {
-      const token = await IntegrationHelpers.getToken(volunteer);
+      const token = await TestApiHelpers.getToken(volunteer);
       const res = await request(app)
         .get('/api/users/')
         .set('Accept', 'application/json')
@@ -55,7 +55,7 @@ describe('userRoutes', () => {
     });
 
     it('should allow staffs to access user list', async () => {
-      const { token } = await IntegrationHelpers.getToken(staff);
+      const { token } = await TestApiHelpers.getToken(staff);
       const res = await request(app)
         .get('/api/users/')
         .set('Accept', 'application/json')
