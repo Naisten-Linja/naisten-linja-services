@@ -18,6 +18,7 @@ env:
   JWT_SECRET: "1234556789"
   LETTER_ACCESS_KEY_SALT: "abcdefg"
   LETTER_AES_KEY: "randomkey458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171d"
+  USE_NOTIFICATON_CRON_JOB: "false"
 
 jobs:
   ci_run:

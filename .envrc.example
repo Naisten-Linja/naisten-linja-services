@@ -46,6 +46,8 @@ export BOOKING_REMINDER_SENDING_HOUR=9
 # Unset/comment this to disable the reminders.
 export BOOKING_REMINDER_DAYS_BEFORE=3
 
+# Set this to true if you'd like to test the notification cron jobs locally
+export USE_NOTIFICATION_CRON_JOB=false
 
 # The list of allowed CORS origins requests to the backend API.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.

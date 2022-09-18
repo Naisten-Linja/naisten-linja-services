@@ -24,7 +24,8 @@ import { sendBookingRemindersToVolunteers } from './controllers/emailControllers
 import { getLegacyRedisClient } from './redis';
 
 export async function createApp() {
-  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
+  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, useNotifcationCron } =
+    getConfig();
 
   const app = express();
 
@@ -52,8 +53,7 @@ export async function createApp() {
   }
 
   const redisClient = await getLegacyRedisClient();
-  const redisStore = connectRedis(session);
-  const storeOption = { store: new redisStore({ client: redisClient, url: redisUrl }) };
+  const RedisStore = connectRedis(session);
 
   // Add session support - this is needed for SSO
   app.use(
@@ -67,14 +67,14 @@ export async function createApp() {
         httpOnly: true,
         // Cookie is needed only in /auth routes for Discourse SSO
         path: '/api/auth',
-        // Cookie will expires if ther is no new requests for 10 minutes , and
+        // Cookie will expires if there is no new requests for 10 minutes , and
         // a new empty cookie will be generated instead.
         // In the context of our SSO login flow, this means the user has 10 minutes
         // to complete the login process in Discourse
         maxAge: 600000,
         ...(environment === 'production' ? { domain: hostname } : {}),
       },
-      ...storeOption,
+      store: new RedisStore({ client: redisClient }),
     }),
   );
 
@@ -193,7 +193,9 @@ export async function createApp() {
     next();
   });
 
-  activateNotificationCronJobs();
+  if (useNotifcationCron) {
+    activateNotificationCronJobs();
+  }
 
   return app;
 }
