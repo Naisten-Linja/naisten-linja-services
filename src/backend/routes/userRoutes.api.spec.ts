@@ -1,5 +1,4 @@
 /// <reference types="jest-extended" />
-
 import 'jest';
 import request from 'supertest';
 import express from 'express';
@@ -154,7 +153,7 @@ describe('userRoutes', () => {
       expect(res.statusCode).toEqual(403);
     });
 
-    it('should not allow staff to modify other user note', async () => {
+    it('should allow staff to modify other user note', async () => {
       const { token } = await TestApiHelpers.getToken(staff);
       const newUserNote = 'test note';
       const res = await request(app)
