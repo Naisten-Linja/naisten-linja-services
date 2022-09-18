@@ -18,6 +18,7 @@ function getPool(): Pool {
         ? { ssl: { rejectUnauthorized: false } }
         : {}), // enable ssl in production
     });
+    pgPool.on('error', () => {});
   }
   return pool;
 }
@@ -28,7 +29,6 @@ function query<R extends QueryResultRow = any, I extends unknown[] = any[]>(
   values: I,
 ) {
   const pgPool = getPool();
-  pgPool.on('error', () => {});
   return pgPool.query<R, I>(queryText, values);
 }
 
