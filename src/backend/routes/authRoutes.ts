@@ -133,12 +133,18 @@ router.post('/logout', async (req, res) => {
       if (tokenData && tokenData.jti) {
         await jwtr.destroy(tokenData.jti);
       }
-      const success = await logUserOutOfDiscourse(user.uuid);
+      let success = false;
+      try {
+        success = await logUserOutOfDiscourse(user.uuid);
+      } catch (err) {
+        console.error('failed to log user from from discourse', err);
+      }
       res.status(201).json({
         data: { success },
       });
       return;
     }
+
     res.status(401).json({ data: { success: false } });
   } catch (err) {
     console.log(err);

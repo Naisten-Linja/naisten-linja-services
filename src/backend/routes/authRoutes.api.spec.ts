@@ -27,36 +27,29 @@ describe('authRoutes', () => {
       expect(res.statusCode).toEqual(401);
     });
 
-    it('should allow volunteers to log out', async () => {
-      const { token } = await TestApiHelpers.getToken(volunteer);
-      const res = await request(app)
-        .post('/api/auth/logout')
-        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+    it('should allow volunteer and staff users to log out', async () => {
+      const users = [volunteer, staff];
+      for (let i = 0; i < users.length; i++) {
+        const { token } = await TestApiHelpers.getToken(users[i]);
+        // TODO: there will be a console log error in github ci that looks like
+        // "unable to log user out of Discourse:  TypeError: Only absolute URLs are supported"
+        // This is because we're setting dummy variables for Discourse in githubci.
+        // And will be a bit tricky (or tedious to maintain) to setup the users on both Discourse and sync that with our mock users.
+        let res = await request(app)
+          .post('/api/auth/logout')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
 
-      expect(res.statusCode).toEqual(201);
+        expect(res.statusCode).toEqual(201);
+        // This is because discourse logout API call failed
+        expect(res.body.data.success).toEqual(false);
 
-      // After logging out, the token should be invalidated,
-      // and the user can't access authenticated routes using the same token
-      const res2 = await request(app)
-        .get('/api/bookings')
-        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
-      expect(res2.statusCode).toEqual(401);
-    });
-
-    it('should allow staff user to log out', async () => {
-      const { token } = await TestApiHelpers.getToken(staff);
-      const res = await request(app)
-        .post('/api/auth/logout')
-        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
-
-      expect(res.statusCode).toEqual(201);
-
-      // After logging out, the token should be invalidated,
-      // and the user can't access authenticated routes using the same token
-      const res2 = await request(app)
-        .get('/api/bookings')
-        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
-      expect(res2.statusCode).toEqual(401);
+        // After logging out, the token should be invalidated,
+        // and the user can't access authenticated routes using the same token
+        res = await request(app)
+          .get('/api/bookings')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+        expect(res.statusCode).toEqual(401);
+      }
     });
   });
 
