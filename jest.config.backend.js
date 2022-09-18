@@ -11,7 +11,16 @@ module.exports = {
       },
     ],
   },
-  testMatch: ['**/src/backend/**/?(*.)+(spec|test).[jt]s?(x)'],
+  testMatch: ['<rootDir>/src/backend/**/?(*.)+(spec|test).[jt]s?(x)'],
+  watchPathIgnorePatterns: [
+    '<rootDir>/src/frontend',
+    '<rootDir>/build',
+    '<rootDir>/db-data',
+    '<rootDir>/patches',
+    '<rootDir>/public',
+    '<rootDir>/redis-data',
+    '<rootDir>/node_modules',
+  ],
   testEnvironment: 'node',
   // Allow sufficient time to download test containers
   testTimeout: 60000,
