@@ -23,13 +23,11 @@ export async function setupTestContainers() {
     .withEnv('POSTGRES_PASSWORD', testDbPassword)
     .withEnv('POSTGRES_DB', testDbName)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
-    .withReuse()
     .start();
 
   const redisContainer = await new GenericContainer('redis:7.0.4-alpine')
     .withExposedPorts(6379)
     .withWaitStrategy(Wait.forLogMessage('Ready to accept connections'))
-    .withReuse()
     .start();
 
   const testDbPort = `${pgContainer.getMappedPort(5432)}`;
@@ -88,6 +86,19 @@ export class TestApiHelpers {
     }
   }
 
+  public static async getToken(user: User) {
+    const token = await createToken({
+      uuid: user.uuid,
+      fullName: user.fullName,
+      role: user.role,
+      email: user.email,
+    });
+    if (!token) {
+      throw 'failed to get token';
+    }
+    return token;
+  }
+
   public static async createTestUser(params: UpsertUserParams, role: UserRole) {
     const user = await upsertUser(params);
     if (!user) {
@@ -101,16 +112,25 @@ export class TestApiHelpers {
     return updatedUser;
   }
 
-  public static async getToken(user: User) {
-    const token = await createToken({
-      uuid: user.uuid,
-      fullName: user.fullName,
-      role: user.role,
-      email: user.email,
-    });
-    if (!token) {
-      throw 'failed to get token';
-    }
-    return token;
+  public static async populateTestUsers() {
+    const staff = await this.createTestUser(
+      {
+        discourseUserId: 1,
+        fullName: 'Staff',
+        email: 'staffUser@naistenlinja.fi',
+      },
+      UserRole.staff,
+    );
+
+    const volunteer = await this.createTestUser(
+      {
+        discourseUserId: 2,
+        fullName: 'Volunteer User',
+        email: 'volunteerUser@naistenlinja.fi',
+      },
+      UserRole.volunteer,
+    );
+
+    return [staff, volunteer];
   }
 }
