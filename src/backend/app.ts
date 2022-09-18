@@ -7,7 +7,7 @@ import winston from 'winston';
 import expressWinston from 'express-winston';
 import path from 'path';
 import { createClient } from 'redis';
-import connectRedis, { RedisStore } from 'connect-redis';
+import connectRedis from 'connect-redis';
 import cron from 'node-cron';
 
 import authRoutes from './routes/authRoutes';
@@ -23,7 +23,7 @@ import { getConfig } from './config';
 import { getJwtr } from './auth';
 import { sendBookingRemindersToVolunteers } from './controllers/emailControllers';
 
-export function createApp() {
+export async function createApp() {
   const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
 
   const app = express();
@@ -51,14 +51,11 @@ export function createApp() {
     );
   }
 
-  const redisClient = createClient({ url: redisUrl });
-  redisClient.on('error', (err) => {
-    console.log('Redis error: ', err);
-  });
-  const storeOption: { store?: RedisStore } = {};
-
+  const redisClient = createClient({ url: redisUrl, legacyMode: true });
+  redisClient.on('error', () => {});
+  await redisClient.connect();
   const redisStore = connectRedis(session);
-  storeOption.store = new redisStore({ client: redisClient, url: redisUrl });
+  const storeOption = { store: new redisStore({ client: redisClient, url: redisUrl }) };
 
   // Add session support - this is needed for SSO
   app.use(
@@ -86,7 +83,7 @@ export function createApp() {
   // In production, serve the all the frontend static files in the `./build` directory
   app.use('/', express.static(path.join(__dirname, '../../build')));
 
-  const jwtr = getJwtr();
+  const jwtr = await getJwtr();
 
   app.use(
     jwt({
@@ -198,7 +195,7 @@ export function createApp() {
     next();
   });
 
-  activateNotificationCronJobs();
+  // activateNotificationCronJobs();
 
   return app;
 }

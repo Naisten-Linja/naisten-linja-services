@@ -2,11 +2,10 @@ import { Pool, QueryResultRow } from 'pg';
 
 import { getConfig } from './config';
 
-const { dbName, dbHost, dbPort, dbUser, dbPassword, environment } = getConfig();
-
 let pool: Pool | null = null;
 
 function getPool(): Pool {
+  const { dbName, dbHost, dbPort, dbUser, dbPassword, environment } = getConfig();
   if (!pool) {
     pool = new Pool({
       user: dbUser,
@@ -15,7 +14,9 @@ function getPool(): Pool {
       port: dbPort,
       host: dbHost,
       max: 100, // allow maximum 100 connections
-      ...(environment !== 'development' ? { ssl: { rejectUnauthorized: false } } : {}), // enable ssl in production
+      ...(environment !== 'development' && environment !== 'test'
+        ? { ssl: { rejectUnauthorized: false } }
+        : {}), // enable ssl in production
     });
   }
   return pool;
@@ -27,6 +28,7 @@ function query<R extends QueryResultRow = any, I extends unknown[] = any[]>(
   values: I,
 ) {
   const pgPool = getPool();
+  pgPool.on('error', () => {});
   return pgPool.query<R, I>(queryText, values);
 }
 

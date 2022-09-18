@@ -16,7 +16,7 @@ export interface User {
 export interface UserQueryResult {
   id: number;
   uuid: string;
-  created: string;
+  created: Date;
   role: UserRole;
   full_name?: string;
   email: string;
@@ -35,7 +35,7 @@ function queryResultToUser(row: UserQueryResult): User {
   return {
     id: row.id,
     uuid: row.uuid,
-    created: row.created,
+    created: row.created.toUTCString(),
     role: row.role,
     fullName: row.full_name || null,
     email: row.email,

@@ -15,4 +15,5 @@ module.exports = {
   testEnvironment: 'node',
   // Allow sufficient time to download test containers
   testTimeout: 60000,
+  setupFilesAfterEnv: ['jest-extended/all'],
 };

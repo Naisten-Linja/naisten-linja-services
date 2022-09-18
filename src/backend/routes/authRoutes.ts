@@ -128,7 +128,7 @@ router.post('/logout', async (req, res) => {
     if (user && req.headers.authorization) {
       const { jwtSecret } = getConfig();
       const token = req.headers.authorization.replace('Bearer ', '');
-      const jwtr = getJwtr();
+      const jwtr = await getJwtr();
       const tokenData = await jwtr.verify<TokenData>(token, jwtSecret);
       if (tokenData && tokenData.jti) {
         await jwtr.destroy(tokenData.jti);
@@ -163,7 +163,7 @@ router.post<
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const user = req.user!;
 
-    const jwtr = getJwtr();
+    const jwtr = await getJwtr();
     await jwtr.destroy(token);
 
     const t = await createToken({

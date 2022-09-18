@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { createClient } from 'redis';
+import { createClient, RedisDefaultModules } from 'redis';
 import JWTR from 'jwt-redis';
 // @ts-ignore
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
@@ -112,10 +112,14 @@ export type TokenData = {
 
 let jwtr: JWTR | null = null;
 
-export function getJwtr() {
+export async function getJwtr() {
   if (!jwtr) {
     const { redisUrl } = getConfig();
-    const redisClient = createClient({ url: redisUrl });
+    const redisClient = createClient<Record<string, never>, Record<string, never>>({
+      url: redisUrl,
+    });
+    await redisClient.connect();
+    redisClient.on('error', () => {});
     jwtr = new JWTR(redisClient);
   }
   return jwtr;
@@ -125,7 +129,7 @@ export function getJwtr() {
 export async function createToken(data: TokenData): Promise<{ token: string; exp: number } | null> {
   try {
     const { jwtSecret } = getConfig();
-    const jwtr = getJwtr();
+    const jwtr = await getJwtr();
     // token will expire in 16 minutes
     const token = await jwtr.sign(data, jwtSecret, { expiresIn: '16 minutes' });
     await jwtr.verify(token, jwtSecret);
