@@ -40,7 +40,7 @@ export async function setupTestContainers(): Promise<StopContainersFn> {
 
   // Migrate database
   const { stdout } = await execPromise(
-    `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up`,
+    `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up -e test`,
   );
   console.log(stdout);
 

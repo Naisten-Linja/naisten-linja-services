@@ -8,37 +8,37 @@ import { IntegrationHelpers } from '../test-utils';
 import { ApiUserData, UserRole } from '../../common/constants-common';
 import { User } from '../models/users';
 
+let app: express.Application;
+let volunteer: User;
+let staff: User;
+
+beforeAll(async () => {
+  app = await IntegrationHelpers.getApp();
+
+  staff = await IntegrationHelpers.createTestUser(
+    {
+      discourseUserId: 1,
+      fullName: 'Staff',
+      email: 'staffUser@naistenlinja.fi',
+    },
+    UserRole.staff,
+  );
+
+  volunteer = await IntegrationHelpers.createTestUser(
+    {
+      discourseUserId: 2,
+      fullName: 'Volunteer User',
+      email: 'volunteerUser@naistenlinja.fi',
+    },
+    UserRole.volunteer,
+  );
+});
+
+afterAll(() => {
+  return IntegrationHelpers.cleanup();
+});
+
 describe('/api/users', () => {
-  let app: express.Application;
-  let volunteer: User;
-  let staff: User;
-
-  beforeAll(async () => {
-    app = await IntegrationHelpers.getApp();
-
-    staff = await IntegrationHelpers.createTestUser(
-      {
-        discourseUserId: 1,
-        fullName: 'Staff',
-        email: 'staffUser@naistenlinja.fi',
-      },
-      UserRole.staff,
-    );
-
-    volunteer = await IntegrationHelpers.createTestUser(
-      {
-        discourseUserId: 2,
-        fullName: 'Volunteer User',
-        email: 'volunteerUser@naistenlinja.fi',
-      },
-      UserRole.volunteer,
-    );
-  });
-
-  afterAll(() => {
-    return IntegrationHelpers.cleanup();
-  });
-
   it('should not allow public access by default', async () => {
     const res = await request(app).get('/api/users/').set('Accept', 'application/json');
     expect(res.statusCode).toEqual(401);
