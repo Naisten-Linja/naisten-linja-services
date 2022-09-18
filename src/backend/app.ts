@@ -152,6 +152,9 @@ export async function createApp() {
       ),
       expressFormat: true,
       colorize: true,
+      skip: () => {
+        return process.env.NODE_ENV === 'test';
+      },
     }),
   );
 
@@ -181,6 +184,9 @@ export async function createApp() {
           return `${ts} [${level}]: ${message}`;
         }),
       ),
+      skip: () => {
+        return process.env.NODE_ENV === 'test';
+      },
     }),
   );
 
