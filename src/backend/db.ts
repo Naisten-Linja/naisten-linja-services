@@ -18,7 +18,7 @@ function getPool(): Pool {
         ? { ssl: { rejectUnauthorized: false } }
         : {}), // enable ssl in production
     });
-    pgPool.on('error', () => {});
+    pool.on('error', () => {});
   }
   return pool;
 }
