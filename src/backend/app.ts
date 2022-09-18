@@ -195,7 +195,7 @@ export async function createApp() {
     next();
   });
 
-  // activateNotificationCronJobs();
+  activateNotificationCronJobs();
 
   return app;
 }

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { createClient, RedisDefaultModules } from 'redis';
+import { createClient } from 'redis';
 import JWTR from 'jwt-redis';
 // @ts-ignore
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
