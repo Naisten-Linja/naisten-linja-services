@@ -1,4 +1,4 @@
-import { GenericContainer, Wait } from 'testcontainers';
+import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import express from 'express';
 import util from 'util';
 import { exec } from 'child_process';
@@ -8,14 +8,14 @@ import { createApp } from './app';
 import { upsertUser, UpsertUserParams, updateUserRole, User } from './models/users';
 import { createToken } from './auth';
 import { UserRole } from '../common/constants-common';
+import { getLegacyRedisClient, getRedisClient } from './redis';
+import db from './db';
 
 const testDbName = 'test_db_name';
 const testDbUser = 'test_db_user';
 const testDbPassword = 'test_db_pass';
 
-export type StopContainersFn = () => Promise<void>;
-
-export async function setupTestContainers(): Promise<StopContainersFn> {
+export async function setupTestContainers() {
   // Setup containers for postgres and redis
   const pgContainer = await new GenericContainer('postgres:11.9-alpine')
     .withExposedPorts(5432)
@@ -23,12 +23,13 @@ export async function setupTestContainers(): Promise<StopContainersFn> {
     .withEnv('POSTGRES_PASSWORD', testDbPassword)
     .withEnv('POSTGRES_DB', testDbName)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
+    .withReuse()
     .start();
 
   const redisContainer = await new GenericContainer('redis:7.0.4-alpine')
     .withExposedPorts(6379)
-    .withCmd(['redis-server'])
     .withWaitStrategy(Wait.forLogMessage('Ready to accept connections'))
+    .withReuse()
     .start();
 
   const testDbPort = `${pgContainer.getMappedPort(5432)}`;
@@ -39,20 +40,20 @@ export async function setupTestContainers(): Promise<StopContainersFn> {
   process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(6379)}`;
 
   // Migrate database
-  const { stdout } = await execPromise(
+  await execPromise(
     `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up -e test`,
   );
-  console.log(stdout);
 
-  return async () => {
-    await pgContainer.stop({ timeout: 1000 });
-    await redisContainer.stop({ timeout: 1000 });
+  return {
+    pgContainer,
+    redisContainer,
   };
 }
 
 export class IntegrationHelpers {
   public static appInstance: express.Application;
-  private static stopContainers: StopContainersFn;
+  private static pgContainer: StartedTestContainer;
+  private static redisContainer: StartedTestContainer;
 
   public static async getApp(): Promise<express.Application> {
     if (this.appInstance) {
@@ -60,16 +61,30 @@ export class IntegrationHelpers {
     }
 
     // Start test containers for postgres, redis and set custom env variables
-    if (!this.stopContainers) {
-      this.stopContainers = await setupTestContainers();
+    if (!this.pgContainer || !this.redisContainer) {
+      const { pgContainer, redisContainer } = await setupTestContainers();
+      this.pgContainer = pgContainer;
+      this.redisContainer = redisContainer;
     }
 
-    return await createApp();
+    const app = await createApp();
+    return app;
   }
 
   public static async cleanup() {
-    if (this.stopContainers) {
-      await this.stopContainers();
+    const redisClient = await getRedisClient();
+    await redisClient.quit();
+    const legacyRedisClient = await getLegacyRedisClient();
+    await legacyRedisClient.quit();
+
+    const pgClient = await db.getClient();
+    pgClient.release();
+
+    if (this.pgContainer) {
+      await this.pgContainer.stop();
+    }
+    if (this.redisContainer) {
+      await this.redisContainer.stop();
     }
   }
 

@@ -1,8 +1,10 @@
 import { Request } from 'express';
-import { createClient } from 'redis';
+import { RedisClientType, RedisDefaultModules } from 'redis';
 import JWTR from 'jwt-redis';
 // @ts-ignore
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
+import { getRedisClient } from './redis';
 
 import { getConfig } from './config';
 import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
@@ -114,12 +116,10 @@ let jwtr: JWTR | null = null;
 
 export async function getJwtr() {
   if (!jwtr) {
-    const { redisUrl } = getConfig();
-    const redisClient = createClient<Record<string, never>, Record<string, never>>({
-      url: redisUrl,
-    });
-    await redisClient.connect();
-    redisClient.on('error', () => {});
+    const redisClient: RedisClientType<
+      RedisDefaultModules,
+      Record<string, never>
+    > = await getRedisClient();
     jwtr = new JWTR(redisClient);
   }
   return jwtr;

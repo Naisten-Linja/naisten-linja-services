@@ -35,8 +35,10 @@ describe('userRoutes', () => {
     );
   });
 
-  afterAll(() => {
-    return IntegrationHelpers.cleanup();
+  afterAll(async () => {
+    console.log("CLEANIN' UPPPPPE");
+    await IntegrationHelpers.cleanup();
+    console.log("DONEEEEEEEEEEE CLEANIN' UPPPPPE");
   });
 
   describe('GET /api/users', () => {

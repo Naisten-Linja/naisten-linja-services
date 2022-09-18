@@ -6,7 +6,6 @@ import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 import path from 'path';
-import { createClient } from 'redis';
 import connectRedis from 'connect-redis';
 import cron from 'node-cron';
 
@@ -22,6 +21,7 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 import { getJwtr } from './auth';
 import { sendBookingRemindersToVolunteers } from './controllers/emailControllers';
+import { getLegacyRedisClient } from './redis';
 
 export async function createApp() {
   const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
@@ -51,9 +51,7 @@ export async function createApp() {
     );
   }
 
-  const redisClient = createClient({ url: redisUrl, legacyMode: true });
-  redisClient.on('error', () => {});
-  await redisClient.connect();
+  const redisClient = await getLegacyRedisClient();
   const redisStore = connectRedis(session);
   const storeOption = { store: new redisStore({ client: redisClient, url: redisUrl }) };
 
