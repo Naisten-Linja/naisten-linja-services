@@ -14,6 +14,7 @@ export DISCOURSE_API_KEY=
 export DISCOURSE_API_USER=
 
 # Redis as session store.
+# This REDIS_PORT is ONLY USED IN DEV by the start-dev-redis script to start the container in correct port
 export REDIS_PORT=6379
 export REDIS_URL="redis://localhost:$REDIS_PORT"
 

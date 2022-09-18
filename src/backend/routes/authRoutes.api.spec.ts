@@ -40,8 +40,6 @@ describe('authRoutes', () => {
           .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
 
         expect(res.statusCode).toEqual(201);
-        // This is because discourse logout API call failed
-        expect(res.body.data.success).toEqual(false);
 
         // After logging out, the token should be invalidated,
         // and the user can't access authenticated routes using the same token
