@@ -220,6 +220,7 @@ const StyledNav = styled.nav`
   justify-content: center;
   flex-direction: column;
   max-width: 80rem;
+  width: 100%;
 
   ul {
     display: flex;
