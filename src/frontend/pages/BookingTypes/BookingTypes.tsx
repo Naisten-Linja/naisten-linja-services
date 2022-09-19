@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -12,7 +11,7 @@ import { BookingTypeForm } from './BookingTypeForm';
 import { BookingTypeBadgeDateRange } from './BookingTypeBadgeDateRange';
 import { BookingTypeBadgeException } from './BookingTypeBadgeException';
 
-export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
+export const BookingTypes: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.bookingTypes);
 
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);

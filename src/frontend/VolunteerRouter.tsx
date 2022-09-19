@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Redirect, RouteComponentProps } from '@reach/router';
+import { Routes, Route } from 'react-router-dom';
 
 import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
@@ -8,19 +8,20 @@ import { Reply } from './pages/Reply/Reply';
 import { Booking } from './pages/Booking/Booking';
 import { MyBookings } from './pages/MyBookings/MyBookings';
 import { Materials } from './pages/Materials/Materials';
+import { Redirect } from './Redirect';
 
-export const VolunteerRouter: React.FunctionComponent<RouteComponentProps> = () => {
+export const VolunteerRouter: React.FC = () => {
   const { token, user } = useAuth();
 
   return !token || !user || user.role !== UserRole.volunteer ? (
-    <Redirect noThrow to="/" />
+    <Redirect to="/" />
   ) : (
-    <Router>
-      <Letters path="letters" />
-      <Reply path="letters/:letterUuid" />
-      <Booking path="booking" />
-      <MyBookings path="my-bookings" />
-      <Materials path="materials" />
-    </Router>
+    <Routes>
+      <Route path="letters" element={<Letters />} />
+      <Route path="letters/:letterUuid" element={<Reply />} />
+      <Route path="booking" element={<Booking />} />
+      <Route path="my-bookings" element={<MyBookings />} />
+      <Route path="materials" element={<Materials />} />
+    </Routes>
   );
 };

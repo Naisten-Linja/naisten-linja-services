@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RouteComponentProps, Link } from '@reach/router';
+import { Link } from 'react-router-dom';
 import { Formik, Field, Form } from 'formik';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import moment from 'moment-timezone';
@@ -28,7 +28,7 @@ import {
 
 type UserDataStats = ApiUserData & ApiBookingUserStats;
 
-export const Users: React.FunctionComponent<RouteComponentProps> = () => {
+export const Users: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.users);
 
   type BookingTypeOption = { label: string; value: string | null };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { RouteComponentProps, Link } from '@reach/router';
+import { Link, useParams } from 'react-router-dom';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 
@@ -21,9 +21,8 @@ import { LetterContent } from '../../ui-components/content';
 import { Button, ButtonText } from '../../ui-components/buttons';
 import moment from 'moment-timezone';
 
-export const Reply: React.FunctionComponent<RouteComponentProps<{ letterUuid: string }>> = ({
-  letterUuid,
-}) => {
+export const Reply: React.FC = () => {
+  const { letterUuid } = useParams<{ letterUuid: string }>();
   const { t } = useTranslation(namespaces.pages.reply);
 
   const { getRequest, postRequest, putRequest, deleteRequest } = useRequest();

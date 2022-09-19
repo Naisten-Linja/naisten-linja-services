@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, Link } from '@reach/router';
+import { Link, useParams } from 'react-router-dom';
 import DataTable from 'react-data-table-component';
 
 // Use translation
@@ -16,9 +16,8 @@ import {
 import moment from 'moment';
 import { useAuth } from '../../AuthContext';
 
-export const Profile: React.FunctionComponent<RouteComponentProps<{ userUuid: string }>> = ({
-  userUuid,
-}) => {
+export const Profile: React.FC = () => {
+  const { userUuid } = useParams<{ userUuid: string }>();
   const { t } = useTranslation(namespaces.pages.profile);
 
   const { user: loggedInUser } = useAuth();

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { RouteComponentProps } from '@reach/router';
 import moment from 'moment-timezone';
 
 // Use translation
@@ -9,7 +8,7 @@ import { namespaces } from '../../i18n/i18n.constants';
 import { ApiBooking } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 
-export const MyBookings: React.FC<RouteComponentProps> = () => {
+export const MyBookings: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.myBookings);
 
   const [bookings, setBookings] = useState<Array<ApiBooking>>([]);

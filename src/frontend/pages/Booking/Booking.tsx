@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -10,7 +9,7 @@ import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 import { BookingCalendar } from './BookingCalendar/BookingCalendar';
 
-export const Booking: React.FunctionComponent<RouteComponentProps> = () => {
+export const Booking: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.bookingCalendar);
 
   const [bookingTypes, setBookingTypes] = useState<Array<ApiBookingTypeWithColor>>([]);
