@@ -114,8 +114,12 @@ router.delete<{ uuid: string }>(
       res.status(404).json({ error: 'booking type not found' });
       return;
     }
-    await deleteBookingType;
-    res.status(204).json({ message: 'success' });
+    const deleted = await deleteBookingType(uuid);
+    if (deleted) {
+      res.status(204).json({ message: 'success' });
+    } else {
+      res.status(400).json({ message: 'failed to delete booking type' });
+    }
   },
 );
 

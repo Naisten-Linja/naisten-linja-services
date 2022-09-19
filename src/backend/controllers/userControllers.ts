@@ -6,17 +6,7 @@ export async function getApiUsers(): Promise<Array<ApiUserData>> {
   if (!dbUsers) {
     return [];
   }
-  const users = dbUsers.map((user) => {
-    return {
-      uuid: user.uuid,
-      email: user.email,
-      fullName: user.fullName,
-      created: user.created,
-      role: user.role,
-      newBookingNotificationDaysThreshold: user.newBookingNotificationDaysThreshold,
-      userNote: user.userNote,
-    };
-  });
+  const users = dbUsers.map(modelUserToApiUserData);
   return users;
 }
 
@@ -81,13 +71,19 @@ export async function getUserData(uuid: string): Promise<ApiUserData | null> {
   if (!user) {
     return null;
   }
+  return modelUserToApiUserData(user);
+}
+
+export function modelUserToApiUserData(user: userModel.User): ApiUserData {
+  const { email, uuid, role, fullName, created, userNote, newBookingNotificationDaysThreshold } =
+    user;
   return {
-    uuid: user.uuid,
-    email: user.email,
-    fullName: user.fullName,
-    created: user.created,
-    role: user.role,
-    newBookingNotificationDaysThreshold: user.newBookingNotificationDaysThreshold,
-    userNote: user.userNote,
+    email,
+    uuid,
+    role,
+    fullName,
+    created,
+    userNote,
+    newBookingNotificationDaysThreshold,
   };
 }

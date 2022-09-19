@@ -1,0 +1,71 @@
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow
+
+name: Lint and test
+
+on:
+  push
+
+env:
+  ENVIRONMENT: "test"
+  PORT: "1234"
+  FRONTEND_PORT: "3000"
+  DB_HOST: "localhost"
+  DISCOURSE_URL: "random-url"
+  DISCOURSE_SSO_SECRET: "random-secret"
+  DISCOURSE_API_KEY: "random-apikey"
+  DISCOURSE_API_USER: "random-user"
+  COOKIE_SECRET: "abcd"
+  JWT_SECRET: "1234556789"
+  LETTER_ACCESS_KEY_SALT: "abcdefg"
+  LETTER_AES_KEY: "randomkey458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171d"
+  USE_NOTIFICATION_CRON_JOB: "false"
+
+jobs:
+  lint_and_typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install --ignore-scripts --legacy-peer-deps
+      - name: Run lint and type checks
+        run: CI=1 npm run lint:node && npm run lint && npm run backend:typecheck && npm run frontend:typecheck
+  test_frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install --ignore-scripts --legacy-peer-deps
+      - name: Run frontend tests
+        run: CI=1 npm run frontend:test
+  test_backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install --ignore-scripts --legacy-peer-deps
+      - name: Run tests
+        run: CI=1 npm run backend:test

@@ -146,12 +146,11 @@ export async function updateBookingType({
 export async function deleteBookingType(uuid: string): Promise<boolean> {
   try {
     const queryText = `
-        DELETE booking_types
-        WHERE uuid = $1::text
-        RETURNING *;
+        DELETE FROM booking_types
+        WHERE uuid = $1::text;
     `;
-    await db.query<BookingTypeQueryResult>(queryText, [uuid]);
-    return true;
+    const result = await db.query<BookingTypeQueryResult>(queryText, [uuid]);
+    return result.rowCount > 0;
   } catch (err) {
     console.error(`Failed to delete booking type with uuid ${uuid}`);
     console.error(err);

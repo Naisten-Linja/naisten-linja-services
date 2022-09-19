@@ -43,6 +43,7 @@ router.get<Record<string, never>, { data: ApiUserData | null } | { error: string
     const userData = await getUserData(userUuid);
     if (!userData) {
       res.status(404).json({ error: `unable to get user profile` });
+      return;
     }
     res.status(200).json({ data: userData });
   },
@@ -56,6 +57,7 @@ router.get<Record<string, never>, { data: ApiUserData | null } | { error: string
     const userData = await getUserData(userUuid);
     if (!userData) {
       res.status(404).json({ error: `unable to get user profile` });
+      return;
     }
     res.status(200).json({ data: userData });
   },

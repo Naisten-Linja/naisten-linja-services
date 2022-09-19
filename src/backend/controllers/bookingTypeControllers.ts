@@ -20,16 +20,7 @@ export async function addBookingType({
     dateRanges,
     additionalInformation,
   });
-  return bookingType
-    ? {
-        uuid: bookingType.uuid,
-        name: bookingType.name,
-        rules: bookingType.rules,
-        exceptions: bookingType.exceptions,
-        dateRanges: bookingType.dateRanges,
-        additionalInformation: bookingType.additionalInformation,
-      }
-    : null;
+  return bookingType ? modelBookingTypeToApiBookingType(bookingType) : null;
 }
 
 export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> | null> {
@@ -37,15 +28,12 @@ export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> 
   return allBookingTypes !== null
     ? allBookingTypes
         .sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime())
-        .map((b, index) => ({
-          uuid: b.uuid,
-          name: b.name,
-          rules: b.rules,
-          exceptions: b.exceptions,
-          dateRanges: b.dateRanges,
-          additionalInformation: b.additionalInformation,
-          color: BookingTypeColors[index % BookingTypeColors.length],
-        }))
+        .map((b, index) => {
+          return {
+            ...modelBookingTypeToApiBookingType(b),
+            color: BookingTypeColors[index % BookingTypeColors.length],
+          };
+        })
     : null;
 }
 
@@ -88,18 +76,20 @@ export async function updateBookingType({
     dateRanges,
     additionalInformation,
   });
-  return bookingType !== null
-    ? {
-        uuid: bookingType.uuid,
-        name: bookingType.name,
-        rules: bookingType.rules,
-        exceptions: bookingType.exceptions,
-        dateRanges: bookingType.dateRanges,
-        additionalInformation: bookingType.additionalInformation,
-      }
-    : null;
+  return bookingType !== null ? modelBookingTypeToApiBookingType(bookingType) : null;
 }
 
 export async function deleteBookingType(uuid: string) {
   return await model.deleteBookingType(uuid);
+}
+
+export function modelBookingTypeToApiBookingType(bookingType: model.BookingType): ApiBookingType {
+  return {
+    uuid: bookingType.uuid,
+    name: bookingType.name,
+    rules: bookingType.rules,
+    exceptions: bookingType.exceptions,
+    dateRanges: bookingType.dateRanges,
+    additionalInformation: bookingType.additionalInformation,
+  };
 }
