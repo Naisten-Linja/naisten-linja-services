@@ -32,8 +32,7 @@
     "backend:test-watch": "NODE_ENV=test jest -c jest.config.backend.js --forceExit --watch",
     "test": "npm run frontend:test && npm run backend:test",
     "build": "concurrently npm:backend:build npm:frontend:build",
-    "postinstall": "./node_modules/.bin/patch-package",
-    "heroku-postbuild": "patch-package && npm run build"
+    "postinstall": "./node_modules/.bin/patch-package"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
