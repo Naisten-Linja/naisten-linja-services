@@ -21,7 +21,11 @@ This is the code for Naisten Linja's services including:
 
 ### Prerequisites
 
-Project requires Node.js version 14. Our dependencies are installed and managed via npm, and are defined in package.json.
+- [NodeJs 18.x](https://nodejs.org/en/)
+- [docker-cli](https://github.com/docker/cli) or [Docker desktop](https://docs.docker.com/desktop/)
+- [direnv](https://direnv.net/)
+
+Project requires Node.js version 18. Our dependencies are installed and managed via npm, and are defined in package.json.
 
 To help managing node versions easily, we recommend using a node package manager like
 [nvm](https://github.com/nvm-sh/nvm)
