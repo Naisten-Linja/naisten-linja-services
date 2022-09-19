@@ -33,7 +33,6 @@
     "test": "npm run frontend:test && npm run backend:test",
     "build": "concurrently npm:backend:build npm:frontend:build",
     "postinstall": "./node_modules/.bin/patch-package",
-    "heroku-prebuild": "npm install --legacy-peer-deps",
     "heroku-postbuild": "patch-package && npm run build"
   },
   "dependencies": {
