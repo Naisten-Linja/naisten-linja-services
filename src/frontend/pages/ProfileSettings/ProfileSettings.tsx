@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 
 // Use translation
@@ -10,7 +9,7 @@ import { ApiUserData } from '../../../common/constants-common';
 import { useRequest } from '../../shared/http';
 import { useNotifications } from '../../NotificationsContext';
 
-export const ProfileSettings: React.FC<RouteComponentProps> = () => {
+export const ProfileSettings: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.settings);
 
   const { getRequest, putRequest } = useRequest();

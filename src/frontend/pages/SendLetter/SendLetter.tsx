@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { RouteComponentProps, Link } from '@reach/router';
+import { Link } from 'react-router-dom';
 
 import type { ApiLetterCredentials } from '../../../common/constants-common';
 import { Button } from '../../ui-components/buttons';
@@ -10,7 +10,7 @@ import { useRequest } from '../../shared/http';
  * This is a reference implementation of how to send letters to the system.
  * Currently this is not used in the naisten-linja-services application at all.
  */
-export const SendLetter: React.FunctionComponent<RouteComponentProps> = () => {
+export const SendLetter: React.FC = () => {
   const [letterCredentials, setLetterCredentials] = useState<ApiLetterCredentials | null>(null);
   const [isLetterSent, setIsLetterSent] = useState<boolean>(false);
   const { addNotification } = useNotifications();

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
 import moment from 'moment-timezone';
 
 // Use translation
@@ -22,7 +21,7 @@ import { BookingTypeBadgeDateRange } from '../BookingTypes/BookingTypeBadgeDateR
 import BookingTypeDateRangePicker from '../BookingTypes/BookingTypeDateRangePicker/BookingTypeDateRangePicker';
 import { isDateInActiveDateRanges } from '../Booking/BookingCalendar/BookingCalendar';
 
-export const Letters: React.FunctionComponent<RouteComponentProps> = () => {
+export const Letters: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.letters);
 
   const [letters, setLetters] = useState<Array<ApiLetterWithReadStatus>>([]);

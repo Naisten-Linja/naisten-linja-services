@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router } from '@reach/router';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import moment from 'moment-timezone';
 
@@ -37,24 +37,24 @@ const AppContainer = styled.div`
 
 export const App = () => {
   return (
-    <>
+    <BrowserRouter>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
         <AuthContextWrapper>
           <NotificationsContextWrapper>
             <Navigation />
             <AppContainer className="container">
-              <Router>
-                <NotFound default />
-                <AdminRouter path="admin/*" />
-                <VolunteerRouter path="volunteer/*" />
-                <FrontPage path="/" />
-                <SSOLoginCallbackHandler path="login/:nonce" />
-              </Router>
+              <Routes>
+                <Route path="admin/*" element={<AdminRouter />} />
+                <Route path="volunteer/*" element={<VolunteerRouter />} />
+                <Route path="/" element={<FrontPage />} />
+                <Route path="login/:nonce" element={<SSOLoginCallbackHandler />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </AppContainer>
           </NotificationsContextWrapper>
         </AuthContextWrapper>
       </ThemeProvider>
-    </>
+    </BrowserRouter>
   );
 };
