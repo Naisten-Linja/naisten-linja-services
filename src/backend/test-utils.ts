@@ -148,6 +148,11 @@ export class TestApiHelpers {
     const phoneBookingType = await createBookingType({
       name: 'Phone',
       rules: [
+        // Sunday
+        { enabled: true, slots: [] },
+        // Monday
+        { enabled: true, slots: [] },
+        // Tuesday
         {
           enabled: true,
           slots: [
@@ -155,11 +160,13 @@ export class TestApiHelpers {
             { start: '10:00', end: '12:00', seats: 2 },
           ],
         },
+        // Wednesday
         { enabled: true, slots: [] },
-        { enabled: true, slots: [] },
-        { enabled: true, slots: [] },
+        // Thursday
         { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 5 }] },
+        // Friday
         { enabled: true, slots: [] },
+        // Saturday
         { enabled: true, slots: [] },
       ],
       exceptions: [new Date().toUTCString()],
@@ -174,7 +181,9 @@ export class TestApiHelpers {
     const letterBookingType = await createBookingType({
       name: 'Letter',
       rules: [
+        // Sunday
         { enabled: true, slots: [] },
+        // Monday
         {
           enabled: true,
           slots: [
