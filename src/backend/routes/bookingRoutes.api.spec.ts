@@ -9,7 +9,7 @@ import { BookingType } from '../models/bookingTypes';
 import { createBooking } from '../models/bookings';
 import { modelBookingToApiBooking } from '../controllers/bookingControllers';
 import { modelBookingTypeToApiBookingType } from '../controllers/bookingTypeControllers';
-import { BookingTypeColors } from '../../common/constants-common';
+import { ApiBookingTypeWithColor, BookingTypeColors } from '../../common/constants-common';
 
 describe('bookingRoutes', () => {
   let app: express.Application;
@@ -18,13 +18,51 @@ describe('bookingRoutes', () => {
   let unassignedUser: User;
 
   let phoneBookingType: BookingType;
+  let phoneBookingTypeWithColor: ApiBookingTypeWithColor;
   let letterBookingType: BookingType;
+  let letterBookingTypeWithColor: ApiBookingTypeWithColor;
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
     [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
     [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
+    phoneBookingTypeWithColor = {
+      ...modelBookingTypeToApiBookingType(phoneBookingType),
+      color: BookingTypeColors[0],
+    };
+    letterBookingTypeWithColor = {
+      ...modelBookingTypeToApiBookingType(letterBookingType),
+      color: BookingTypeColors[1],
+    };
   });
+
+  function createMockPhoneBookingParams(user: User) {
+    return {
+      userUuid: user.uuid,
+      phone: '123456789',
+      fullName: user.fullName || '',
+      email: user.email,
+      bookingTypeUuid: phoneBookingType.uuid,
+      bookingNote: 'test phone booking',
+      start: new Date('Thu Feb 15 2085 10:00 GMT+0300'),
+      end: new Date('Thu Feb 15 2085 11:30 GMT+0300'),
+      workingRemotely: false,
+    };
+  }
+
+  function createMockLetterBookingParams(user: User) {
+    return {
+      userUuid: user.uuid,
+      phone: '123456789',
+      fullName: user.fullName || '',
+      email: user.email,
+      bookingTypeUuid: letterBookingType.uuid,
+      bookingNote: 'test letter booking',
+      start: new Date('Mon Feb 12 2085 14:00 GMT+0300'),
+      end: new Date('Mon Feb 12 2085 19:00 GMT+0300'),
+      workingRemotely: true,
+    };
+  }
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
@@ -65,33 +103,13 @@ describe('bookingRoutes', () => {
         expect(res.body?.data).toEqual([]);
 
         // When there are bookings
-        const userPhoneBooking = await createBooking({
-          userUuid: user.uuid,
-          phone: '123456789',
-          fullName: user.fullName || '',
-          email: user.email,
-          bookingTypeUuid: phoneBookingType.uuid,
-          bookingNote: 'test phone booking',
-          start: new Date('Thu Feb 15 2085 10:00 GMT+0300'),
-          end: new Date('Thu Feb 15 2085 11:30 GMT+0300'),
-          workingRemotely: false,
-        });
+        const userPhoneBooking = await createBooking(createMockPhoneBookingParams(user));
         expect(userPhoneBooking).not.toBeNull();
         if (!userPhoneBooking) {
           return;
         }
 
-        const userLetterBooking = await createBooking({
-          userUuid: user.uuid,
-          phone: '123456789',
-          fullName: user.fullName || '',
-          email: user.email,
-          bookingTypeUuid: letterBookingType.uuid,
-          bookingNote: 'test letter booking',
-          start: new Date('Mon Feb 12 2085 14:00 GMT+0300'),
-          end: new Date('Mon Feb 12 2085 19:00 GMT+0300'),
-          workingRemotely: true,
-        });
+        const userLetterBooking = await createBooking(createMockLetterBookingParams(user));
 
         expect(userLetterBooking).not.toBeNull();
         if (!userLetterBooking) {
@@ -104,16 +122,8 @@ describe('bookingRoutes', () => {
 
         expect(res.statusCode).toEqual(200);
         expect(res.body?.data).toIncludeAllMembers([
-          modelBookingToApiBooking(
-            userPhoneBooking,
-            { ...modelBookingTypeToApiBookingType(phoneBookingType), color: BookingTypeColors[0] },
-            user,
-          ),
-          modelBookingToApiBooking(
-            userLetterBooking,
-            { ...modelBookingTypeToApiBookingType(letterBookingType), color: BookingTypeColors[1] },
-            user,
-          ),
+          modelBookingToApiBooking(userPhoneBooking, phoneBookingTypeWithColor, user),
+          modelBookingToApiBooking(userLetterBooking, letterBookingTypeWithColor, user),
         ]);
       }
     });
