@@ -70,6 +70,13 @@ export class TestApiHelpers {
     return app;
   }
 
+  public static async resetDb() {
+    await db.query(
+      `TRUNCATE TABLE replies, letters, bookings, booking_types, pages, users RESTART IDENTITY;`,
+      [],
+    );
+  }
+
   public static async cleanup() {
     const redisClient = await getRedisClient();
     await redisClient.quit();
@@ -191,10 +198,15 @@ export class TestApiHelpers {
             { start: '19:45', end: '20:30', seats: 3 },
           ],
         },
+        // Tuesday
         { enabled: true, slots: [] },
+        // Wednesday
         { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 10 }] },
+        // Thursday
         { enabled: true, slots: [] },
+        // Friday
         { enabled: true, slots: [] },
+        // Saturday
         { enabled: true, slots: [] },
       ],
       exceptions: [new Date().toUTCString()],

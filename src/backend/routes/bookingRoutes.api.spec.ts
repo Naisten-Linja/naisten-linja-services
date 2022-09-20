@@ -6,7 +6,7 @@ import express from 'express';
 import { TestApiHelpers } from '../test-utils';
 import { User } from '../models/users';
 import { BookingType } from '../models/bookingTypes';
-import { createBooking } from '../models/bookings';
+import { createBooking, getUserBookings } from '../models/bookings';
 import { modelBookingToApiBooking } from '../controllers/bookingControllers';
 import { modelBookingTypeToApiBookingType } from '../controllers/bookingTypeControllers';
 import { ApiBookingTypeWithColor, BookingTypeColors } from '../../common/constants-common';
@@ -24,6 +24,13 @@ describe('bookingRoutes', () => {
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
+  });
+
+  afterAll(async () => {
+    await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
     [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
     [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
     phoneBookingTypeWithColor = {
@@ -34,6 +41,10 @@ describe('bookingRoutes', () => {
       ...modelBookingTypeToApiBookingType(letterBookingType),
       color: BookingTypeColors[1],
     };
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   function createMockPhoneBookingParams(user: User) {
@@ -63,10 +74,6 @@ describe('bookingRoutes', () => {
       workingRemotely: true,
     };
   }
-
-  afterAll(async () => {
-    await TestApiHelpers.cleanup();
-  });
 
   describe('GET /api/bookings', () => {
     it('should not allow unauthenticated requests', async () => {
@@ -126,6 +133,93 @@ describe('bookingRoutes', () => {
           modelBookingToApiBooking(userLetterBooking, letterBookingTypeWithColor, user),
         ]);
       }
+    });
+  });
+
+  describe('POST /api/bookings', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .post('/api/bookings')
+        .send(createMockPhoneBookingParams(unassignedUser))
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+    });
+
+    it('should not allow unassigned user to make bookings', async () => {
+      const { token } = await TestApiHelpers.getToken(unassignedUser);
+      const bookingParams = createMockPhoneBookingParams(unassignedUser);
+      const res = await request(app)
+        .post('/api/bookings')
+        .send(bookingParams)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+
+      const userBookings = await getUserBookings(unassignedUser.uuid);
+      expect(userBookings).toBeNull();
+    });
+
+    it('should allow volunteer and staff users to make their own bookings', async () => {
+      const users = [volunteerUser, staffUser];
+
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+        const bookingParams = createMockPhoneBookingParams(user);
+        const res = await request(app)
+          .post('/api/bookings')
+          .send(bookingParams)
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        // Then the booking should be found from the database
+        const userBookings = await getUserBookings(user.uuid);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        expect(userBookings!.length).toEqual(1);
+        if (!userBookings) {
+          return;
+        }
+        expect(userBookings[0]).toEqual(expect.objectContaining(bookingParams));
+
+        expect(res.statusCode).toEqual(201);
+        expect(res.body.data).toEqual(
+          expect.objectContaining(
+            modelBookingToApiBooking(userBookings[0], phoneBookingTypeWithColor, user),
+          ),
+        );
+      }
+    });
+
+    it('should allow staff users to make bookings for volunteers', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      const bookingParams = createMockPhoneBookingParams(volunteerUser);
+      const res = await request(app)
+        .post('/api/bookings')
+        .send(bookingParams)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      // Then the booking should be found from the database
+      const userBookings = await getUserBookings(volunteerUser.uuid);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      expect(userBookings!.length).toEqual(1);
+      if (!userBookings) {
+        return;
+      }
+      expect(userBookings[0]).toEqual(expect.objectContaining(bookingParams));
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.data).toEqual(
+        expect.objectContaining(
+          modelBookingToApiBooking(userBookings[0], phoneBookingTypeWithColor, volunteerUser),
+        ),
+      );
+
+      // And the staff user should still have no booking
+      const ownBookings = await getUserBookings(staffUser.uuid);
+      expect(ownBookings).toBeNull();
     });
   });
 });
