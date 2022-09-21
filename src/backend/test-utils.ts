@@ -10,7 +10,6 @@ import { createBookingType } from './models/bookingTypes';
 import * as auth from './auth';
 import * as emailController from './controllers/emailControllers';
 import { UserRole } from '../common/constants-common';
-import { getLegacyRedisClient, getRedisClient } from './redis';
 import db from './db';
 
 const testDbName = 'test_db_name';
@@ -25,6 +24,7 @@ export async function setupTestContainers() {
     .withEnv('POSTGRES_PASSWORD', testDbPassword)
     .withEnv('POSTGRES_DB', testDbName)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
+    .withReuse()
     .start();
 
   const redisContainer = await new GenericContainer('redis:7.0.4-alpine')
@@ -79,14 +79,6 @@ export class TestApiHelpers {
   }
 
   public static async cleanup() {
-    const redisClient = await getRedisClient();
-    await redisClient.quit();
-    const legacyRedisClient = await getLegacyRedisClient();
-    await legacyRedisClient.quit();
-
-    const pgClient = await db.getClient();
-    pgClient.release();
-
     if (this.pgContainer) {
       await this.pgContainer.stop();
     }

@@ -67,7 +67,7 @@ describe('bookingTypesRoutes', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.length).toEqual(2);
         expect(res.body.data).toIncludeAllMembers(
-          [phoneBookingType, letterBookingType].map((b, i) => {
+          [letterBookingType, phoneBookingType].map((b, i) => {
             return {
               ...modelBookingTypeToApiBookingType(b),
               color: BookingTypeColors[i % BookingTypeColors.length],

@@ -36,11 +36,11 @@ describe('bookingRoutes', () => {
     [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
     phoneBookingTypeWithColor = {
       ...modelBookingTypeToApiBookingType(phoneBookingType),
-      color: BookingTypeColors[0],
+      color: BookingTypeColors[1],
     };
     letterBookingTypeWithColor = {
       ...modelBookingTypeToApiBookingType(letterBookingType),
-      color: BookingTypeColors[1],
+      color: BookingTypeColors[0],
     };
   });
 
@@ -129,7 +129,7 @@ describe('bookingRoutes', () => {
           .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body?.data).toIncludeAllPartialMembers([
+        expect(res.body?.data).toIncludeAllMembers([
           modelBookingToApiBooking(userPhoneBooking, phoneBookingTypeWithColor, user),
           modelBookingToApiBooking(userLetterBooking, letterBookingTypeWithColor, user),
         ]);
@@ -223,6 +223,131 @@ describe('bookingRoutes', () => {
       // And the staff user should still have no booking
       const ownBookings = await getUserBookings(staffUser.uuid);
       expect(ownBookings).toBeNull();
+    });
+  });
+
+  describe('GET /api/bookings/user/:userUuid', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .get(`/api/bookings/user/${volunteerUser.uuid}`)
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer or unassigned users access', async () => {
+      const users = [volunteerUser, unassignedUser];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .get(`/api/bookings/user/${user.uuid}`)
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+      }
+    });
+
+    it("should allow staff to view any other's bookings", async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+
+      // When there is no booking
+      let res = await request(app)
+        .get(`/api/bookings/user/${volunteerUser.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual([]);
+
+      // When there are bookings for the user
+      const letterBooking = await createBooking(createMockLetterBookingParams(volunteerUser));
+      const phoneBooking = await createBooking(createMockPhoneBookingParams(volunteerUser));
+
+      expect(phoneBooking).not.toBeNull();
+      expect(letterBooking).not.toBeNull();
+      if (!phoneBooking || !letterBooking) {
+        return;
+      }
+
+      res = await request(app)
+        .get(`/api/bookings/user/${volunteerUser.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data.length).toEqual(2);
+      expect(res.body.data).toIncludeAllMembers([
+        modelBookingToApiBooking(phoneBooking, phoneBookingTypeWithColor, volunteerUser),
+        modelBookingToApiBooking(letterBooking, letterBookingTypeWithColor, volunteerUser),
+      ]);
+    });
+  });
+
+  describe('GET /api/bookings/all', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app).get(`/api/bookings/all`).set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer or unassigned users access', async () => {
+      const users = [volunteerUser, unassignedUser];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .get(`/api/bookings/all`)
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+      }
+    });
+
+    it('should allow staff to view all bookings', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+
+      // When there is no booking
+      let res = await request(app)
+        .get(`/api/bookings/all`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual([]);
+
+      // When there are bookings
+      const volunteerPhoneBooking = await createBooking(
+        createMockPhoneBookingParams(volunteerUser),
+      );
+      const volunteerLetterBooking = await createBooking(
+        createMockLetterBookingParams(volunteerUser),
+      );
+      const staffPhoneBooking = await createBooking(createMockPhoneBookingParams(staffUser));
+
+      expect(volunteerPhoneBooking).not.toBeNull();
+      expect(volunteerLetterBooking).not.toBeNull();
+      expect(staffPhoneBooking).not.toBeNull();
+      if (!volunteerPhoneBooking || !volunteerLetterBooking || !staffPhoneBooking) {
+        return;
+      }
+
+      res = await request(app)
+        .get(`/api/bookings/all`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data.length).toEqual(3);
+      expect(res.body.data).toIncludeAllMembers([
+        modelBookingToApiBooking(volunteerPhoneBooking, phoneBookingTypeWithColor, volunteerUser),
+        modelBookingToApiBooking(volunteerLetterBooking, letterBookingTypeWithColor, volunteerUser),
+        modelBookingToApiBooking(staffPhoneBooking, phoneBookingTypeWithColor, staffUser),
+      ]);
     });
   });
 });
