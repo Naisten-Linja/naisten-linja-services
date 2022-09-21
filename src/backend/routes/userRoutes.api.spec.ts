@@ -32,7 +32,7 @@ describe('userRoutes', () => {
   });
 
   describe('GET /api/users', () => {
-    it('should not allow public access by default', async () => {
+    it('should not allow unauthenticated requests', async () => {
       const res = await request(app).get('/api/users/').set('Accept', 'application/json');
       expect(res.statusCode).toEqual(401);
     });
