@@ -28,8 +28,8 @@
     "dev": "npm run start-dev-db && npm run start-dev-redis && npm run db-migrate up && concurrently npm:backend:dev npm:frontend:dev npm:lint:watch",
     "start:prod": "npm run db-migrate up && node build-backend/start-backend.js",
     "frontend:test": "react-scripts test --testMatch \"**/src/frontend/**/?(*.)+(spec|test).[jt]s?(x)\"",
-    "backend:test": "NODE_ENV=test jest -c jest.config.backend.js --forceExit",
-    "backend:test-watch": "NODE_ENV=test jest -c jest.config.backend.js --forceExit --watch",
+    "backend:test": "NODE_ENV=test jest -c jest.config.backend.js --forceExit --verbose",
+    "backend:test-watch": "NODE_ENV=test jest -c jest.config.backend.js --forceExit --verbose --watch",
     "test": "npm run frontend:test && npm run backend:test",
     "build": "concurrently npm:backend:build npm:frontend:build",
     "postinstall": "./node_modules/.bin/patch-package"

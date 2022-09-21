@@ -20,12 +20,20 @@ describe('bookingTypesRoutes', () => {
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
-    [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
-    [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
   });
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
+    await TestApiHelpers.resetDb();
+    [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
+    [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   describe('GET /api/booking-types', () => {

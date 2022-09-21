@@ -16,11 +16,19 @@ describe('userRoutes', () => {
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
-    [staff, volunteer] = await TestApiHelpers.populateTestUsers();
   });
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
+    await TestApiHelpers.resetDb();
+    [staff, volunteer] = await TestApiHelpers.populateTestUsers();
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   describe('GET /api/users', () => {

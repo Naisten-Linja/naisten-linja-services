@@ -7,7 +7,8 @@ const execPromise = util.promisify(exec);
 import { createApp } from './app';
 import { upsertUser, UpsertUserParams, updateUserRole, User } from './models/users';
 import { createBookingType } from './models/bookingTypes';
-import { createToken } from './auth';
+import * as auth from './auth';
+import * as emailController from './controllers/emailControllers';
 import { UserRole } from '../common/constants-common';
 import { getLegacyRedisClient, getRedisClient } from './redis';
 import db from './db';
@@ -95,7 +96,7 @@ export class TestApiHelpers {
   }
 
   public static async getToken(user: User) {
-    const token = await createToken({
+    const token = await auth.createToken({
       uuid: user.uuid,
       fullName: user.fullName,
       role: user.role,
@@ -219,4 +220,30 @@ export class TestApiHelpers {
 
     return [phoneBookingType, letterBookingType];
   }
+}
+
+export function mockDiscourseLogout() {
+  return jest.spyOn(auth, 'logUserOutOfDiscourse').mockImplementation(async () => true);
+}
+
+export function mockEmailSending() {
+  return {
+    sendBookingConfirmationEmail: jest
+      .spyOn(emailController, 'sendBookingConfirmationEmail')
+      .mockImplementation(async () => true),
+    sendBookingRemindersToVolunteers: jest
+      .spyOn(emailController, 'sendBookingRemindersToVolunteers')
+      .mockImplementation(async () => [true]),
+    sendNewBookingNotificationToStaffs: jest
+      .spyOn(emailController, 'sendNewBookingNotificationToStaffs')
+      .mockImplementation(async () => true),
+    sendReplyNotificationToCustomer: jest
+      .spyOn(emailController, 'sendReplyNotificationToCustomer')
+      .mockImplementation(async () => ({
+        sent: true,
+      })),
+    sendEmailWithDynamicTemplate: jest
+      .spyOn(emailController, 'sendEmailWithDynamicTemplate')
+      .mockImplementation(async () => true),
+  };
 }

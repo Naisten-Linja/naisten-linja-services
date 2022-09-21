@@ -3,7 +3,7 @@ import 'jest';
 import request from 'supertest';
 import express from 'express';
 
-import { TestApiHelpers } from '../test-utils';
+import { TestApiHelpers, mockEmailSending } from '../test-utils';
 import { User } from '../models/users';
 import { BookingType } from '../models/bookingTypes';
 import { createBooking, getUserBookings } from '../models/bookings';
@@ -31,6 +31,7 @@ describe('bookingRoutes', () => {
   });
 
   beforeEach(async () => {
+    await TestApiHelpers.resetDb();
     [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
     [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
     phoneBookingTypeWithColor = {
@@ -128,7 +129,7 @@ describe('bookingRoutes', () => {
           .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body?.data).toIncludeAllMembers([
+        expect(res.body?.data).toIncludeAllPartialMembers([
           modelBookingToApiBooking(userPhoneBooking, phoneBookingTypeWithColor, user),
           modelBookingToApiBooking(userLetterBooking, letterBookingTypeWithColor, user),
         ]);
@@ -165,6 +166,7 @@ describe('bookingRoutes', () => {
 
     it('should allow volunteer and staff users to make their own bookings', async () => {
       const users = [volunteerUser, staffUser];
+      const { sendBookingConfirmationEmail } = mockEmailSending();
 
       for (let i = 0; i < users.length; i++) {
         const user = users[i];
@@ -183,13 +185,14 @@ describe('bookingRoutes', () => {
           return;
         }
         expect(userBookings[0]).toEqual(expect.objectContaining(bookingParams));
-
         expect(res.statusCode).toEqual(201);
-        expect(res.body.data).toEqual(
-          expect.objectContaining(
-            modelBookingToApiBooking(userBookings[0], phoneBookingTypeWithColor, user),
-          ),
+        const expectedApiBooking = modelBookingToApiBooking(
+          userBookings[0],
+          phoneBookingTypeWithColor,
+          user,
         );
+        expect(res.body.data).toEqual(expect.objectContaining(expectedApiBooking));
+        expect(sendBookingConfirmationEmail).toHaveBeenCalledWith(expectedApiBooking);
       }
     });
 
