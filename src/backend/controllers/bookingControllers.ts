@@ -133,7 +133,7 @@ export async function getBookingUserStats(
     .filter(
       (booking) => typeof bookingType === 'undefined' || booking.bookingType.uuid === bookingType,
     )
-    .reduce<Record<string, ApiBooking[]>>((obj, booking) => {
+    .reduce<Record<string, ApiBookingWithColor[]>>((obj, booking) => {
       const u_uuid = booking.user.uuid;
       return {
         ...obj,
@@ -144,7 +144,7 @@ export async function getBookingUserStats(
   const now = new Date();
 
   return Object.entries(bookingsByUser).map(([uuid, bookings]) => {
-    const [previous, upcoming] = bookings.reduce<[ApiBooking[], ApiBooking[]]>(
+    const [previous, upcoming] = bookings.reduce<[ApiBookingWithColor[], ApiBookingWithColor[]]>(
       ([previous, upcoming], booking) => {
         if (new Date(booking.end) > now) {
           // ongoing bookings are upcoming bookings

@@ -19,6 +19,7 @@
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
     "lint:watch": "concurrently npm:eslint:watch npm:prettier:watch",
     "lint:node": "check-node-version --package",
+    "typecheck": "npm run frontend:typecheck && npm run backend:typecheck",
     "eslint": "eslint ./src",
     "eslint:fix": "eslint --fix ./src",
     "eslint:watch": "onchange -i \"src/**/*.{js,ts,jsx,tsx}\" -- npm run eslint",

@@ -189,7 +189,7 @@ router.put<
   ApiUpdateBookingParams
 >(
   '/booking/:bookingUuid',
-  // Only allow staff to modify existing booking notes
+  // Only allow staff to modify existing booking
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
     const { bookingUuid } = req.params;

@@ -350,4 +350,346 @@ describe('bookingRoutes', () => {
       ]);
     });
   });
+
+  describe('GET /api/bookings/userstats', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .get(`/api/bookings/userstats`)
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer and unassigned to see detailed booking information', async () => {
+      const users = [volunteerUser, unassignedUser];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .get('/api/bookings/userstats')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+      }
+    });
+
+    it('should allow staff users to get detailed booking information', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      // When there is no booking information
+      let res = await request(app)
+        .get('/api/bookings/userstats')
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual([]);
+
+      // When there are booking information
+      const volunteerPhoneBooking = await createBooking({
+        ...createMockPhoneBookingParams(volunteerUser),
+        start: new Date('Thu Jan 20 2022 10:00 GMT+0300'),
+        end: new Date('Thu Jan 20 2022 11:30 GMT+0300'),
+      });
+      const volunteerLetterBooking = await createBooking(
+        createMockLetterBookingParams(volunteerUser),
+      );
+      const staffPhoneBooking = await createBooking(createMockPhoneBookingParams(staffUser));
+
+      expect(volunteerPhoneBooking).not.toBeNull();
+      expect(volunteerLetterBooking).not.toBeNull();
+      expect(staffPhoneBooking).not.toBeNull();
+      if (!volunteerPhoneBooking || !volunteerLetterBooking || !staffPhoneBooking) {
+        return;
+      }
+
+      res = await request(app)
+        .get('/api/bookings/userstats')
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data.length).toEqual(2);
+      expect(res.body.data).toIncludeAllMembers([
+        {
+          uuid: staffUser.uuid,
+          previousBooking: null,
+          upcomingBooking: modelBookingToApiBooking(
+            staffPhoneBooking,
+            phoneBookingTypeWithColor,
+            staffUser,
+          ),
+          totalPrevious: 0,
+          totalUpcoming: 1,
+        },
+        {
+          uuid: volunteerUser.uuid,
+          previousBooking: {
+            ...modelBookingToApiBooking(
+              volunteerPhoneBooking,
+              phoneBookingTypeWithColor,
+              volunteerUser,
+            ),
+            color: undefined,
+          },
+          upcomingBooking: modelBookingToApiBooking(
+            volunteerLetterBooking,
+            letterBookingTypeWithColor,
+            volunteerUser,
+          ),
+          totalPrevious: 1,
+          totalUpcoming: 1,
+        },
+      ]);
+    });
+  });
+
+  describe('GET /api/bookings/calendar', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .get(`/api/bookings/calendar`)
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow unassigned to see the booking calendar data', async () => {
+      const { token } = await TestApiHelpers.getToken(unassignedUser);
+      const res = await request(app)
+        .get('/api/bookings/calendar')
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should allow staff and volunteer to see the booking calendar data', async () => {
+      const volunteerPhoneBooking = await createBooking({
+        ...createMockPhoneBookingParams(volunteerUser),
+        start: new Date('Thu Jan 20 2022 10:00 GMT+0300'),
+        end: new Date('Thu Jan 20 2022 11:30 GMT+0300'),
+      });
+      const volunteerLetterBooking = await createBooking(
+        createMockLetterBookingParams(volunteerUser),
+      );
+      const staffPhoneBooking = await createBooking(createMockPhoneBookingParams(staffUser));
+
+      expect(volunteerPhoneBooking).not.toBeNull();
+      expect(volunteerLetterBooking).not.toBeNull();
+      expect(staffPhoneBooking).not.toBeNull();
+      if (!volunteerPhoneBooking || !volunteerLetterBooking || !staffPhoneBooking) {
+        return;
+      }
+
+      const users = [volunteerUser, staffUser];
+      for (let i = 0; i < users.length; i++) {
+        const { token } = await TestApiHelpers.getToken(staffUser);
+
+        // When there is missing date filters
+        let res = await request(app)
+          .get('/api/bookings/calendar')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+
+        res = await request(app)
+          .get('/api/bookings/calendar?startDate=Mon Sep 19 2022 00%3A00%3A00')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+
+        res = await request(app)
+          .get('/api/bookings/calendar?endDate=Mon Sep 19 2022 00%3A00%3A00')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+
+        // When there are both startDate and endDate query and there are no booked slots
+        res = await request(app)
+          .get(
+            '/api/bookings/calendar?' +
+              'startDate=Mon Feb 05 2085 00%3A00%3A00' +
+              '&endDate=Sun Feb 11 2085 00%3A00%3A00',
+          )
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data).toEqual([]);
+
+        // When there are both startDate and endDate query and there are some booked slots
+        res = await request(app)
+          .get(
+            '/api/bookings/calendar?' +
+              'startDate=Mon Feb 12 2085 00%3A00%3A00' +
+              '&endDate=Sun Feb 18 2085 00%3A00%3A00',
+          )
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.data.length).toEqual(2);
+        expect(res.body.data).toIncludeAllMembers([
+          {
+            bookingTypeUuid: phoneBookingType.uuid,
+            start: staffPhoneBooking.start.toString(),
+            end: staffPhoneBooking.end.toString(),
+            count: 1,
+          },
+          {
+            bookingTypeUuid: letterBookingType.uuid,
+            start: volunteerLetterBooking.start.toString(),
+            end: volunteerLetterBooking.end.toString(),
+            count: 1,
+          },
+        ]);
+      }
+    });
+  });
+
+  describe('DELETE /api/bookings/booking/:bookingUuid', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .delete(`/api/bookings/booking/:bookingUuid`)
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer and unassigned users to delete a booking', async () => {
+      const users = [volunteerUser, unassignedUser];
+
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const booking = await createBooking(createMockLetterBookingParams(user));
+        expect(booking).not.toBeNull();
+        if (!booking) {
+          return;
+        }
+
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .delete(`/api/bookings/booking/${booking.uuid}`)
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+      }
+    });
+
+    it('should allow staff to delete a booking', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+
+      // When the booking does not exist
+      let res = await request(app)
+        .delete(`/api/bookings/booking/random-uuid`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(202);
+      expect(res.body.data.success).toEqual(false);
+
+      // When the booking exist
+      const letterBooking = await createBooking(createMockLetterBookingParams(volunteerUser));
+      const phoneBooking = await createBooking(createMockPhoneBookingParams(volunteerUser));
+      expect(letterBooking).not.toBeNull();
+      expect(phoneBooking).not.toBeNull();
+      if (!letterBooking || !phoneBooking) {
+        return;
+      }
+
+      res = await request(app)
+        .delete(`/api/bookings/booking/${letterBooking.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(202);
+      expect(res.body.data.success).toEqual(true);
+
+      // And the letter booking should be deleted from the database
+      const foundBookings = await getUserBookings(volunteerUser.uuid);
+      expect(foundBookings).toEqual([phoneBooking]);
+    });
+  });
+
+  describe('PUT /api/bookings/booking/:bookingUuid', () => {
+    const editBookingParams = {
+      email: 'updatedEmail@naistenlinja.fi',
+      fullName: 'new full name',
+      bookingNote: 'new booking note',
+      phone: '987654321',
+    };
+
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .put(`/api/bookings/booking/someuuid`)
+        .send(editBookingParams)
+        .set({ Accept: 'application/json' });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer and unassigned users to modify a booking', async () => {
+      const users = [volunteerUser, unassignedUser];
+
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const booking = await createBooking(createMockLetterBookingParams(user));
+        expect(booking).not.toBeNull();
+        if (!booking) {
+          return;
+        }
+
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .put(`/api/bookings/booking/${booking.uuid}`)
+          .send(editBookingParams)
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body.data).toBeUndefined();
+        expect(res.body.error).not.toBeEmpty();
+      }
+    });
+
+    it('should allow staff to modify a booking', async () => {
+      const letterBooking = await createBooking(createMockLetterBookingParams(volunteerUser));
+      expect(letterBooking).not.toBeNull();
+      if (!letterBooking) {
+        return;
+      }
+
+      const { token } = await TestApiHelpers.getToken(staffUser);
+
+      // When the booking does not exist
+      let res = await request(app)
+        .put(`/api/bookings/booking/random-uuid`)
+        .send(editBookingParams)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.data).toBeUndefined();
+      expect(res.body.error).not.toBeEmpty();
+
+      // When the booking exist
+      res = await request(app)
+        .put(`/api/bookings/booking/${letterBooking.uuid}`)
+        .send(editBookingParams)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual({
+        ...modelBookingToApiBooking(letterBooking, letterBookingTypeWithColor, volunteerUser),
+        ...editBookingParams,
+      });
+    });
+  });
 });

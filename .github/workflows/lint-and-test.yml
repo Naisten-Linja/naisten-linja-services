@@ -1,6 +1,6 @@
 # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/configuring-a-workflow
 
-name: Lint and test
+name: lint and test
 
 on:
   push
@@ -36,7 +36,8 @@ jobs:
       - name: Install dependencies
         run: npm install --ignore-scripts --legacy-peer-deps
       - name: Run lint and type checks
-        run: CI=1 npm run lint:node && npm run lint && npm run backend:typecheck && npm run frontend:typecheck
+        run: CI=1 npm run lint:node && npm run lint && npm run typecheck
+
   test_frontend:
     runs-on: ubuntu-latest
     strategy:
@@ -53,6 +54,7 @@ jobs:
         run: npm install --ignore-scripts --legacy-peer-deps
       - name: Run frontend tests
         run: CI=1 npm run frontend:test
+
   test_backend:
     runs-on: ubuntu-latest
     strategy:
