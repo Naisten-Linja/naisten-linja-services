@@ -7,6 +7,7 @@ import {
   getLetter,
   updateOriginalLetterContent,
   deleteLetterAndReply,
+  letterModelToApiLetterWithReadStatus,
 } from '../controllers/letterControllers';
 import {
   replyToLetter,
@@ -18,7 +19,6 @@ import {
   UserRole,
   ResponderType,
   ReplyStatus,
-  ApiLetterWithReadStatus,
   ApiLetterAdmin,
   ApiUpdateLetterContentParams,
   ApiReplyParamsAdmin,
@@ -50,38 +50,7 @@ router.get(
     }
 
     const result = letters
-      .map((letter): ApiLetterWithReadStatus => {
-        const {
-          created,
-          uuid,
-          title,
-          content,
-          hasEmail,
-          assignedResponderUuid,
-          assignedResponderEmail,
-          assignedResponderFullName,
-          status,
-          replyStatus,
-          replyReadReceipt,
-          replyReadTimestamp,
-          replyStatusTimestamp,
-        } = letter;
-        return {
-          uuid,
-          created,
-          title,
-          content,
-          hasEmail,
-          assignedResponderUuid,
-          assignedResponderEmail,
-          assignedResponderFullName,
-          status,
-          replyStatus,
-          replyReadReceipt,
-          replyReadTimestamp,
-          replyStatusTimestamp,
-        };
-      })
+      .map(letterModelToApiLetterWithReadStatus)
       .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
     res.status(200).json({ data: result });
   },

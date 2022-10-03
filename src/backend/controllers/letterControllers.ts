@@ -3,6 +3,7 @@ import {
   ApiSendLetterParams,
   ApiLetterAdmin,
   ReplyStatus,
+  ApiLetterWithReadStatus,
 } from '../../common/constants-common';
 import {
   Letter,
@@ -171,4 +172,37 @@ export async function checkResponderValidity(
 
 export async function deleteLetterAndReply(uuid: string): Promise<boolean> {
   return await deleteLetter(uuid);
+}
+
+export function letterModelToApiLetterWithReadStatus(letter: Letter): ApiLetterWithReadStatus {
+  const {
+    created,
+    uuid,
+    title,
+    content,
+    hasEmail,
+    assignedResponderUuid,
+    assignedResponderEmail,
+    assignedResponderFullName,
+    status,
+    replyStatus,
+    replyReadReceipt,
+    replyReadTimestamp,
+    replyStatusTimestamp,
+  } = letter;
+  return {
+    uuid,
+    created,
+    title,
+    content,
+    hasEmail,
+    assignedResponderUuid,
+    assignedResponderEmail,
+    assignedResponderFullName,
+    status,
+    replyStatus,
+    replyReadReceipt,
+    replyReadTimestamp,
+    replyStatusTimestamp,
+  };
 }

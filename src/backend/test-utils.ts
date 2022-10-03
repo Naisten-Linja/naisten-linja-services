@@ -11,6 +11,8 @@ import * as auth from './auth';
 import * as emailController from './controllers/emailControllers';
 import { UserRole } from '../common/constants-common';
 import db from './db';
+import { sendLetter } from './controllers/letterControllers';
+import { Letter, createLetterCredentials } from './models/letters';
 
 const testDbName = 'test_db_name';
 const testDbUser = 'test_db_user';
@@ -24,7 +26,6 @@ export async function setupTestContainers() {
     .withEnv('POSTGRES_PASSWORD', testDbPassword)
     .withEnv('POSTGRES_DB', testDbName)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
-    .withReuse()
     .start();
 
   const redisContainer = await new GenericContainer('redis:7.0.4-alpine')
@@ -211,6 +212,43 @@ export class TestApiHelpers {
     }
 
     return [phoneBookingType, letterBookingType];
+  }
+
+  public static async createOnlineLetter(params: {
+    email: string | null;
+    title: string;
+    content: string;
+  }): Promise<Letter> {
+    const credentials = await createLetterCredentials();
+    if (!credentials) {
+      throw 'unable to create letter credentials';
+    }
+    const letter = await sendLetter({ ...params, ...credentials });
+    if (!letter) {
+      throw 'unable to create new online letter';
+    }
+
+    return letter;
+  }
+
+  public static async populateOnlineLetters() {
+    const letter1 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+    const letter2 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+    const letter3 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+
+    return [letter1, letter2, letter3];
   }
 }
 

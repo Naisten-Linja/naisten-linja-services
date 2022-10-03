@@ -58,7 +58,7 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
   return {
     uuid: row.uuid,
     status: row.status,
-    created: row.created,
+    created: `${row.created}`,
     accessKey: row.access_key,
     accessPassword: row.access_password,
     accessPasswordSalt: row.access_password_salt,
