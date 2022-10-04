@@ -49,9 +49,9 @@ router.get(
       return;
     }
 
-    const result = letters
-      .map(letterModelToApiLetterWithReadStatus)
-      .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+    const result = letters.sort(
+      (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+    );
     res.status(200).json({ data: result });
   },
 );

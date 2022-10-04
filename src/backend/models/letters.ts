@@ -304,6 +304,7 @@ export async function updateLetterContent({
     const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
     const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
 
+    // TODO: return assignee's email address and fullname in the query
     const queryText = `
        UPDATE letters
        SET

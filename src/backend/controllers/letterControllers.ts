@@ -106,12 +106,22 @@ export async function readLetter({
   return { letter, reply: reply && reply.status === ReplyStatus.published ? reply : null };
 }
 
-export async function getAllAssignedLetters(userUuid: string): Promise<Array<Letter> | null> {
-  return await getAssignedLetters(userUuid);
+export async function getAllAssignedLetters(
+  userUuid: string,
+): Promise<Array<ApiLetterWithReadStatus> | null> {
+  const letters = await getAssignedLetters(userUuid);
+  if (!letters) {
+    return null;
+  }
+  return letters.map(letterModelToApiLetterWithReadStatus);
 }
 
-export async function getAllLetters(): Promise<Array<Letter> | null> {
-  return await getSentLetters();
+export async function getAllLetters(): Promise<Array<ApiLetterWithReadStatus> | null> {
+  const letters = await getSentLetters();
+  if (!letters) {
+    return null;
+  }
+  return letters.map(letterModelToApiLetterWithReadStatus);
 }
 
 export async function assignLetter({
@@ -120,37 +130,12 @@ export async function assignLetter({
 }: {
   letterUuid: string;
   assigneeUuid: string | null;
-}): Promise<ApiLetterAdmin | null> {
+}): Promise<ApiLetterWithReadStatus | null> {
   const letter = await updateLetterAssignee({ letterUuid, assigneeUuid });
   if (!letter) {
     return null;
   }
-  const {
-    uuid,
-    created,
-    title,
-    content,
-    hasEmail,
-    assignedResponderUuid,
-    assignedResponderEmail,
-    assignedResponderFullName,
-    status,
-    replyStatus,
-    replyStatusTimestamp,
-  } = letter;
-  return {
-    uuid,
-    created,
-    title,
-    content,
-    hasEmail,
-    assignedResponderUuid,
-    assignedResponderEmail,
-    assignedResponderFullName,
-    status,
-    replyStatus,
-    replyStatusTimestamp,
-  };
+  return letterModelToApiLetterWithReadStatus(letter);
 }
 
 export async function getLetter(uuid: string): Promise<Letter | null> {

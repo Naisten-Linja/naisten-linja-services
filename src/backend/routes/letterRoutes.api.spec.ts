@@ -5,7 +5,7 @@ import express from 'express';
 
 import { TestApiHelpers } from '../test-utils';
 import { User } from '../models/users';
-import { Letter, updateLetterAssignee } from '../models/letters';
+import { Letter, updateLetterAssignee, getLetterByUuid } from '../models/letters';
 import { letterModelToApiLetterWithReadStatus } from '../controllers/letterControllers';
 
 describe('letterRoutes', () => {
@@ -14,9 +14,9 @@ describe('letterRoutes', () => {
   let staffUser: User;
   let unassignedUser: User;
 
-  let l1: Letter;
-  let l2: Letter;
-  let l3: Letter;
+  let letter1: Letter;
+  let letter2: Letter;
+  let letter3: Letter;
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
@@ -29,7 +29,7 @@ describe('letterRoutes', () => {
   beforeEach(async () => {
     await TestApiHelpers.resetDb();
     [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
-    [l1, l2, l3] = await TestApiHelpers.populateOnlineLetters();
+    [letter1, letter2, letter3] = await TestApiHelpers.populateOnlineLetters();
   });
 
   afterEach(async () => {
@@ -68,7 +68,7 @@ describe('letterRoutes', () => {
 
     it('should allow volunteer to view letters they are assigned to', async () => {
       const updated = await updateLetterAssignee({
-        letterUuid: l2.uuid,
+        letterUuid: letter2.uuid,
         assigneeUuid: volunteerUser.uuid,
       });
       expect(updated).not.toBeNull();
@@ -84,7 +84,7 @@ describe('letterRoutes', () => {
       expect(res.statusCode).toEqual(200);
       expect(res.body.data).toEqual([
         {
-          ...letterModelToApiLetterWithReadStatus(l2),
+          ...letterModelToApiLetterWithReadStatus(letter2),
           assignedResponderEmail: volunteerUser.email,
           assignedResponderFullName: volunteerUser.fullName,
           assignedResponderUuid: volunteerUser.uuid,
@@ -101,8 +101,167 @@ describe('letterRoutes', () => {
       expect(res.statusCode).toEqual(200);
       expect(res.body.data.length).toEqual(3);
       expect(res.body.data).toIncludeAllMembers(
-        [l1, l2, l3].map(letterModelToApiLetterWithReadStatus),
+        [letter1, letter2, letter3].map(letterModelToApiLetterWithReadStatus),
       );
+    });
+  });
+
+  describe('GET /api/letters/:uuid', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set('Accept', 'application/json');
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should not allow unassigned user to view any letter', async () => {
+      const { token } = await TestApiHelpers.getToken(unassignedUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should not allow volunteer to view letter they are not assigned to', async () => {
+      const { token } = await TestApiHelpers.getToken(volunteerUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should allow staff to view any letter', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual(letter3);
+    });
+
+    it('should allow volunteer to view a letter they are assigned to', async () => {
+      const updated = await updateLetterAssignee({
+        letterUuid: letter3.uuid,
+        assigneeUuid: volunteerUser.uuid,
+      });
+      expect(updated).not.toBeNull();
+      if (!updated) {
+        throw 'failed to assign letter to user';
+      }
+      const { token } = await TestApiHelpers.getToken(volunteerUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual({
+        ...letter3,
+        assignedResponderEmail: volunteerUser.email,
+        assignedResponderFullName: volunteerUser.fullName,
+        assignedResponderUuid: volunteerUser.uuid,
+      });
+    });
+  });
+
+  describe('POST /api/letters/assign', () => {
+    it('should not allow unauthenticated requests', async () => {
+      const res = await request(app)
+        .post('/api/letters/assign')
+        .set('Accept', 'application/json')
+        .send({ letterUuid: letter1.uuid, assigneeUuid: volunteerUser.uuid });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should not allow unassigned and volunteer users to assign letters to other users', async () => {
+      const users = [volunteerUser, unassignedUser];
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+        const res = await request(app)
+          .post('/api/letters/assign')
+          .set({ Accept: 'application/json', Authorization: `Bearer ${token}` })
+          .send({ letterUuid: letter1.uuid, assigneeUuid: volunteerUser.uuid });
+
+        expect(res.statusCode).toEqual(403);
+        expect(res.body?.data).toBeUndefined();
+        expect(res.body?.error).not.toBeEmpty();
+      }
+    });
+
+    it('should allow staff user to assign letters to volunteers', async () => {
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      const res = await request(app)
+        .post('/api/letters/assign')
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` })
+        .send({ letterUuid: letter3.uuid, assigneeUuid: volunteerUser.uuid });
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.data).toEqual(
+        letterModelToApiLetterWithReadStatus({
+          ...letter3,
+          assignedResponderUuid: volunteerUser.uuid,
+        }),
+      );
+
+      const updatedLetter = await getLetterByUuid(letter3.uuid);
+      expect(updatedLetter).not.toBeNull();
+      if (!updatedLetter) {
+        throw 'unable to get updated letter by uuid';
+      }
+      expect(updatedLetter.assignedResponderUuid).toEqual(volunteerUser.uuid);
+    });
+
+    it('should allow staff user to unassign an assigned letter', async () => {
+      // When: letter was already assigned to a volunteer
+      const updated = await updateLetterAssignee({
+        letterUuid: letter3.uuid,
+        assigneeUuid: volunteerUser.uuid,
+      });
+      expect(updated).not.toBeNull();
+      if (!updated) {
+        throw 'failed to assign letter to user';
+      }
+
+      // When: staff user set the same letter's assignee to null
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      const res = await request(app)
+        .post('/api/letters/assign')
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` })
+        .send({ letterUuid: letter3.uuid, assigneeUuid: null });
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.data).toEqual(letterModelToApiLetterWithReadStatus(letter3));
+
+      // Then: the letter should no longer be assigned to the volunteer
+      const updatedLetter = await getLetterByUuid(letter3.uuid);
+      expect(updatedLetter).not.toBeNull();
+      if (!updatedLetter) {
+        throw 'unable to get updated letter by uuid';
+      }
+      expect(updatedLetter.assignedResponderUuid).toEqual(null);
+
+      // And: the volunteer can no longer view the letter
+      const volunteerToken = (await TestApiHelpers.getToken(volunteerUser)).token;
+      const volunteerRes = await request(app)
+        .get(`/api/letters/${letter3.uuid}`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${volunteerToken}` });
+
+      expect(volunteerRes.statusCode).toEqual(403);
+      expect(volunteerRes.body.error).not.toBeEmpty();
+      expect(volunteerRes.body.data).toBeUndefined();
     });
   });
 });
