@@ -7,7 +7,6 @@ import {
   getLetter,
   updateOriginalLetterContent,
   deleteLetterAndReply,
-  letterModelToApiLetterWithReadStatus,
 } from '../controllers/letterControllers';
 import {
   replyToLetter,
@@ -120,12 +119,12 @@ router.post(
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(letterUuid, user.uuid);
     if (
       (isVolunteer && (!isAssigned || status === ReplyStatus.published)) ||
       (!isVolunteer && !isStaff)
     ) {
-      res.status(401).json({ error: `User ${user.email} can't response to this letter` });
+      res.status(403).json({ error: `User ${user.email} can't response to this letter` });
       return;
     }
     const reply = await replyToLetter({
