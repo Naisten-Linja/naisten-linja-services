@@ -39,6 +39,9 @@ export async function setupTestContainers() {
   process.env.DB_PASSWORD = testDbPassword;
   process.env.DB_PORT = testDbPort;
   process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(6379)}`;
+  process.env.LETTER_ACCESS_KEY_SALT =
+    'd35d86248800d53ac5086eb9010f4b830de271acd06235a4a4e52de0ee6afdd6';
+  process.env.LETTER_AES_KEY = '3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de';
 
   // Migrate database
   await execPromise(
