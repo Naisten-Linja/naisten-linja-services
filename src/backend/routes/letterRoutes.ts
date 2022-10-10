@@ -150,9 +150,9 @@ router.get(
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(req.params.uuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(req.params.uuid, user.uuid);
     if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
-      res.status(401).json({ error: `User ${user.email} don't have acces to this letter's reply` });
+      res.status(403).json({ error: `User ${user.email} don't have acces to this letter's reply` });
       return;
     }
     const reply = await getLettersReply(req.params.uuid);
@@ -169,11 +169,12 @@ router.post(
     const { letterUuid, replyUuid } = req.params;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(letterUuid, user.uuid);
     if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
       res.status(401).json({ error: `User ${user.email} don't have acces to this letter's reply` });
       return;
     }
+
     // @ts-ignore
     const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
     if (!content || !status) {

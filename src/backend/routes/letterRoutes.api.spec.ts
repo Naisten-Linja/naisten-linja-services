@@ -7,8 +7,9 @@ import { TestApiHelpers } from '../test-utils';
 import { User } from '../models/users';
 import { Letter, updateLetterAssignee, getLetterByUuid } from '../models/letters';
 import { letterModelToApiLetterWithReadStatus } from '../controllers/letterControllers';
-import { getReply } from '../models/replies';
+import { getReply, createReply, Reply } from '../models/replies';
 import { replyModelToApiReplyAdmin } from '../controllers/replyControllers';
+import { ResponderType, ReplyStatus } from '../../common/constants-common';
 
 describe('letterRoutes', () => {
   let app: express.Application;
@@ -316,6 +317,82 @@ describe('letterRoutes', () => {
       if (!reply) {
         throw "unable to get letter's reply";
       }
+      expect(res.body.data).toEqual(replyModelToApiReplyAdmin(reply));
+    });
+  });
+
+  describe('GET /api/letters/:uuid/reply', () => {
+    async function createMockReply(letterUuid: string, userUuid: string): Promise<Reply> {
+      const reply = await createReply({
+        letterUuid: letterUuid,
+        content: 'test reply',
+        internalAuthorUuid: userUuid,
+        authorType: ResponderType.internal,
+        status: ReplyStatus.draft,
+      });
+      if (!reply) {
+        throw 'unable to create reply to letter';
+      }
+
+      return reply;
+    }
+
+    it('should not allow unauthenticated requests', async () => {
+      await createMockReply(letter1.uuid, staffUser.uuid);
+      const res = await request(app)
+        .get(`/api/letters/${letter1.uuid}/reply`)
+        .set('Accept', 'application/json');
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should not allow unassigned user to read replies', async () => {
+      await createMockReply(letter1.uuid, unassignedUser.uuid);
+      const { token } = await TestApiHelpers.getToken(unassignedUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter1.uuid}/reply`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(403);
+      expect(res.body?.data).toBeUndefined();
+      expect(res.body?.error).not.toBeEmpty();
+    });
+
+    it('should only allow volunteer read replies from letters they are assigned to', async () => {
+      const updatedLetter = updateLetterAssignee({
+        letterUuid: letter1.uuid,
+        assigneeUuid: volunteerUser.uuid,
+      });
+      if (!updatedLetter) {
+        throw 'unable to assign letter to volunteer user';
+      }
+      const reply = await createMockReply(letter1.uuid, volunteerUser.uuid);
+      const { token } = await TestApiHelpers.getToken(volunteerUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter1.uuid}/reply`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.data).toEqual(replyModelToApiReplyAdmin(reply));
+    });
+
+    it('should allow staff to read any reply', async () => {
+      const updatedLetter = updateLetterAssignee({
+        letterUuid: letter1.uuid,
+        assigneeUuid: volunteerUser.uuid,
+      });
+      if (!updatedLetter) {
+        throw 'unable to assign letter to volunteer user';
+      }
+      const reply = await createMockReply(letter1.uuid, volunteerUser.uuid);
+      const { token } = await TestApiHelpers.getToken(staffUser);
+      const res = await request(app)
+        .get(`/api/letters/${letter1.uuid}/reply`)
+        .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
+
+      expect(res.statusCode).toEqual(200);
       expect(res.body.data).toEqual(replyModelToApiReplyAdmin(reply));
     });
   });
