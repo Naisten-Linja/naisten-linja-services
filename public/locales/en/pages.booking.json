@@ -36,7 +36,8 @@
         "user": "User",
         "booking_details": "Booking details",
         "book_slot": "Book the slot",
-        "close": "Close"
+        "close": "Close",
+        "requires_working_from_the_office": "This booking requires working from the office"
     }
   },
   "calendar_column": {

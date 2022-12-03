@@ -80,7 +80,15 @@ export const BookingTypes: React.FC = () => {
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
-        const { rules, uuid, name, exceptions, dateRanges, additionalInformation } = bookingType;
+        const {
+          rules,
+          uuid,
+          name,
+          exceptions,
+          dateRanges,
+          additionalInformation,
+          flexibleLocation,
+        } = bookingType;
         return (
           <div className="margin-bottom-l" key={uuid}>
             {isEditing ? (
@@ -144,6 +152,16 @@ export const BookingTypes: React.FC = () => {
                           ))}
                         </ul>
                       )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                      {t('booking_types.working_location')}
+                    </th>
+                    <td className="font-weight-semibold font-size-s">
+                      {flexibleLocation
+                        ? t('booking_types.flexible')
+                        : t('booking_types.at_the_office')}
                     </td>
                   </tr>
                   <tr>

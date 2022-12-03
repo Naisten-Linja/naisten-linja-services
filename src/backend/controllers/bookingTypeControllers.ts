@@ -12,6 +12,7 @@ export async function addBookingType({
   exceptions,
   dateRanges,
   additionalInformation,
+  flexibleLocation,
 }: model.CreateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.createBookingType({
     name,
@@ -19,6 +20,7 @@ export async function addBookingType({
     exceptions,
     dateRanges,
     additionalInformation,
+    flexibleLocation,
   });
   return bookingType ? modelBookingTypeToApiBookingType(bookingType) : null;
 }
@@ -67,6 +69,7 @@ export async function updateBookingType({
   exceptions,
   dateRanges,
   additionalInformation,
+  flexibleLocation,
 }: model.UpdateBookingTypeParams): Promise<ApiBookingType | null> {
   const bookingType = await model.updateBookingType({
     uuid,
@@ -75,6 +78,7 @@ export async function updateBookingType({
     exceptions,
     dateRanges,
     additionalInformation,
+    flexibleLocation,
   });
   return bookingType !== null ? modelBookingTypeToApiBookingType(bookingType) : null;
 }
@@ -91,5 +95,6 @@ export function modelBookingTypeToApiBookingType(bookingType: model.BookingType)
     exceptions: bookingType.exceptions,
     dateRanges: bookingType.dateRanges,
     additionalInformation: bookingType.additionalInformation,
+    flexibleLocation: bookingType.flexibleLocation,
   };
 }

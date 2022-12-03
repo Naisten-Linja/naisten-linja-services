@@ -12,4 +12,5 @@ export type BookingSlotDetails = {
   end: moment.Moment;
   seats: number;
   availableSeats: number;
+  flexibleLocation: boolean;
 };

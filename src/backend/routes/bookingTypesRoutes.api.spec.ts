@@ -266,6 +266,7 @@ describe('bookingTypesRoutes', () => {
         exceptions: [],
         dateRanges: [],
         additionalInformation: 'new booking tye',
+        flexibleLocation: true,
       });
 
       expect(newBookingType).not.toBeNull();

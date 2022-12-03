@@ -8,6 +8,7 @@ export interface CreateBookingTypeParams {
   exceptions: Array<string>;
   dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string;
+  flexibleLocation: boolean;
 }
 
 export interface UpdateBookingTypeParams {
@@ -17,6 +18,7 @@ export interface UpdateBookingTypeParams {
   exceptions: Array<string>;
   dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string;
+  flexibleLocation: boolean;
 }
 
 export interface BookingType {
@@ -28,6 +30,7 @@ export interface BookingType {
   dateRanges: Array<BookingTypeDateRange>;
   created: number;
   additionalInformation: string | null;
+  flexibleLocation: boolean;
 }
 
 export interface BookingTypeQueryResult {
@@ -39,6 +42,7 @@ export interface BookingTypeQueryResult {
   exceptions: Array<string>;
   date_ranges: Array<BookingTypeDateRange>;
   additional_information?: string | null;
+  flexible_location: boolean;
 }
 
 function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
@@ -51,6 +55,7 @@ function queryResultToBookingType(row: BookingTypeQueryResult): BookingType {
     exceptions: row.exceptions,
     dateRanges: row.date_ranges,
     additionalInformation: row.additional_information || null,
+    flexibleLocation: row.flexible_location,
   };
 }
 
@@ -60,14 +65,22 @@ export async function createBookingType({
   exceptions = [],
   dateRanges,
   additionalInformation,
+  flexibleLocation,
 }: CreateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
-        INSERT INTO booking_types (name, rules, exceptions, date_ranges, additional_information)
-        VALUES ($1::text, $2::jsonb[], $3::text[], $4::jsonb[], $5::text)
+        INSERT INTO booking_types (name, rules, exceptions, date_ranges, additional_information, flexible_location)
+        VALUES ($1::text, $2::jsonb[], $3::text[], $4::jsonb[], $5::text, $6::boolean)
         RETURNING *;
     `;
-    const queryValues = [name, rules, exceptions, dateRanges, additionalInformation];
+    const queryValues = [
+      name,
+      rules,
+      exceptions,
+      dateRanges,
+      additionalInformation,
+      flexibleLocation,
+    ];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
@@ -117,6 +130,7 @@ export async function updateBookingType({
   dateRanges,
   uuid,
   additionalInformation,
+  flexibleLocation,
 }: UpdateBookingTypeParams): Promise<BookingType | null> {
   try {
     const queryText = `
@@ -126,11 +140,20 @@ export async function updateBookingType({
           rules = $2::jsonb[],
           exceptions = $3::text[],
           date_ranges = $4::jsonb[],
-          additional_information = $5::text
-        WHERE uuid = $6::text
+          additional_information = $5::text,
+          flexible_location = $6::boolean
+        WHERE uuid = $7::text
         RETURNING *;
     `;
-    const queryValues = [name, rules, exceptions, dateRanges, additionalInformation, uuid];
+    const queryValues = [
+      name,
+      rules,
+      exceptions,
+      dateRanges,
+      additionalInformation,
+      flexibleLocation,
+      uuid,
+    ];
     const result = await db.query<BookingTypeQueryResult>(queryText, queryValues);
     if (result.rows.length < 1) {
       return null;
