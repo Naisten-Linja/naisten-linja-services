@@ -197,12 +197,13 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ bookingTypes }
             );
 
             const slotsInCurrentDay = bookingTypesInCurrentDay.flatMap(
-              ({ rules, uuid, name, additionalInformation, color }) =>
+              ({ rules, uuid, name, additionalInformation, color, flexibleLocation }) =>
                 rules[currentDate.weekday()].slots.map(({ start, end, seats }) => {
                   const [startHour, startMinute] = start.split(':');
                   const [endHour, endMinute] = end.split(':');
                   return {
                     seats,
+                    flexibleLocation,
                     bookingTypeUuid: uuid,
                     bookingTypeName: name,
                     bookingTypeColor: color,

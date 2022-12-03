@@ -165,6 +165,7 @@ export class TestApiHelpers {
       exceptions: [new Date().toUTCString()],
       dateRanges: [],
       additionalInformation: 'this is a test booking',
+      flexibleLocation: true,
     });
 
     if (!phoneBookingType) {
@@ -191,6 +192,7 @@ export class TestApiHelpers {
       exceptions: [new Date().toUTCString()],
       dateRanges: [],
       additionalInformation: 'this is a test booking',
+      flexibleLocation: true,
     });
     if (!letterBookingType) {
       throw 'unable to create phone booking';

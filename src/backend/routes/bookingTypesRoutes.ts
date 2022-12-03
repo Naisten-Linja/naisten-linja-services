@@ -43,19 +43,22 @@ router.post<
     exceptions: Array<string>;
     dateRanges: Array<BookingTypeDateRange>;
     additionalInformation: string;
+    flexibleLocation: boolean;
   }
 >(
   '/',
   // Only allow staff members to create new booking types
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
-    const { name, rules, exceptions, dateRanges, additionalInformation } = req.body;
+    const { name, rules, exceptions, dateRanges, additionalInformation, flexibleLocation } =
+      req.body;
     const bookingType = await addBookingType({
       name,
       rules,
       exceptions,
       dateRanges,
       additionalInformation,
+      flexibleLocation,
     });
     if (!bookingType) {
       res.status(400).json({ error: 'unable to create new booking rule' });
@@ -74,13 +77,15 @@ router.put<
     exceptions: Array<string>;
     dateRanges: Array<BookingTypeDateRange>;
     additionalInformation: string;
+    flexibleLocation: boolean;
   }
 >(
   '/:uuid',
   // Only allow staff members to modify booking types
   isAuthenticated([UserRole.staff]),
   async (req, res) => {
-    const { name, rules, exceptions, dateRanges, additionalInformation } = req.body;
+    const { name, rules, exceptions, dateRanges, additionalInformation, flexibleLocation } =
+      req.body;
     const { uuid } = req.params;
     const allBookingTypes = await getBookingTypes();
     if (allBookingTypes === null || !allBookingTypes.map(({ uuid }) => uuid).includes(uuid)) {
@@ -94,6 +99,7 @@ router.put<
       exceptions,
       dateRanges,
       additionalInformation,
+      flexibleLocation,
     });
     if (!bookingType) {
       res.status(400).json({ error: 'unable to update booking type' });

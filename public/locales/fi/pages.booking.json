@@ -36,7 +36,8 @@
       "user": "Käyttäjä",
       "booking_details": "Varauksen tiedot",
       "book_slot": "Varaa vuoro",
-      "close": "Sulje"
+      "close": "Sulje",
+      "requires_working_from_the_office": "This booking requires working from the office"
     }
   },
   "calendar_column": {
