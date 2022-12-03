@@ -94,6 +94,7 @@ describe('bookingTypesRoutes', () => {
     exceptions: [exceptionDate],
     dateRanges: [],
     additionalInformation: 'this is a test booking',
+    flexibleLocation: true,
   };
 
   describe('POST /api/booking-types', () => {
@@ -151,6 +152,7 @@ describe('bookingTypesRoutes', () => {
         additionalInformation: 'this is a test booking',
         dateRanges: [],
         exceptions: [exceptionDate],
+        flexibleLocation: true,
       });
 
       // And now there should now be 3 booking types in total
@@ -178,6 +180,7 @@ describe('bookingTypesRoutes', () => {
       exceptions: [],
       additionalInformation: 'booking type updated',
       dateRanges: [],
+      flexibleLocation: true,
     };
 
     it('should not allow unauthenticated requests', async () => {
