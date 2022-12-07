@@ -6,8 +6,7 @@ import jwt from 'express-jwt';
 import winston from 'winston';
 import expressWinston from 'express-winston';
 import path from 'path';
-import redis from 'redis';
-import connectRedis, { RedisStore } from 'connect-redis';
+import connectRedis from 'connect-redis';
 import cron from 'node-cron';
 
 import authRoutes from './routes/authRoutes';
@@ -22,9 +21,11 @@ import { getUserByUuid } from './models/users';
 import { getConfig } from './config';
 import { getJwtr } from './auth';
 import { sendBookingRemindersToVolunteers } from './controllers/emailControllers';
+import { getLegacyRedisClient } from './redis';
 
-export function createApp() {
-  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, redisUrl } = getConfig();
+export async function createApp() {
+  const { cookieSecret, environment, jwtSecret, allowedOrigins, hostname, useNotifcationCron } =
+    getConfig();
 
   const app = express();
 
@@ -51,16 +52,8 @@ export function createApp() {
     );
   }
 
-  const storeOption: { store?: RedisStore } = {};
-
-  if (redisUrl) {
-    const redisClient = redis.createClient({ url: redisUrl });
-    redisClient.on('error', (err) => {
-      console.log('Redis error: ', err);
-    });
-    const redisStore = connectRedis(session);
-    storeOption.store = new redisStore({ client: redisClient, url: redisUrl });
-  }
+  const redisClient = await getLegacyRedisClient();
+  const RedisStore = connectRedis(session);
 
   // Add session support - this is needed for SSO
   app.use(
@@ -74,21 +67,21 @@ export function createApp() {
         httpOnly: true,
         // Cookie is needed only in /auth routes for Discourse SSO
         path: '/api/auth',
-        // Cookie will expires if ther is no new requests for 10 minutes , and
+        // Cookie will expires if there is no new requests for 10 minutes , and
         // a new empty cookie will be generated instead.
         // In the context of our SSO login flow, this means the user has 10 minutes
         // to complete the login process in Discourse
         maxAge: 600000,
         ...(environment === 'production' ? { domain: hostname } : {}),
       },
-      ...storeOption,
+      store: new RedisStore({ client: redisClient }),
     }),
   );
 
   // In production, serve the all the frontend static files in the `./build` directory
   app.use('/', express.static(path.join(__dirname, '../../build')));
 
-  const jwtr = getJwtr();
+  const jwtr = await getJwtr();
 
   app.use(
     jwt({
@@ -159,6 +152,9 @@ export function createApp() {
       ),
       expressFormat: true,
       colorize: true,
+      skip: () => {
+        return process.env.NODE_ENV === 'test';
+      },
     }),
   );
 
@@ -188,6 +184,9 @@ export function createApp() {
           return `${ts} [${level}]: ${message}`;
         }),
       ),
+      skip: () => {
+        return process.env.NODE_ENV === 'test';
+      },
     }),
   );
 
@@ -200,7 +199,9 @@ export function createApp() {
     next();
   });
 
-  activateNotificationCronJobs();
+  if (useNotifcationCron) {
+    activateNotificationCronJobs();
+  }
 
   return app;
 }

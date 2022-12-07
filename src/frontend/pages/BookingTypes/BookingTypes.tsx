@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -12,7 +11,7 @@ import { BookingTypeForm } from './BookingTypeForm';
 import { BookingTypeBadgeDateRange } from './BookingTypeBadgeDateRange';
 import { BookingTypeBadgeException } from './BookingTypeBadgeException';
 
-export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => {
+export const BookingTypes: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.bookingTypes);
 
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -81,7 +80,15 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
       </button>
       {bookingTypes.map((bookingType) => {
         const isEditing = editStates[bookingType.uuid];
-        const { rules, uuid, name, exceptions, dateRanges, additionalInformation } = bookingType;
+        const {
+          rules,
+          uuid,
+          name,
+          exceptions,
+          dateRanges,
+          additionalInformation,
+          flexibleLocation,
+        } = bookingType;
         return (
           <div className="margin-bottom-l" key={uuid}>
             {isEditing ? (
@@ -145,6 +152,16 @@ export const BookingTypes: React.FunctionComponent<RouteComponentProps> = () => 
                           ))}
                         </ul>
                       )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="font-weight-semibold font-size-s" style={{ width: '7rem' }}>
+                      {t('booking_types.working_location')}
+                    </th>
+                    <td className="font-weight-semibold font-size-s">
+                      {flexibleLocation
+                        ? t('booking_types.flexible')
+                        : t('booking_types.at_the_office')}
                     </td>
                   </tr>
                   <tr>

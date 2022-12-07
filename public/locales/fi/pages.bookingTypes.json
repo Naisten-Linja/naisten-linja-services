@@ -48,7 +48,8 @@
     "slots": "Vuorot",
     "start": "Alkaa",
     "end": "Päättyy",
-    "seats": "Paikat"
+    "seats": "Paikat",
+    "allow_flexible_location": "Joustava sijainti"
   },
   "booking_types": {
     "fetch_booking_types_error": "Kaikkien varaustyyppien noutaminen epäonnistui",
@@ -64,6 +65,9 @@
     "exceptions": "Poikkeukset",
     "week_day": "Viikonpäivä",
     "slots": "Vuorot",
-    "available_seats": "Vapaat paikat"
+    "available_seats": "Vapaat paikat",
+    "working_location": "Sijainti",
+    "flexible": "Joustava",
+    "at_the_office": "Toimistolla"
   }
 }

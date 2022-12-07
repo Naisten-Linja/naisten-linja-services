@@ -129,5 +129,7 @@ export function getConfig() {
     bookingReminderDaysBefore: process.env.BOOKING_REMINDER_DAYS_BEFORE || null,
     sendGridCustomerReplyNotificationTemplate:
       process.env.SENDGRID_CUSTOMER_REPLY_NOTIFICATION_TEMPLATE_ID || null,
+
+    useNotifcationCron: process.env.USE_NOTIFICATION_CRON_JOB != 'false',
   };
 }

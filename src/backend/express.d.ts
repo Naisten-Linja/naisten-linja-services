@@ -13,4 +13,8 @@ namespace Express {
   export interface Request {
     user?: User;
   }
+
+  export interface Application {
+    user?: User;
+  }
 }

@@ -19,6 +19,7 @@ type CalendarColumnProps = {
     start: Moment;
     end: Moment;
     seats: number;
+    flexibleLocation: boolean;
   }>;
   currentDate: Moment;
   openBookingForm: (details: BookingSlotDetails) => void;
@@ -89,6 +90,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
           start,
           end,
           seats,
+          flexibleLocation,
         }) => {
           const bookedSlotCount =
             bookedSlots.find(
@@ -145,6 +147,7 @@ export const CalendarColumn: React.FC<CalendarColumnProps> = ({
                   end,
                   seats,
                   availableSeats,
+                  flexibleLocation,
                 })
               }
               aria-label={t('calendar_column.aria_booking_slot', {

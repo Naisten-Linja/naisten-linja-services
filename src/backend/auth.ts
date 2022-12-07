@@ -1,8 +1,10 @@
 import { Request } from 'express';
-import redis from 'redis';
+import { RedisClientType, RedisDefaultModules } from 'redis';
 import JWTR from 'jwt-redis';
 // @ts-ignore
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
+import { getRedisClient } from './redis';
 
 import { getConfig } from './config';
 import { hmacSha256, encodeString, getQueryData, generateRandomString } from './utils';
@@ -112,10 +114,12 @@ export type TokenData = {
 
 let jwtr: JWTR | null = null;
 
-export function getJwtr() {
+export async function getJwtr() {
   if (!jwtr) {
-    const { redisUrl } = getConfig();
-    const redisClient = redis.createClient({ url: redisUrl });
+    const redisClient: RedisClientType<
+      RedisDefaultModules,
+      Record<string, never>
+    > = await getRedisClient();
     jwtr = new JWTR(redisClient);
   }
   return jwtr;
@@ -125,12 +129,12 @@ export function getJwtr() {
 export async function createToken(data: TokenData): Promise<{ token: string; exp: number } | null> {
   try {
     const { jwtSecret } = getConfig();
-    const jwtr = getJwtr();
+    const jwtr = await getJwtr();
     // token will expire in 16 minutes
     const token = await jwtr.sign(data, jwtSecret, { expiresIn: '16 minutes' });
     await jwtr.verify(token, jwtSecret);
-    const { exp } = await jwtr.decode(token);
-    return { token, exp: exp as number };
+    const { exp } = await jwtr.decode<{ exp: number }>(token);
+    return { token, exp };
   } catch (err) {
     console.error('Failed to create token');
     console.error(err);

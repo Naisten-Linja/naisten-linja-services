@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { RouteComponentProps, Redirect } from '@reach/router';
+import { useParams } from 'react-router-dom';
 
 import { useAuth } from './AuthContext';
 import { useRequest } from './shared/http';
+import { Redirect } from './Redirect';
 
-export const SSOLoginCallbackHandler = (props: RouteComponentProps<{ nonce?: string }>) => {
-  const { nonce } = props;
+export const SSOLoginCallbackHandler = () => {
+  const { nonce } = useParams<{ nonce: string }>();
   const [done, setDone] = useState<boolean>(false);
   const { setToken } = useAuth();
   const { getRequest } = useRequest();
 
   useEffect(() => {
     const source = axios.CancelToken.source();
-    const getToken = async (nonce: string) => {
+    const getToken = async (n: string) => {
       try {
         const result = await getRequest<{ data: { token: string; expiresAt: number } }>(
-          `/api/auth/token/${nonce}`,
+          `/api/auth/token/${n}`,
           {
             withCredentials: true,
             cancelToken: source.token,
@@ -36,5 +37,5 @@ export const SSOLoginCallbackHandler = (props: RouteComponentProps<{ nonce?: str
     return () => source.cancel();
   }, [nonce, setToken, getRequest]);
 
-  return done ? <Redirect noThrow to="/" /> : <div>Loggin in....</div>;
+  return done ? <Redirect to="/" /> : <div>Loggin in....</div>;
 };

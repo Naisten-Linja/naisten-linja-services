@@ -36,6 +36,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   bookingTypeAdditionalInformation,
   ownBookings,
   seats,
+  flexibleLocation,
 }) => {
   const { t } = useTranslation(namespaces.pages.bookingCalendar);
 
@@ -273,19 +274,28 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               <Field type="text" name="email" id="booking-details-email" required />
               <label htmlFor="booking-details-phone">{t('booking_form.form.phone')}</label>
               <Field type="text" name="phone" id="booking-details-phone" required />
-              <label id="booking-details-preferred-working-location-label">
-                {t('booking_form.form.work_location')}
-              </label>
-              <div role="group" aria-labelledby="booking-details-preferred-working-location-label">
-                <label>
-                  <Field type="radio" name="workingRemotely" value="false" />
-                  {t('booking_form.form.office')}
-                </label>
-                <label>
-                  <Field type="radio" name="workingRemotely" value="true" />
-                  {t('booking_form.form.remote')}
-                </label>
-              </div>
+              {flexibleLocation ? (
+                <>
+                  <label id="booking-details-preferred-working-location-label">
+                    {t('booking_form.form.work_location')}
+                  </label>
+                  <div
+                    role="group"
+                    aria-labelledby="booking-details-preferred-working-location-label"
+                  >
+                    <label>
+                      <Field type="radio" name="workingRemotely" value="false" />
+                      {t('booking_form.form.office')}
+                    </label>
+                    <label>
+                      <Field type="radio" name="workingRemotely" value="true" />
+                      {t('booking_form.form.remote')}
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <p>{t('booking_form.form.requires_working_from_the_office')}</p>
+              )}
               <label htmlFor="booking-details-booking-note">{t('booking_form.form.notes')}</label>
               <Field
                 type="text"

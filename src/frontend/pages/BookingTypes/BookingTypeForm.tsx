@@ -25,6 +25,7 @@ export interface BookingTypeFormValue {
   exceptions: Array<string>;
   dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string | null;
+  flexibleLocation: boolean;
 }
 
 interface BookingTypeFormProps {
@@ -51,6 +52,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
         exceptions: bookingType.exceptions,
         dateRanges: bookingType.dateRanges,
         additionalInformation: bookingType.additionalInformation || '',
+        flexibleLocation: bookingType.flexibleLocation,
       }
     : {
         name: '',
@@ -63,6 +65,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
         exceptions: [],
         dateRanges: [{ start: null, end: null }],
         additionalInformation: '',
+        flexibleLocation: true,
       };
 
   const createNewBookingType = async (bookingType: BookingTypeFormValue) => {
@@ -91,6 +94,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       exceptions,
       dateRanges,
       additionalInformation,
+      flexibleLocation,
     }: BookingTypeFormValue & { uuid: string }) => {
       if (!uuid) {
         return;
@@ -98,7 +102,7 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
       try {
         await putRequest<unknown>(
           `/api/booking-types/${uuid}`,
-          { name, rules, exceptions, dateRanges, additionalInformation },
+          { name, rules, exceptions, dateRanges, additionalInformation, flexibleLocation },
           {
             useJwt: true,
           },
@@ -176,6 +180,19 @@ export const BookingTypeForm: React.FC<BookingTypeFormProps> = ({
                   </th>
                   <td className="font-weight-semibold font-size-s">
                     <BookingTypeDateRangesField />
+                  </td>
+                </tr>
+
+                <tr>
+                  <th className="font-weight-semibold font-size-s">
+                    {t('booking_type_form.allow_flexible_location')}
+                  </th>
+                  <td>
+                    <Field
+                      aria-label={t('booking_type_form.allow_flexible_location')}
+                      name="flexibleLocation"
+                      type="checkbox"
+                    />
                   </td>
                 </tr>
 

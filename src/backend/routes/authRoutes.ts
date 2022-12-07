@@ -128,17 +128,23 @@ router.post('/logout', async (req, res) => {
     if (user && req.headers.authorization) {
       const { jwtSecret } = getConfig();
       const token = req.headers.authorization.replace('Bearer ', '');
-      const jwtr = getJwtr();
+      const jwtr = await getJwtr();
       const tokenData = await jwtr.verify<TokenData>(token, jwtSecret);
       if (tokenData && tokenData.jti) {
         await jwtr.destroy(tokenData.jti);
       }
-      const success = await logUserOutOfDiscourse(user.uuid);
-      res.status(200).json({
+      let success = false;
+      try {
+        success = await logUserOutOfDiscourse(user.uuid);
+      } catch (err) {
+        console.error('failed to log user from from discourse', err);
+      }
+      res.status(201).json({
         data: { success },
       });
       return;
     }
+
     res.status(401).json({ data: { success: false } });
   } catch (err) {
     console.log(err);
@@ -157,14 +163,25 @@ router.post<
   | { error: string }
 >('/refresh', isAuthenticated([UserRole.staff, UserRole.volunteer]), async (req, res) => {
   try {
+    const { jwtSecret } = getConfig();
+
     // These information should always be available if the user is authenticated
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const token = req.headers.authorization!;
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader) {
+      res.status(401).json({ error: 'unauthorized' });
+      return;
+    }
+    const token = authorizationHeader.substr('Bearer '.length, authorizationHeader.length);
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const user = req.user!;
 
-    const jwtr = getJwtr();
-    await jwtr.destroy(token);
+    const jwtr = await getJwtr();
+
+    const tokenData = await jwtr.verify<TokenData>(token, jwtSecret);
+    if (tokenData && tokenData.jti) {
+      await jwtr.destroy(tokenData.jti);
+    }
 
     const t = await createToken({
       email: user.email,
@@ -172,11 +189,12 @@ router.post<
       fullName: user.fullName,
       uuid: user.uuid,
     });
+
     if (!t) {
       res.status(401).json({ error: 'unauthorized' });
       return;
     }
-    res.status(200).json({
+    res.status(201).json({
       data: {
         token: t.token,
         expiresAt: t.exp,

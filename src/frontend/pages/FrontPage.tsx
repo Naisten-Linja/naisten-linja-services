@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
 
 // Use translation
 import { useTranslation } from 'react-i18next';
@@ -10,7 +9,7 @@ import { useAuth } from '../AuthContext';
 import { ContentPage } from '../ui-components/ContentPage/ContentPage';
 import { EditContentPageForm } from '../ui-components/ContentPage/EditContentPageForm';
 
-export const FrontPage: React.FunctionComponent<RouteComponentProps> = () => {
+export const FrontPage: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.front);
 
   const [isEditing, setIsEditing] = useState(false);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RouteComponentProps } from '@reach/router';
 import { Formik, Field, Form } from 'formik';
 import moment from 'moment-timezone';
 
@@ -13,7 +12,7 @@ import { useNotifications } from '../../NotificationsContext';
 import DataTable from 'react-data-table-component';
 import { StyledDataTableWrapperDiv } from '../../shared/utils-frontend';
 
-export const AllBookings: React.FC<RouteComponentProps> = () => {
+export const AllBookings: React.FC = () => {
   const { t } = useTranslation(namespaces.pages.allBookings);
 
   const [bookings, setBookings] = useState<Array<ApiBookingWithColor>>([]);

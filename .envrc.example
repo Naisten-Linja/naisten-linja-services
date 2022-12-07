@@ -16,7 +16,6 @@ export DISCOURSE_API_USER=
 # Redis as session store.
 # This REDIS_PORT is ONLY USED IN DEV by the start-dev-redis script to start the container in correct port
 export REDIS_PORT=6379
-# URL to use for connecting to Redis. This one is needed for production too.
 export REDIS_URL="redis://localhost:$REDIS_PORT"
 
 # -- SENDGRID --
@@ -48,6 +47,8 @@ export BOOKING_REMINDER_SENDING_HOUR=9
 # Unset/comment this to disable the reminders.
 export BOOKING_REMINDER_DAYS_BEFORE=3
 
+# Set this to true if you'd like to test the notification cron jobs locally
+export USE_NOTIFICATION_CRON_JOB=false
 
 # The list of allowed CORS origins requests to the backend API.
 # If more than one origins are allowed, they can can separated by a "," - without any space in between.
@@ -78,3 +79,5 @@ export PATH=$PATH:$(pwd)/node_modules/.bin
 # These variables are only required in production:
 
 # export APP_DOMAIN=
+
+# Allow compatibility with peer dependency resolve for packages that don't support npm version 7 and later yet

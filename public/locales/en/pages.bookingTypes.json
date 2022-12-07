@@ -48,7 +48,8 @@
     "slots": "Slots",
     "start": "Start time",
     "end": "End time",
-    "seats": "Seats"
+    "seats": "Seats",
+    "allow_flexible_location": "Flexible working location"
   },
   "booking_types": {
     "fetch_booking_types_error": "Unable to get all booking types",
@@ -64,6 +65,9 @@
     "exceptions": "Exceptions",
     "week_day": "Week day",
     "slots": "Slots",
-    "available_seats": "available seats"
+    "available_seats": "available seats",
+    "working_location": "Working location",
+    "flexible": "Flexible",
+    "at_the_office": "At the office"
   }
 }

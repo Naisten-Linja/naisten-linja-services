@@ -156,6 +156,7 @@ export interface ApiBookingType {
   exceptions: Array<string>;
   dateRanges: Array<BookingTypeDateRange>;
   additionalInformation: string | null;
+  flexibleLocation: boolean;
 }
 
 export interface ApiBookingTypeWithColor extends ApiBookingType {

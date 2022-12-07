@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from '@reach/router';
+import { Link, useLocation } from 'react-router-dom';
 import Select from 'react-select';
 import moment from 'moment-timezone';
 import 'moment/locale/fi';
@@ -13,31 +13,15 @@ import { namespaces } from './i18n/i18n.constants';
 import { UserRole } from '../common/constants-common';
 import { useAuth } from './AuthContext';
 import { ButtonSmall } from './ui-components/buttons';
-import ResponsiveMenu from 'react-responsive-navbar';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
 
 import { languages } from './i18n/i18n.constants';
 import { SelectWrapper } from './shared/utils-frontend';
 
 export const Navigation = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const responsiveMenu = useRef<any>(null);
-
-  const handleMenuItemClicked = () => {
-    if (responsiveMenu.current) responsiveMenu.current?.handleClick();
-  };
-
   return (
     <NavigationWrapper>
-      <ResponsiveMenu
-        ref={responsiveMenu}
-        menuOpenButton={<IoMdMenu size={24} />}
-        menuCloseButton={<IoMdClose size={24} />}
-        changeMenuOn="600px"
-        largeMenuClassName="padding-m container"
-        smallMenuClassName="padding-m"
-        menu={<MainMenu afterMenuClicked={handleMenuItemClicked} />}
-      />
+      <MainMenu />
     </NavigationWrapper>
   );
 };
@@ -60,23 +44,39 @@ const findSupportedLanguage = (browserLanguage: string): string => {
   }
 };
 
-const MainMenu: React.FC<{ afterMenuClicked: () => void }> = ({ afterMenuClicked }) => {
+const MainMenu: React.FC = () => {
   const { t, i18n } = useTranslation(namespaces.navigation);
-
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const browserLanguage = i18n.language || window.navigator.language;
   const [language, setLanguage] = useState(findSupportedLanguage(browserLanguage));
 
-  const handleLanguageChanged = (selected: OptionType) => {
-    setLanguage(selected.value);
-    const momentLocale = selected.value === 'fi' ? 'fi' : 'en-gb';
-    moment.locale(momentLocale);
-    i18n.changeLanguage(selected.value);
-  };
+  const handleLanguageChanged = useCallback(
+    (selected: OptionType) => {
+      setLanguage(selected.value);
+      const momentLocale = selected.value === 'fi' ? 'fi' : 'en-gb';
+      moment.locale(momentLocale);
+      i18n.changeLanguage(selected.value);
+    },
+    [i18n, setLanguage],
+  );
+
+  useEffect(() => {
+    // Close menu when route changes
+    setIsOpen(false);
+  }, [location]);
 
   const { user, logout, login } = useAuth();
+  const toggleMenu = useCallback(() => {
+    setIsOpen(!isOpen);
+  }, [isOpen]);
+
   return (
-    <StyledNav onClick={afterMenuClicked}>
-      <ul>
+    <StyledNav>
+      <MenuButton aria-label={isOpen ? 'Close menu' : 'Open menu'} onClick={toggleMenu}>
+        {isOpen ? <IoMdClose size={24} aria-hidden /> : <IoMdMenu size={24} aria-hidden />}
+      </MenuButton>
+      <ul className={isOpen ? 'is-open' : 'is-closed'}>
         <li>
           <Link to="/" style={{ fontWeight: 'bold' }}>
             Naisten Linja
@@ -177,39 +177,79 @@ const NavigationWrapper = styled.div`
   position: sticky;
   z-index: 100;
   top: 0;
+  display: flex;
+  justify-content: center;
   background: #2e0556;
   color: var(--white);
+  padding: 1.5rem 0;
+
+  @media screen and (max-width: 600px) {
+    padding: 0;
+  }
+`;
+
+const MenuButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 0;
+  display: none;
+  margin: 0.25rem 0;
+  width: 100%;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background: transparent;
+    border: none;
+    color: #fff;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media screen and (max-width: 600px) {
+    display: block;
+  }
 `;
 
 const StyledNav = styled.nav`
+  display: flex;
+  padding: 0 1.5rem;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 80rem;
+  width: 100%;
+
   ul {
-    padding: 0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     list-style: none;
+    width: 100%;
   }
+
+  @media (max-width: 600px) {
+    ul.is-closed {
+      display: none !important;
+    }
+  }
+
   li {
     flex: none;
     margin: 0;
     padding-right: 1rem;
+
+    @media (max-width: 600px) {
+      width: 100%;
+      text-align: center;
+      padding: 0.5rem 0;
+    }
   }
+
   a {
     text-decoration: underline;
-  }
-  @media (max-width: 500px) {
-    padding: 10px 0;
-
-    ul {
-      display: inline-block;
-    }
-
-    li {
-      text-align: center;
-      padding: 10px 0;
-      display: block;
-      margin-left: 0;
-    }
   }
 `;

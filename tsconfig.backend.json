@@ -10,7 +10,8 @@
     "noEmit": false,
     "outDir": "build-backend",
     "typeRoots": ["node_modules/@types"],
-    "types": ["node"]
+    "types": ["node", "jest"],
+    "isolatedModules": false
   },
   "include": [
     "src/start-backend.ts",
