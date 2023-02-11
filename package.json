@@ -1,8 +1,8 @@
 {
   "name": "naisten-linja-services",
   "engines": {
-    "npm": "8.x",
-    "node": "18.x"
+    "npm": "9.x",
+    "node": "19.x"
   },
   "scripts": {
     "backend:build": "tsc -p tsconfig.backend.json",
