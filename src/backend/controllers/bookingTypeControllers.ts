@@ -29,10 +29,10 @@ export async function getBookingTypes(): Promise<Array<ApiBookingTypeWithColor> 
   const allBookingTypes = await model.getAllBookingTypes();
   return allBookingTypes !== null
     ? allBookingTypes
-        .sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime())
-        .map((b, index) => {
+        .sort((a, b) => b.id - a.id)
+        .map((bookingType, index) => {
           return {
-            ...modelBookingTypeToApiBookingType(b),
+            ...modelBookingTypeToApiBookingType(bookingType),
             color: BookingTypeColors[index % BookingTypeColors.length],
           };
         })

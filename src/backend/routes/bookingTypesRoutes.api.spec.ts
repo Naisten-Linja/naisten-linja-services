@@ -20,12 +20,20 @@ describe('bookingTypesRoutes', () => {
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
-    [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
-    [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
   });
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
+    await TestApiHelpers.resetDb();
+    [staffUser, volunteerUser, unassignedUser] = await TestApiHelpers.populateTestUsers();
+    [phoneBookingType, letterBookingType] = await TestApiHelpers.populateBookingTypes();
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   describe('GET /api/booking-types', () => {
@@ -59,7 +67,7 @@ describe('bookingTypesRoutes', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.data.length).toEqual(2);
         expect(res.body.data).toIncludeAllMembers(
-          [phoneBookingType, letterBookingType].map((b, i) => {
+          [letterBookingType, phoneBookingType].map((b, i) => {
             return {
               ...modelBookingTypeToApiBookingType(b),
               color: BookingTypeColors[i % BookingTypeColors.length],

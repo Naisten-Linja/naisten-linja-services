@@ -3,21 +3,29 @@ import 'jest';
 import request from 'supertest';
 import express from 'express';
 
-import { TestApiHelpers } from '../test-utils';
+import { TestApiHelpers, mockDiscourseLogout } from '../test-utils';
 import { User } from '../models/users';
 
 describe('authRoutes', () => {
   let app: express.Application;
+  let unassignedUser: User;
   let volunteer: User;
   let staff: User;
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
-    [staff, volunteer] = await TestApiHelpers.populateTestUsers();
   });
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
+    [staff, volunteer, unassignedUser] = await TestApiHelpers.populateTestUsers();
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   describe('POST /api/auth/logout', () => {
@@ -27,18 +35,21 @@ describe('authRoutes', () => {
       expect(res.statusCode).toEqual(401);
     });
 
-    it('should allow volunteer and staff users to log out', async () => {
-      const users = [volunteer, staff];
+    it('should allow unasssigned users, volunteer, staff users to log out', async () => {
+      const users = [volunteer, staff, unassignedUser];
       for (let i = 0; i < users.length; i++) {
-        const { token } = await TestApiHelpers.getToken(users[i]);
-        // TODO: there will be a console log error in github ci that looks like
-        // "unable to log user out of Discourse:  TypeError: Only absolute URLs are supported"
-        // This is because we're setting dummy variables for Discourse in githubci.
-        // And will be a bit tricky (or tedious to maintain) to setup the users on both Discourse and sync that with our mock users.
+        const user = users[i];
+        const { token } = await TestApiHelpers.getToken(user);
+
+        const discourseLogout = mockDiscourseLogout();
+        discourseLogout.mockImplementation(async () => true);
+
         let res = await request(app)
           .post('/api/auth/logout')
           .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
 
+        // User should be logged out of Discourse
+        expect(discourseLogout).toHaveBeenCalledWith(user.uuid);
         expect(res.statusCode).toEqual(201);
 
         // After logging out, the token should be invalidated,

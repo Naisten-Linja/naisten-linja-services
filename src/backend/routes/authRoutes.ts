@@ -32,6 +32,14 @@ router.get('/sso', async (req, res) => {
   res.redirect(redirectUrl);
 });
 
+function base64Encode(str: string): string {
+  return new Buffer(str).toString('base64');
+}
+
+function base64Decode(str: string): string {
+  return new Buffer(str, 'base64').toString('ascii');
+}
+
 router.get('/sso/verify', async (req, res) => {
   const { serviceUrl } = getConfig();
   if (!req.session) {
@@ -92,11 +100,11 @@ router.get('/sso/verify', async (req, res) => {
     tokenExpirationTime: t.exp,
     nonce: tokenNonce,
   };
-  res.redirect(`${serviceUrl}/login/${encodeURIComponent(tokenNonce)}`);
+  res.redirect(`${serviceUrl}/login/${base64Encode(tokenNonce)}`);
 });
 
 router.get('/token/:nonce', async (req, res) => {
-  const nonce = req.param('nonce');
+  const nonce = base64Decode(req.param('nonce'));
   if (!req.session || !req.session.tokenData || !nonce) {
     res.status(403).json({ error: 'unauthorized' });
     return;

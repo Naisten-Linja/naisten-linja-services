@@ -14,11 +14,19 @@ describe('profileRoutes', () => {
 
   beforeAll(async () => {
     app = await TestApiHelpers.getApp();
-    [staff, volunteer] = await TestApiHelpers.populateTestUsers();
   });
 
   afterAll(async () => {
     await TestApiHelpers.cleanup();
+  });
+
+  beforeEach(async () => {
+    await TestApiHelpers.resetDb();
+    [staff, volunteer] = await TestApiHelpers.populateTestUsers();
+  });
+
+  afterEach(async () => {
+    await TestApiHelpers.resetDb();
   });
 
   describe('PUT /api/profile', () => {
@@ -74,7 +82,7 @@ describe('profileRoutes', () => {
       expect(res.statusCode).toEqual(403);
     });
 
-    it('should allow volunteer to see their own settings', async () => {
+    it('should allow staff to see their own settings', async () => {
       const { token } = await TestApiHelpers.getToken(staff);
       const res = await request(app)
         .get('/api/profile')

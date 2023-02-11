@@ -206,7 +206,7 @@ export interface ApiUpdateBookingParams {
 
 export interface ApiBookingUserStats {
   uuid: string;
-  previousBooking: ApiBooking | null;
+  previousBooking: ApiBookingWithColor | null;
   upcomingBooking: ApiBooking | null;
   totalPrevious: number;
   totalUpcoming: number;

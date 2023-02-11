@@ -58,7 +58,7 @@ function queryResultToLetter(row: LetterQueryResult): Letter {
   return {
     uuid: row.uuid,
     status: row.status,
-    created: row.created,
+    created: `${row.created}`,
     accessKey: row.access_key,
     accessPassword: row.access_password,
     accessPasswordSalt: row.access_password_salt,
@@ -304,6 +304,7 @@ export async function updateLetterContent({
     const { encryptedData: encryptedTitle, iv: titleIv } = aesEncrypt(title.trim());
     const { encryptedData: encryptedContent, iv: contentIv } = aesEncrypt(content.trim());
 
+    // TODO: return assignee's email address and fullname in the query
     const queryText = `
        UPDATE letters
        SET
