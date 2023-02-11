@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [19.x]
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [19.x]
     steps:
       - name: Check out code
         uses: actions/checkout@v2
