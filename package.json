@@ -48,7 +48,7 @@
     "express-session": "^1.17.1",
     "express-winston": "^4.0.3",
     "generate-password": "^1.5.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwt-redis": "^7.0.3",
     "node-cron": "^3.0.1",
     "node-fetch": "^2.6.7",
