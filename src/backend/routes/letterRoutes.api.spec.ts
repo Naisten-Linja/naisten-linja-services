@@ -50,6 +50,7 @@ describe('letterRoutes', () => {
 
     it('should not allow unassigned user to view any letters', async () => {
       const { token } = await TestApiHelpers.getToken(unassignedUser);
+
       const res = await request(app)
         .get('/api/letters')
         .set({ Accept: 'application/json', Authorization: `Bearer ${token}` });
