@@ -38,7 +38,7 @@ function queryResultToReply(row: ReplyQueryResult): Reply {
     uuid: row.uuid,
     letterUuid: row.letter_uuid,
     status: row.status,
-    created: row.created,
+    created: row.created.toString(),
     updated: row.updated,
     content,
     authorType: row.author_type,

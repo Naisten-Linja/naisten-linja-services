@@ -1,6 +1,7 @@
 import {
   ApiBooking,
   ApiBookingType,
+  ApiBookingTypeWithColor,
   ApiBookingUserStats,
   ApiBookingWithColor,
 } from '../../common/constants-common';
@@ -22,32 +23,13 @@ export async function getUserBookings(
     return null;
   }
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
+
   return bookings
-    .map(
-      ({
-        email,
-        phone,
-        fullName,
-        bookingTypeUuid,
-        start,
-        end,
-        uuid,
-        bookingNote,
-        workingRemotely,
-      }) => ({
-        uuid,
-        email,
-        phone,
-        fullName,
-        user,
-        bookingNote,
-        workingRemotely,
-        start: start.toString(),
-        end: end.toString(),
-        bookingType: bookingTypes.find(({ uuid }) => uuid === bookingTypeUuid) || null,
-      }),
-    )
-    .filter(({ bookingType }) => !!bookingType) as Array<ApiBookingWithColor>;
+    .map((booking) => {
+      const bookingType = bookingTypes.find(({ uuid }) => uuid === booking.bookingTypeUuid) || null;
+      return modelBookingToApiBooking(booking, bookingType, user);
+    })
+    .filter((result) => result !== null) as Array<ApiBookingWithColor>;
 }
 
 export async function getAllBookings(): Promise<Array<ApiBookingWithColor> | null> {
@@ -57,6 +39,7 @@ export async function getAllBookings(): Promise<Array<ApiBookingWithColor> | nul
     return null;
   }
   const bookingTypes = (await bookingTypesController.getBookingTypes()) || [];
+
   return bookings
     .map(
       ({
@@ -150,7 +133,7 @@ export async function getBookingUserStats(
     .filter(
       (booking) => typeof bookingType === 'undefined' || booking.bookingType.uuid === bookingType,
     )
-    .reduce<Record<string, ApiBooking[]>>((obj, booking) => {
+    .reduce<Record<string, ApiBookingWithColor[]>>((obj, booking) => {
       const u_uuid = booking.user.uuid;
       return {
         ...obj,
@@ -161,7 +144,7 @@ export async function getBookingUserStats(
   const now = new Date();
 
   return Object.entries(bookingsByUser).map(([uuid, bookings]) => {
-    const [previous, upcoming] = bookings.reduce<[ApiBooking[], ApiBooking[]]>(
+    const [previous, upcoming] = bookings.reduce<[ApiBookingWithColor[], ApiBookingWithColor[]]>(
       ([previous, upcoming], booking) => {
         if (new Date(booking.end) > now) {
           // ongoing bookings are upcoming bookings
@@ -182,4 +165,27 @@ export async function getBookingUserStats(
       totalUpcoming: upcoming.length,
     };
   });
+}
+
+export function modelBookingToApiBooking(
+  booking: bookingsModel.Booking,
+  bookingType: ApiBookingTypeWithColor | null,
+  user: usersModel.User,
+): ApiBookingWithColor | null {
+  if (!bookingType) {
+    return null;
+  }
+  const { email, phone, fullName, start, end, uuid, bookingNote, workingRemotely } = booking;
+  return {
+    uuid,
+    email,
+    phone,
+    fullName,
+    bookingNote,
+    workingRemotely,
+    user,
+    start: start.toString(),
+    end: end.toString(),
+    bookingType,
+  };
 }

@@ -7,10 +7,12 @@ const execPromise = util.promisify(exec);
 import { createApp } from './app';
 import { upsertUser, UpsertUserParams, updateUserRole, User } from './models/users';
 import { createBookingType } from './models/bookingTypes';
-import { createToken } from './auth';
+import * as auth from './auth';
+import * as emailController from './controllers/emailControllers';
 import { UserRole } from '../common/constants-common';
-import { getLegacyRedisClient, getRedisClient } from './redis';
 import db from './db';
+import { sendLetter } from './controllers/letterControllers';
+import { Letter, createLetterCredentials } from './models/letters';
 
 const testDbName = 'test_db_name';
 const testDbUser = 'test_db_user';
@@ -37,6 +39,9 @@ export async function setupTestContainers() {
   process.env.DB_PASSWORD = testDbPassword;
   process.env.DB_PORT = testDbPort;
   process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(6379)}`;
+  process.env.LETTER_ACCESS_KEY_SALT =
+    'd35d86248800d53ac5086eb9010f4b830de271acd06235a4a4e52de0ee6afdd6';
+  process.env.LETTER_AES_KEY = '3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de';
 
   // Migrate database
   await execPromise(
@@ -70,15 +75,14 @@ export class TestApiHelpers {
     return app;
   }
 
+  public static async resetDb() {
+    await db.query(
+      `TRUNCATE TABLE replies, letters, bookings, booking_types, pages, users RESTART IDENTITY;`,
+      [],
+    );
+  }
+
   public static async cleanup() {
-    const redisClient = await getRedisClient();
-    await redisClient.quit();
-    const legacyRedisClient = await getLegacyRedisClient();
-    await legacyRedisClient.quit();
-
-    const pgClient = await db.getClient();
-    pgClient.release();
-
     if (this.pgContainer) {
       await this.pgContainer.stop();
     }
@@ -88,7 +92,7 @@ export class TestApiHelpers {
   }
 
   public static async getToken(user: User) {
-    const token = await createToken({
+    const token = await auth.createToken({
       uuid: user.uuid,
       fullName: user.fullName,
       role: user.role,
@@ -148,6 +152,11 @@ export class TestApiHelpers {
     const phoneBookingType = await createBookingType({
       name: 'Phone',
       rules: [
+        // Sunday
+        { enabled: true, slots: [] },
+        // Monday
+        { enabled: true, slots: [] },
+        // Tuesday
         {
           enabled: true,
           slots: [
@@ -155,11 +164,13 @@ export class TestApiHelpers {
             { start: '10:00', end: '12:00', seats: 2 },
           ],
         },
+        // Wednesday
         { enabled: true, slots: [] },
-        { enabled: true, slots: [] },
-        { enabled: true, slots: [] },
+        // Thursday
         { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 5 }] },
+        // Friday
         { enabled: true, slots: [] },
+        // Saturday
         { enabled: true, slots: [] },
       ],
       exceptions: [new Date().toUTCString()],
@@ -175,7 +186,9 @@ export class TestApiHelpers {
     const letterBookingType = await createBookingType({
       name: 'Letter',
       rules: [
+        // Sunday
         { enabled: true, slots: [] },
+        // Monday
         {
           enabled: true,
           slots: [
@@ -183,10 +196,15 @@ export class TestApiHelpers {
             { start: '19:45', end: '20:30', seats: 3 },
           ],
         },
+        // Tuesday
         { enabled: true, slots: [] },
+        // Wednesday
         { enabled: true, slots: [{ start: '10:00', end: '11:30', seats: 10 }] },
+        // Thursday
         { enabled: true, slots: [] },
+        // Friday
         { enabled: true, slots: [] },
+        // Saturday
         { enabled: true, slots: [] },
       ],
       exceptions: [new Date().toUTCString()],
@@ -200,4 +218,67 @@ export class TestApiHelpers {
 
     return [phoneBookingType, letterBookingType];
   }
+
+  public static async createOnlineLetter(params: {
+    email: string | null;
+    title: string;
+    content: string;
+  }): Promise<Letter> {
+    const credentials = await createLetterCredentials();
+    if (!credentials) {
+      throw 'unable to create letter credentials';
+    }
+    const letter = await sendLetter({ ...params, ...credentials });
+    if (!letter) {
+      throw 'unable to create new online letter';
+    }
+
+    return letter;
+  }
+
+  public static async populateOnlineLetters() {
+    const letter1 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+    const letter2 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+    const letter3 = await this.createOnlineLetter({
+      title: 'test title 1',
+      content: 'test letter content 1',
+      email: null,
+    });
+
+    return [letter1, letter2, letter3];
+  }
+}
+
+export function mockDiscourseLogout() {
+  return jest.spyOn(auth, 'logUserOutOfDiscourse').mockImplementation(async () => true);
+}
+
+export function mockEmailSending() {
+  return {
+    sendBookingConfirmationEmail: jest
+      .spyOn(emailController, 'sendBookingConfirmationEmail')
+      .mockImplementation(async () => true),
+    sendBookingRemindersToVolunteers: jest
+      .spyOn(emailController, 'sendBookingRemindersToVolunteers')
+      .mockImplementation(async () => [true]),
+    sendNewBookingNotificationToStaffs: jest
+      .spyOn(emailController, 'sendNewBookingNotificationToStaffs')
+      .mockImplementation(async () => true),
+    sendReplyNotificationToCustomer: jest
+      .spyOn(emailController, 'sendReplyNotificationToCustomer')
+      .mockImplementation(async () => ({
+        sent: true,
+      })),
+    sendEmailWithDynamicTemplate: jest
+      .spyOn(emailController, 'sendEmailWithDynamicTemplate')
+      .mockImplementation(async () => true),
+  };
 }

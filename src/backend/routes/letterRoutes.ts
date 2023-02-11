@@ -18,7 +18,6 @@ import {
   UserRole,
   ResponderType,
   ReplyStatus,
-  ApiLetterWithReadStatus,
   ApiLetterAdmin,
   ApiUpdateLetterContentParams,
   ApiReplyParamsAdmin,
@@ -49,40 +48,9 @@ router.get(
       return;
     }
 
-    const result = letters
-      .map((letter): ApiLetterWithReadStatus => {
-        const {
-          created,
-          uuid,
-          title,
-          content,
-          hasEmail,
-          assignedResponderUuid,
-          assignedResponderEmail,
-          assignedResponderFullName,
-          status,
-          replyStatus,
-          replyReadReceipt,
-          replyReadTimestamp,
-          replyStatusTimestamp,
-        } = letter;
-        return {
-          uuid,
-          created,
-          title,
-          content,
-          hasEmail,
-          assignedResponderUuid,
-          assignedResponderEmail,
-          assignedResponderFullName,
-          status,
-          replyStatus,
-          replyReadReceipt,
-          replyReadTimestamp,
-          replyStatusTimestamp,
-        };
-      })
-      .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+    const result = letters.sort(
+      (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+    );
     res.status(200).json({ data: result });
   },
 );
@@ -151,12 +119,12 @@ router.post(
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(letterUuid, user.uuid);
     if (
       (isVolunteer && (!isAssigned || status === ReplyStatus.published)) ||
       (!isVolunteer && !isStaff)
     ) {
-      res.status(401).json({ error: `User ${user.email} can't response to this letter` });
+      res.status(403).json({ error: `User ${user.email} can't response to this letter` });
       return;
     }
     const reply = await replyToLetter({
@@ -182,9 +150,9 @@ router.get(
     const user = req.user as Express.User<UserRole.volunteer | UserRole.staff>;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(req.params.uuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(req.params.uuid, user.uuid);
     if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
-      res.status(401).json({ error: `User ${user.email} don't have acces to this letter's reply` });
+      res.status(403).json({ error: `User ${user.email} don't have acces to this letter's reply` });
       return;
     }
     const reply = await getLettersReply(req.params.uuid);
@@ -201,11 +169,12 @@ router.post(
     const { letterUuid, replyUuid } = req.params;
     const isVolunteer = user.role === UserRole.volunteer;
     const isStaff = user.role === UserRole.staff;
-    const isAssigned = isUserAssignedToLetter(letterUuid, user.uuid);
+    const isAssigned = await isUserAssignedToLetter(letterUuid, user.uuid);
     if ((isVolunteer && !isAssigned) || (!isVolunteer && !isStaff)) {
       res.status(401).json({ error: `User ${user.email} don't have acces to this letter's reply` });
       return;
     }
+
     // @ts-ignore
     const { content, status }: Partial<ApiReplyParamsAdmin> = req.body;
     if (!content || !status) {

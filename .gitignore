@@ -5,6 +5,7 @@ build-backend
 .envrc
 db-data
 redis-data
+.log
 
 # misc
 .DS_Store
