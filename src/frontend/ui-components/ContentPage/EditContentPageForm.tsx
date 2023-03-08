@@ -88,12 +88,12 @@ export const EditContentPageForm: React.FC<{
           <Form>
             <label htmlFor="field-title">Title</label>
             <Field id="field-title" type="text" name="title" />
-            <label htmlFor="field-content">Content</label>
+            <label htmlFor="markdown-editor-field-content">Content</label>
             <MDEditor
               value={values.content}
               height={500}
               textareaProps={{
-                id: 'field-content',
+                id: 'markdown-editor-field-content',
                 // Disable transparent text fill color upon focusing on the text area
                 // @ts-ignore
                 style: { '-webkit-text-fill-color': 'inherit' },
