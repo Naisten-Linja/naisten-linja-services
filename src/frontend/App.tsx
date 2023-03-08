@@ -28,6 +28,10 @@ const GlobalStyle = createGlobalStyle`
   .button {
     margin-right: 1rem;
   }
+
+  #markdown-editor-field-content {
+    -webkit-text-fill-color: inherit !important;
+  }
 `;
 
 const AppContainer = styled.div`
