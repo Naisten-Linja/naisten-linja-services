@@ -1,7 +1,6 @@
 import {
   ApiLetterCredentials,
   ApiSendLetterParams,
-  ApiLetterAdmin,
   ReplyStatus,
   ApiLetterWithReadStatus,
 } from '../../common/constants-common';
