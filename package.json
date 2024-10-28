@@ -27,12 +27,12 @@
     "prettier:fix": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
     "prettier:watch": "onchange -i \"src/**/*.{js,ts,jsx,tsx}\" -- npm run prettier",
     "dev": "npm run start-dev-db && npm run start-dev-redis && npm run db-migrate up && concurrently npm:backend:dev npm:frontend:dev npm:lint:watch",
-    "start:prod": "npm run db-migrate up && node build-backend/start-backend.js",
+    "start:prod": "npm run db-migrate up ",
     "frontend:test": "react-scripts test --testMatch \"**/src/frontend/**/?(*.)+(spec|test).[jt]s?(x)\"",
     "backend:test": "NODE_ENV=test jest -c jest.config.backend.js --forceExit --verbose",
     "test": "npm run frontend:test && npm run backend:test",
     "build": "concurrently npm:backend:build npm:frontend:build",
-    "postinstall": "./node_modules/.bin/patch-package"
+    "postinstall": "node build-backend/start-backend.js && ./node_modules/.bin/patch-package"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
