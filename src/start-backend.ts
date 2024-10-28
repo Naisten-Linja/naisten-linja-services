@@ -3,6 +3,10 @@ import { getConfig } from './backend/config';
 import { createApp } from './backend/app';
 
 const { port } = getConfig();
-createApp().then((app) => {
-  app.listen(port, () => console.log(`Backend app listening at http://localhost:${port}`));
-});
+createApp()
+  .then((app) => {
+    app.listen(port, () => console.log(`Backend app listening at http://localhost:${port}`));
+  })
+  .catch((error) => {
+    console.error(error);
+  });
