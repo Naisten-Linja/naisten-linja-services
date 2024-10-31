@@ -8,7 +8,10 @@ let redisLegacyClient: RedisClientType;
 export async function getRedisClient() {
   if (!redisClient) {
     const { redisUrl } = getConfig();
-    redisClient = createClient({ url: redisUrl });
+    redisClient = createClient({
+      url: redisUrl,
+      socket: { tls: redisUrl.match(/rediss:/) != null, rejectUnauthorized: false },
+    });
     redisClient.on('error', () => {});
     await redisClient.connect();
   }
