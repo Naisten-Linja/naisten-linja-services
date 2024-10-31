@@ -8,8 +8,14 @@ let redisLegacyClient: RedisClientType;
 export async function getRedisClient() {
   if (!redisClient) {
     const { redisUrl } = getConfig();
-    redisClient = createClient({ url: redisUrl });
-    redisClient.on('error', () => {});
+    redisClient = createClient({
+      url: redisUrl,
+      socket: {
+        tls: redisUrl.match(/rediss:/) != null,
+        rejectUnauthorized: false,
+      },
+    });
+    redisClient.on('error', (err) => console.error('Redis Client Error', err));
     await redisClient.connect();
   }
 
@@ -19,8 +25,15 @@ export async function getRedisClient() {
 export async function getLegacyRedisClient() {
   if (!redisLegacyClient) {
     const { redisUrl } = getConfig();
-    redisLegacyClient = createClient({ url: redisUrl, legacyMode: true });
-    redisLegacyClient.on('error', () => {});
+    redisLegacyClient = createClient({
+      url: redisUrl,
+      legacyMode: true,
+      socket: {
+        tls: redisUrl.match(/rediss:/) != null,
+        rejectUnauthorized: false,
+      },
+    });
+    redisLegacyClient.on('error', (err) => console.error('Redis Client Error', err));
     await redisLegacyClient.connect();
   }
 
