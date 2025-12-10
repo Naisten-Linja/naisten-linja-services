@@ -3,6 +3,7 @@ node_modules
 build
 build-backend
 .envrc
+.env
 db-data
 redis-data
 .log

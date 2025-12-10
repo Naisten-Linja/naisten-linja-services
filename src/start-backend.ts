@@ -1,3 +1,4 @@
+import 'dotenv/config';
 process.env.TZ = 'UTC'; // Set the backend application to use UTC time everywhere.
 import { getConfig } from './backend/config';
 import { createApp } from './backend/app';
