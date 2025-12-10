@@ -7,15 +7,15 @@ This is the code for Naisten Linja's services including:
 - [x] Online letter API
 - [x] Admin interface for staff and volunteer to answer to online letters
 
-|                            |                                          |
-| -------------------------- | ---------------------------------------- |
-| Production app URL         | https://services.naistenlinja.fi         |
-| Production Discourse URL   | https://ryhmat.naistenlinja.fi           |
-| Development app URL        | https://services-dev.naistenlinja.fi     |
-| Development Discourse URL  | https://online-group-dev.naistenlinja.fi |
-| Frontend & backend hosting | Heroku                                   |
-| Discourse hosting          | Upcloud VPS                              |
-| DNS                        | Cloudflare                               |
+|                            |                                       |
+| -------------------------- | ------------------------------------- |
+| Production app URL         | https://services.naistenlinja.fi      |
+| Production Discourse URL   | https://ryhmat.naistenlinja.fi        |
+| Development app URL        | https://services-dev.naistenlinja.fi  |
+| Development Discourse URL  | https://dev-discourse.naistenlinja.fi |
+| Frontend & backend hosting | Heroku                                |
+| Discourse hosting          | Upcloud VPS                           |
+| DNS                        | Cloudflare                            |
 
 ## Development
 
@@ -51,7 +51,7 @@ if that is not done before.
 
 Copy over `.envrc.example` into `.envrc`, at the project root. Ask an existing team member to
 provide you with the value for `DISCOURSE_SSO_SECRET`. You would also need to have an admin
-account created in `online-group-dev.naistenlinja.fi` in order to login to the service.
+account created in `dev-discourse.naistenlinja.fi` in order to login to the service.
 
 ```shell
 cp .envrc.example .envrc
@@ -81,8 +81,7 @@ After that, the frontend app is accessible at http://localhost:3000 (`FRONTEND_P
 
 In case the database failed to start with this error `Bind for 0.0.0.0:5433 failed: port is already allocated`, it's
 most likely another service is using port `5433` in your local environment. Try stopping that service. Alternatively,
-change `DB_PORT` value in `.envrc` to a different one (`5434` for example), run `direnv allow && docker rm
-naisten_linja_db`. This will update `DB_PORT` and remove the old `naisten_linja_db` container that was using the old
+change `DB_PORT` value in `.envrc` to a different one (`5434` for example), run `direnv allow && docker rm naisten_linja_db`. This will update `DB_PORT` and remove the old `naisten_linja_db` container that was using the old
 port forwarding setting. Then, try `npm run dev` again.
 
 The same applies to Redis container as well.
@@ -149,6 +148,7 @@ in [Emacs Tide](https://github.com/ananthakumaran/tide)
 ## How timezones work in this application
 
 **Server application**
+
 - The application has been set (in first row of `src/start-backend.ts`) to use UTC time everywhere
 - Data in the database is stored in UTC time without timezone information
 - Data is returned in the API as strings, in standard format which includes timezone information.
@@ -160,6 +160,7 @@ in [Emacs Tide](https://github.com/ananthakumaran/tide)
   represent any specific moment in time, but something that can repeat on different days.
 
 **Browser application**
+
 - All dates and times are shown to the user in `Europe/Helsinki` timezone, regardless of the user's own timezone
 - Moment.js library has been configured to use `Europe/Helsinki` timezone by default. This works as long as no moment
   objects are created on the root scope of the application, because then they would be initialised before the default

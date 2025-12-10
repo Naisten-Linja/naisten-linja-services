@@ -6,7 +6,7 @@ export PORT=9000
 # Ask around the team for these 2 values. Alternatively, if you have access to Discourse Admin,
 # the sso secret can be found or defined in
 # Admin > Settings > Login, and look for `sso provider secrets` field, and copy the secret value for `localhost`
-# The API_KEY can be generated in Admin > API (https://online-group-dev.naistenlinja.fi/admin/api/keys)
+# The API_KEY can be generated in Admin > API (https://dev-discourse.naistenlinja.fi/admin/api/keys)
 # The API_USER can be "system".
 export DISCOURSE_URL=
 export DISCOURSE_SSO_SECRET=
