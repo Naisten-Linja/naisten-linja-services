@@ -2,6 +2,25 @@
 # This script allows anyone to connect to redis in the port that is published on the host level
 # THIS IS NOT SAFE FOR PRODUCTION
 
+# Load environment variables from .env file if it exists
+if [ -f .env ]; then
+  set -a
+  while IFS= read -r line || [ -n "$line" ]; do
+    # Skip comments and empty lines
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    [[ -z "${line// }" ]] && continue
+    # Export the variable
+    export "$line" 2>/dev/null || true
+  done < .env
+  set +a
+fi
+
+# Check if required variables are set
+if [ -z "$REDIS_PORT" ]; then
+  echo "Error: REDIS_PORT is not set. Please create a .env file from .env.example and set REDIS_PORT."
+  exit 1
+fi
+
 container_name='naisten_linja_redis'
 
 if [[ $(docker ps -a -f "name=${container_name}" --format '{{.Names}}') == $container_name ]]; then

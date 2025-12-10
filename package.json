@@ -1,8 +1,8 @@
 {
   "name": "naisten-linja-services",
   "engines": {
-    "npm": "9.x",
-    "node": "19.x"
+    "npm": "10.x",
+    "node": "22.x"
   },
   "scripts": {
     "backend:build": "tsc -p tsconfig.backend.json",
@@ -45,6 +45,7 @@
     "cors": "^2.8.5",
     "db-migrate": "0.11.11",
     "db-migrate-pg": "1.2.2",
+    "dotenv": "^17.2.3",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "express-session": "^1.17.1",

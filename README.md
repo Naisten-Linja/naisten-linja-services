@@ -21,16 +21,15 @@ This is the code for Naisten Linja's services including:
 
 ### Prerequisites
 
-- [NodeJs 18.x](https://nodejs.org/en/)
+- [NodeJs 22.x](https://nodejs.org/en/)
 - [docker-cli](https://github.com/docker/cli) or [Docker desktop](https://docs.docker.com/desktop/)
-- [direnv](https://direnv.net/)
 
-Project requires Node.js version 18. Our dependencies are installed and managed via npm, and are defined in package.json.
+Project requires Node.js version 22. Our dependencies are installed and managed via npm, and are defined in package.json.
 
 To help managing node versions easily, we recommend using a node package manager like
 [nvm](https://github.com/nvm-sh/nvm)
 
-We are also using [direnv](https://direnv.net/) to automatically set environment variables as you switch directories.
+We are using `.env` files to manage environment variables in the project.
 
 ### Development environment setup
 
@@ -45,25 +44,18 @@ npm i
 
 ### Environment variables
 
-The following steps assume that you are using [direnv](https://direnv.net/). Also remember to hook
-direnv into your preferred shell environment as described [here](https://direnv.net/docs/hook.html)
-if that is not done before.
-
-Copy over `.envrc.example` into `.envrc`, at the project root. Ask an existing team member to
+Copy over `.env.example` into `.env`, at the project root. Ask an existing team member to
 provide you with the value for `DISCOURSE_SSO_SECRET`. You would also need to have an admin
 account created in `dev-discourse.naistenlinja.fi` in order to login to the service.
 
 ```shell
-cp .envrc.example .envrc
-
-# approve the change of environment variables
-direnv allow
+cp .env.example .env
 ```
 
-If `direnv` hook is setup correctly, after making a change to the variables in `.envrc` file,
-`direnv` will request you to run `direnv allow` for the new set of variables to take effect.
+Then edit `.env` and fill in the required values. The environment variables will be automatically
+loaded when you run the development server.
 
-Also remember to update `.envrc.example` when removing, or introducing a new variable.
+Also remember to update `.env.example` when removing, or introducing a new variable.
 
 ### Start the development environment
 
@@ -76,12 +68,12 @@ npm run dev
 This will start a docker container running PostgreSQL, another container running Redis, run database migration,
 then start both the front and backend development app.
 
-After that, the frontend app is accessible at http://localhost:3000 (`FRONTEND_PORT` was set in
-`.envrc` to 3000 by default).
+After that, the frontend app is accessible at http://localhost:3000 (`FRONTEND_PORT` is set in
+`.env` to 3000 by default).
 
 In case the database failed to start with this error `Bind for 0.0.0.0:5433 failed: port is already allocated`, it's
 most likely another service is using port `5433` in your local environment. Try stopping that service. Alternatively,
-change `DB_PORT` value in `.envrc` to a different one (`5434` for example), run `direnv allow && docker rm naisten_linja_db`. This will update `DB_PORT` and remove the old `naisten_linja_db` container that was using the old
+change `DB_PORT` value in `.env` to a different one (`5434` for example), run `docker rm naisten_linja_db`. This will remove the old `naisten_linja_db` container that was using the old
 port forwarding setting. Then, try `npm run dev` again.
 
 The same applies to Redis container as well.
