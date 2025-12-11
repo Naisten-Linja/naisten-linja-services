@@ -28,17 +28,22 @@ export async function setupTestContainers() {
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
     .start();
 
-  const redisContainer = await new GenericContainer('redis:7.0.4-alpine')
+  // Use Redis 6.2-alpine for better compatibility with redis client 4.0.6
+  // Redis 7.x may have compatibility issues with older client libraries
+  const redisContainer = await new GenericContainer('redis:6.2-alpine')
     .withExposedPorts(6379)
-    .withWaitStrategy(Wait.forLogMessage('Ready to accept connections'))
+    .withWaitStrategy(Wait.forLogMessage('Ready to accept connections').withStartupTimeout(30000))
     .start();
 
   const testDbPort = `${pgContainer.getMappedPort(5432)}`;
+  const redisPort = redisContainer.getMappedPort(6379);
+
   process.env.DB_NAME = testDbName;
   process.env.DB_USERNAME = testDbUser;
   process.env.DB_PASSWORD = testDbPassword;
   process.env.DB_PORT = testDbPort;
-  process.env.REDIS_URL = `redis://localhost:${redisContainer.getMappedPort(6379)}`;
+  // Use 127.0.0.1 instead of localhost to force IPv4 (localhost can resolve to IPv6 ::1)
+  process.env.REDIS_URL = `redis://127.0.0.1:${redisPort}`;
   process.env.LETTER_ACCESS_KEY_SALT =
     'd35d86248800d53ac5086eb9010f4b830de271acd06235a4a4e52de0ee6afdd6';
   process.env.LETTER_AES_KEY = '3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de';
@@ -69,6 +74,9 @@ export class TestApiHelpers {
       const { pgContainer, redisContainer } = await setupTestContainers();
       this.pgContainer = pgContainer;
       this.redisContainer = redisContainer;
+      // Wait longer to ensure Redis container is fully ready for connections
+      // The log message doesn't guarantee the socket is ready
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     const app = await createApp();

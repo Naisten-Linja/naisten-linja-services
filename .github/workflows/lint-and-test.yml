@@ -66,7 +66,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Verify Docker is available
+        run: |
+          docker --version
+          docker info
+          echo "Docker network mode:"
+          docker network ls
       - name: Install dependencies
         run: npm install --ignore-scripts --legacy-peer-deps
       - name: Run tests
         run: CI=1 npm run backend:test
+        env:
+          # Ensure testcontainers can access Docker properly
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
