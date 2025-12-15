@@ -4,6 +4,10 @@ import { getConfig } from './config';
 
 let redisClient: RedisClientType;
 let redisLegacyClient: RedisClientType;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let isConnected = false;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let isLegacyConnected = false;
 
 async function connectWithRetry(
   client: RedisClientType,
@@ -53,8 +57,24 @@ export async function getRedisClient() {
         },
       },
     });
-    redisClient.on('error', (err) => console.error('Redis Client Error', err));
+    // Suppress expected errors during connection attempts and reconnection
+    redisClient.on('error', (err) => {
+      // ECONNREFUSED and SocketClosedUnexpectedlyError are expected during
+      // initial connection attempts and reconnection attempts
+      const isExpectedError =
+        err.code === 'ECONNREFUSED' ||
+        err.message === 'Socket closed unexpectedly' ||
+        err.message?.includes('Socket closed unexpectedly');
+
+      if (!isExpectedError) {
+        console.error('Redis Client Error', err);
+      }
+    });
+    redisClient.on('connect', () => {
+      isConnected = true;
+    });
     await connectWithRetry(redisClient);
+    isConnected = true;
   }
 
   return redisClient;
@@ -79,9 +99,48 @@ export async function getLegacyRedisClient() {
         },
       },
     });
-    redisLegacyClient.on('error', (err) => console.error('Redis Client Error', err));
+    // Suppress expected errors during connection attempts and reconnection
+    redisLegacyClient.on('error', (err) => {
+      // ECONNREFUSED and SocketClosedUnexpectedlyError are expected during
+      // initial connection attempts and reconnection attempts
+      const isExpectedError =
+        err.code === 'ECONNREFUSED' ||
+        err.message === 'Socket closed unexpectedly' ||
+        err.message?.includes('Socket closed unexpectedly');
+
+      if (!isExpectedError) {
+        console.error('Redis Legacy Client Error', err);
+      }
+    });
+    redisLegacyClient.on('connect', () => {
+      isLegacyConnected = true;
+    });
     await connectWithRetry(redisLegacyClient);
+    isLegacyConnected = true;
   }
 
   return redisLegacyClient;
+}
+
+export async function closeRedisConnections() {
+  if (redisClient && redisClient.isOpen) {
+    try {
+      await redisClient.quit();
+    } catch {
+      // Ignore errors during cleanup
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    redisClient = null as any;
+    isConnected = false;
+  }
+  if (redisLegacyClient && redisLegacyClient.isOpen) {
+    try {
+      await redisLegacyClient.quit();
+    } catch {
+      // Ignore errors during cleanup
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    redisLegacyClient = null as any;
+    isLegacyConnected = false;
+  }
 }

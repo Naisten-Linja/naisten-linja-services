@@ -10,7 +10,8 @@ import { createBookingType } from './models/bookingTypes';
 import * as auth from './auth';
 import * as emailController from './controllers/emailControllers';
 import { UserRole } from '../common/constants-common';
-import db from './db';
+import db, { closePool } from './db';
+import { closeRedisConnections } from './redis';
 import { sendLetter } from './controllers/letterControllers';
 import { Letter, createLetterCredentials } from './models/letters';
 
@@ -48,10 +49,27 @@ export async function setupTestContainers() {
     'd35d86248800d53ac5086eb9010f4b830de271acd06235a4a4e52de0ee6afdd6';
   process.env.LETTER_AES_KEY = '3e8e98013458a51879e6db9956001a47e2533c065b85fed1d5a80e79b83171de';
 
-  // Migrate database
-  await execPromise(
-    `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up -e test`,
-  );
+  // Wait a bit to ensure PostgreSQL is fully ready for connections
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  // Migrate database with retry logic
+  let migrationAttempts = 0;
+  const maxMigrationAttempts = 5;
+  while (migrationAttempts < maxMigrationAttempts) {
+    try {
+      await execPromise(
+        `DB_USERNAME=${testDbUser} DB_PASSWORD=${testDbPassword} DB_NAME=${testDbName} DB_PORT=${testDbPort} db-migrate up -e test`,
+      );
+      break;
+    } catch (error) {
+      migrationAttempts++;
+      if (migrationAttempts >= maxMigrationAttempts) {
+        throw error;
+      }
+      // Wait before retry
+      await new Promise((resolve) => setTimeout(resolve, 1000 * migrationAttempts));
+    }
+  }
 
   return {
     pgContainer,
@@ -63,6 +81,7 @@ export class TestApiHelpers {
   public static appInstance: express.Application;
   private static pgContainer: StartedTestContainer;
   private static redisContainer: StartedTestContainer;
+  private static containersStopped = false;
 
   public static async getApp(): Promise<express.Application> {
     if (this.appInstance) {
@@ -91,11 +110,24 @@ export class TestApiHelpers {
   }
 
   public static async cleanup() {
-    if (this.pgContainer) {
-      await this.pgContainer.stop();
-    }
-    if (this.redisContainer) {
-      await this.redisContainer.stop();
+    // Close connections but don't stop containers
+    // Containers are shared across test suites, so we only stop them once
+    await closeRedisConnections();
+    closePool();
+  }
+
+  public static async stopContainers() {
+    // Only stop containers once, even if called multiple times
+    if (!this.containersStopped) {
+      await closeRedisConnections();
+      closePool();
+      if (this.pgContainer) {
+        await this.pgContainer.stop();
+      }
+      if (this.redisContainer) {
+        await this.redisContainer.stop();
+      }
+      this.containersStopped = true;
     }
   }
 
