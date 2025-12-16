@@ -37,7 +37,15 @@ function getClient() {
   return pgPool.connect();
 }
 
+export function closePool() {
+  if (pool) {
+    pool.end();
+    pool = null;
+  }
+}
+
 export default {
   query,
   getClient,
+  closePool,
 };
